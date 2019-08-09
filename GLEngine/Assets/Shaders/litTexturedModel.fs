@@ -30,18 +30,18 @@ void main(){
 		
 		//rim light
 		vec3 viewDir = normalize(cameraPos - WorldPos);
-		float ndc = max(dot(normal, viewDir), 1);
+		float ndc = max(dot(normal, viewDir), 0);
 		float rim;
-		if(ndc < 0.05)
+		if(ndc < 0.1)
 			rim = 1;
 		else
 			rim = 0;
-			
-		
+					
 		vec3 reflectionDir = reflect(-lightDir, normal);
 		float spec = pow(max(dot(viewDir, reflectionDir),0.0),128);			
 		spec = spec * specularPower;
 		
+		//color = vec4(vec3(gl_FragCoord.z), 1.0);  fragment내장 쉐이더 gl_FragCoord.z 에 깊이버퍼값 저장되 있음.
 		
 		color = color * (diffuse + (ambient * ambientColor) + spec) + (rim * rimLightColor);
 		color.a = 1.0;
