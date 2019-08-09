@@ -56,7 +56,7 @@ void RenderScene()
 
 
 void UpdateScene(double deltaTimeMs)
-{
+{	
 	int counter = 0;
 	for (auto* renderer : renderList_)
 	{
@@ -178,11 +178,13 @@ int main()
 
     InitScene();
 
+	unsigned int frameCnt = 0;
+	double elapsedTime = 0;
 	double deltaTime = glfwGetTime();
     while (!glfwWindowShouldClose(window))
     {
 		double beginTime = glfwGetTime();
-		
+
 		UpdateScene(deltaTime);
 
         RenderScene();
@@ -191,8 +193,18 @@ int main()
         glfwPollEvents();
 
 		deltaTime = glfwGetTime() - beginTime;
+		
+		++frameCnt;		
+		elapsedTime += deltaTime;
+		if (elapsedTime >= 1.0f) {
 
-		label->SetText(std::string("FPS : " + std::to_string((deltaTime))));	//c++11 to_string
+			float fps = (float)(frameCnt / elapsedTime);			
+			frameCnt = 0;
+			elapsedTime = 0.0f;
+			label->SetText(std::string("FPS : " + std::to_string((fps))));	//c++11 to_string
+		}
+
+		//label->SetText(std::string("FPS : " + std::to_string((deltaTime))));	//c++11 to_string		
     }
 
 	Destroy();
