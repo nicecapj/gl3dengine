@@ -1,0 +1,28 @@
+﻿#pragma once
+
+<OPENGL Render Pipeline>
+-> this graphics pipeline itselft is common for both OpenGl and Vulkan.
+
+1. vertex Specification
+
+2. Vertex Shader 
+
+3. Vertex PostProcessiong
+	visible to camera and it clipped
+
+4. Primitive Assembly
+	face culling(backface culling)
+
+5. Rasterization
+	vector into pixel
+
+6. Fragment Shader
+	operation to per pixel.
+
+7. Per Sample Operation
+	- z order : stencil text, depth test
+	- transparent : alpha, blend test
+
+8. Framebuffer
+	- render to buffer. when ready to draw, prevouse scene stored and rendered. changed by swapbuffer().
+	
