@@ -10,7 +10,7 @@ TextRenderer::TextRenderer(std::string str, std::string fontName, int size, glm:
     text_ = str;
     color_ = color;
     program_ = program;
-    scale_ = 1.0f;
+	fontScale_ = 1.0f;
     //SetPosition(position_);
 
     glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(800.0f), 0.0f, static_cast<GLfloat>(600.0f));
@@ -104,7 +104,7 @@ TextRenderer::~TextRenderer()
 
 void TextRenderer::Draw()
 {
-    glm::vec2 textPos = this->position_;
+    glm::vec2 textPos = this->position2D_;
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -119,15 +119,15 @@ void TextRenderer::Draw()
     glUniform3f(textColor, color_.r, color_.g, color_.b);
     glActiveTexture(GL_TEXTURE0);//텍스쳐 0번 활성화. static mesh에서는 이렇게 안했는데?
 
-    glBindVertexArray(vao_);	//다른 static랜더러와 틀리게 vao를 한번 더 바인드함. static은 버퍼 갱신이 매번 일어나지 않아서 성능이 좋다.
+    glBindVertexArray(vao_);
 
 
     for (auto c = text_.begin(); c != text_.end(); c++)
     {
         Character ch = characters_[*c];
 
-        GLfloat xPos = textPos.x + ch.Bearing.x * this->scale_;
-        GLfloat yPos = textPos.y + (ch.Size.y - ch.Bearing.y) * this->scale_;
+        GLfloat xPos = textPos.x + ch.Bearing.x * this->fontScale_;
+        GLfloat yPos = textPos.y + (ch.Size.y - ch.Bearing.y) * this->fontScale_;
         GLfloat width = ch.Size.x;
         GLfloat height = ch.Size.y;
 
@@ -152,7 +152,7 @@ void TextRenderer::Draw()
         glDrawArrays(GL_TRIANGLES, 0, 6);	//6개 배열 그려준다.
 
         //다음 글자가 출력될 위치 결정
-        textPos.x += (ch.Advance >> 6) * scale_;	//2^6 = 64. advance가 1/64에 해당하는 값을 가지고 있다.
+        textPos.x += (ch.Advance >> 6) * fontScale_;	//2^6 = 64. advance가 1/64에 해당하는 값을 가지고 있다.
 
     }
 
@@ -169,10 +169,10 @@ void TextRenderer::Draw()
 
 void TextRenderer::SetPosition(glm::vec2 position)
 {
-    position_ = position;
+	position2D_ = position;
 }
 
-void TextRenderer::SetProgram(GLuint program)
+void TextRenderer::SetText(std::string str)
 {
-    program_ = program;
+    text_ = str;
 }

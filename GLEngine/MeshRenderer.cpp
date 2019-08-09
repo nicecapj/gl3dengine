@@ -1,75 +1,75 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "MeshRenderer.h"
 
 
 MeshRenderer::MeshRenderer(MeshType meshType, Camera* camera)
 {
-	camera_ = camera;
+    camera_ = camera;
 
-	switch (meshType)
-	{
-	case MeshType::Trangile:
-	{
-		Mesh::setTriData(vertices_, indicies_);
-	} break;
-	case MeshType::Cube:
-	{
-		Mesh::setCubeData(vertices_, indicies_);
-	} break;
-	case MeshType::Sphere:
-	{
-		Mesh::setSphereData(vertices_, indicies_);
-	} break;
-	case MeshType::Quad:
-	{
-		Mesh::setQuadData(vertices_, indicies_);
-	} break;
-	}
+    switch (meshType)
+    {
+        case MeshType::Trangile:
+            {
+                Mesh::setTriData(vertices_, indicies_);
+            } break;
+        case MeshType::Cube:
+            {
+                Mesh::setCubeData(vertices_, indicies_);
+            } break;
+        case MeshType::Sphere:
+            {
+                Mesh::setSphereData(vertices_, indicies_);
+            } break;
+        case MeshType::Quad:
+            {
+                Mesh::setQuadData(vertices_, indicies_);
+            } break;
+    }
 
-	//VBO
-	//¹öÅØ½º¾î·¡ÀÌ ¿ÀºêÁ§Æ®¸¦ ¸¸µé°í, ¾îÇÃ¸®ÄÉÀÌ¼Ç¿¡ ¹ÙÀÎµåÇÏ¸é
-	glGenVertexArrays(1, &vao_);
-	glBindVertexArray(vao_);
+    //VBO
+    //ë²„í…ìŠ¤ì–´ë˜ì´ ì˜¤ë¸Œì íŠ¸ë¥¼ ë§Œë“¤ê³ , ì–´í”Œë¦¬ì¼€ì´ì…˜ì— ë°”ì¸ë“œí•˜ë©´
+    glGenVertexArrays(1, &vao_);
+    glBindVertexArray(vao_);
 
-	//¹öÅØ½º¹öÆÛ ¿ÀºêÁ§Æ®¸¦ ¸¸µé¾î¼­ ¹ÙÀÎµå ÇÒ¼ö ÀÖ´Ù. ¸Ş¸ğ¸® ÇüÅÂ·Î °ü¸®µÊÀ¸·Î, GL_ARRAY_BUFFER°°Àº Å¸ÀÔ ¸í½Ã°¡ ÇÊ¿äÇÏ´Ù.
-	glGenBuffers(1, &vbo_);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+    //ë²„í…ìŠ¤ë²„í¼ ì˜¤ë¸Œì íŠ¸ë¥¼ ë§Œë“¤ì–´ì„œ ë°”ì¸ë“œ í• ìˆ˜ ìˆë‹¤. ë©”ëª¨ë¦¬ í˜•íƒœë¡œ ê´€ë¦¬ë¨ìœ¼ë¡œ, GL_ARRAY_BUFFERê°™ì€ íƒ€ì… ëª…ì‹œê°€ í•„ìš”í•˜ë‹¤.
+    glGenBuffers(1, &vbo_);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
 
-	//¹öÅØ½º¹öÆÛ ¿ÀºêÁ§Æ®°¡ ¸¸µé¾îÁö¸é ½ÇÁ¦ µ¥ÀÌÅÍ¸¦ ³Ñ°Ü¼­. ¹öÆÛ¿¡ º¹»ç½ÃÅ²´Ù.
-	//GL_STATIC_DRAW´Â ÇÑ¹ø¸¸ ¼öÁ¤(¼³Á¤)ÇÏ°í, °è¼Ó »ç¿ëÇÏ´Â Çü½ÄÀÌ´Ù.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices_.size(), &vertices_[0], GL_STATIC_DRAW);
+    //ë²„í…ìŠ¤ë²„í¼ ì˜¤ë¸Œì íŠ¸ê°€ ë§Œë“¤ì–´ì§€ë©´ ì‹¤ì œ ë°ì´í„°ë¥¼ ë„˜ê²¨ì„œ. ë²„í¼ì— ë³µì‚¬ì‹œí‚¨ë‹¤.
+    //GL_STATIC_DRAWëŠ” í•œë²ˆë§Œ ìˆ˜ì •(ì„¤ì •)í•˜ê³ , ê³„ì† ì‚¬ìš©í•˜ëŠ” í˜•ì‹ì´ë‹¤.
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices_.size(), &vertices_[0], GL_STATIC_DRAW);
 
-	//positionÀÌ³ª normalµîÀÇ ¼Ó¼ºÀÌ ÀÖÁö¸¸, ¸ğµÎ »ç¿ëÇØ¾ß ÇÏ´Â °ÍÀº ¾Æ´Ï´Ù.
-	//ÇÊ¿äÇÑ °ÍÀº position°ú color¸¸ ÇÊ¿äÇÔÀ¸·Î ÀÌ°Í¸¸ È°¼ºÈ­ÇÏÀÚ
-	glEnableVertexAttribArray(0);	//Vertex ±¸Á¶Ã¼ ¼Ó¼º 0¹ø ¸â¹ö È°¼ºÈ­ -> positionÀ¸·Î »ç¿ë
+    //positionì´ë‚˜ normalë“±ì˜ ì†ì„±ì´ ìˆì§€ë§Œ, ëª¨ë‘ ì‚¬ìš©í•´ì•¼ í•˜ëŠ” ê²ƒì€ ì•„ë‹ˆë‹¤.
+    //í•„ìš”í•œ ê²ƒì€ positionê³¼ colorë§Œ í•„ìš”í•¨ìœ¼ë¡œ ì´ê²ƒë§Œ í™œì„±í™”í•˜ì
+    glEnableVertexAttribArray(0);	//Vertex êµ¬ì¡°ì²´ ì†ì„± 0ë²ˆ ë©¤ë²„ í™œì„±í™” -> positionìœ¼ë¡œ ì‚¬ìš©
 
-	//normalize¾ÈµÈ °ªÀÌ¶ó¼­ GL_FALSE
-	glVertexAttribPointer(0,	//index of vertex array. ¾îÇÃ¸®ÄÉÀÌ¼Ç¿¡ ¿©·¯°Ô vao°¡ ¹ÙÀÎµåµÇ¾úÀ»¼ö ÀÖÀ½À¸·Î, 0¹ø¿¡ ÀÌ Æ÷ÀÎÅÍ »ç¿ë
-		3,	//x,y,z
-		GL_FLOAT,	//type of xyz
-		GL_FALSE,	//normalized. 0~1ÀÌ ¾Æ´Ñ °ªÀÌ¸é falseÇÑ´Ù
-		sizeof(Vertex),	//stride´Â º¸ÆøÀÌ¶õ ¶æÀ¸·Î, ¹öÆÛ¿¡¼­ ¾î´À »çÀÌÁî·Î ¶Ù¾î°¡¸é¼­ ÀĞÀ»Áö¸¦ °áÁ¤ÇÏ´Â »çÀÌÁî
-		(GLvoid*)0);	//¹öÅØ½º struct¾È¿¡¼­ ¹öÅØ½º¼Ó¼ºÀÇ ¿É¼Â(position : 0, normal:1? 3? -> 12(pos:4x3))
+    //normalizeì•ˆëœ ê°’ì´ë¼ì„œ GL_FALSE
+    glVertexAttribPointer(0,	//index of vertex array. ì–´í”Œë¦¬ì¼€ì´ì…˜ì— ì—¬ëŸ¬ê²Œ vaoê°€ ë°”ì¸ë“œë˜ì—ˆì„ìˆ˜ ìˆìŒìœ¼ë¡œ, 0ë²ˆì— ì´ í¬ì¸í„° ì‚¬ìš©
+                          3,	//x,y,z
+                          GL_FLOAT,	//type of xyz
+                          GL_FALSE,	//normalized. 0~1ì´ ì•„ë‹Œ ê°’ì´ë©´ falseí•œë‹¤
+                          sizeof(Vertex),	//strideëŠ” ë³´í­ì´ë€ ëœ»ìœ¼ë¡œ, ë²„í¼ì—ì„œ ì–´ëŠ ì‚¬ì´ì¦ˆë¡œ ë›°ì–´ê°€ë©´ì„œ ì½ì„ì§€ë¥¼ ê²°ì •í•˜ëŠ” ì‚¬ì´ì¦ˆ
+                          (GLvoid*)0);	//ë²„í…ìŠ¤ structì•ˆì—ì„œ ë²„í…ìŠ¤ì†ì„±ì˜ ì˜µì…‹(position : 0, normal:1? 3? -> 12(pos:4x3))
 
 //debug
 //auto off = offsetof(Vertex, Vertex::color);
 
-	glEnableVertexAttribArray(1);	//2¹øÂ°(1¹ø) ¹öÅØ½º¼Ó¼º È°¼ºÈ­ -> color·Î »ç¿ë
-	glVertexAttribPointer(1,	//index of vertex array. ¾îÇÃ¸®ÄÉÀÌ¼Ç¿¡ ¿©·¯°Ô vao°¡ ¹ÙÀÎµåµÇ¾úÀ»¼ö ÀÖÀ½À¸·Î, 1¹ø¿¡ ÀÌ Æ÷ÀÎÅÍ »ç¿ë
-		3,	//R,G,B
-		GL_FLOAT,	//type of RGB
-		GL_FALSE,	//normalized
-		sizeof(Vertex),	//stride´Â º¸ÆøÀÌ¶õ ¶æÀ¸·Î, ¹öÆÛ¿¡¼­ ¾î´À »çÀÌÁî·Î ¶Ù¾î°¡¸é¼­ ÀĞÀ»Áö¸¦ °áÁ¤ÇÏ´Â »çÀÌÁî
-		(GLvoid*)(offsetof(Vertex, Vertex::texCoords)));	//¿É¼ÂÀ» ¾Ë±â Èûµå´Ï, offsetof¸¦ »ç¿ëÇÏÀÚ.
+    glEnableVertexAttribArray(1);	//2ë²ˆì§¸(1ë²ˆ) ë²„í…ìŠ¤ì†ì„± í™œì„±í™” -> texturecoordë¡œ ì‚¬ìš©
+    glVertexAttribPointer(1,	//index of vertex array. ì–´í”Œë¦¬ì¼€ì´ì…˜ì— ì—¬ëŸ¬ê²Œ vaoê°€ ë°”ì¸ë“œë˜ì—ˆì„ìˆ˜ ìˆìŒìœ¼ë¡œ, 1ë²ˆì— ì´ í¬ì¸í„° ì‚¬ìš©
+                          3,	//R,G,B
+                          GL_FLOAT,	//type of RGB
+                          GL_FALSE,	//normalized
+                          sizeof(Vertex),	//strideëŠ” ë³´í­ì´ë€ ëœ»ìœ¼ë¡œ, ë²„í¼ì—ì„œ ì–´ëŠ ì‚¬ì´ì¦ˆë¡œ ë›°ì–´ê°€ë©´ì„œ ì½ì„ì§€ë¥¼ ê²°ì •í•˜ëŠ” ì‚¬ì´ì¦ˆ
+                          (GLvoid*)(offsetof(Vertex, Vertex::texCoords)));	//ì˜µì…‹ì„ ì•Œê¸° í˜ë“œë‹ˆ, offsetofë¥¼ ì‚¬ìš©í•˜ì.
 
 //EBO
-	glGenBuffers(1, &ebo_);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indicies_.size(), &indicies_[0], GL_STATIC_DRAW);
+    glGenBuffers(1, &ebo_);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indicies_.size(), &indicies_[0], GL_STATIC_DRAW);
 
-	//Unbind buffer and vertex array as a precaution
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+    //Unbind buffer and vertex array as a precaution
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
 
@@ -78,57 +78,37 @@ MeshRenderer::~MeshRenderer()
 }
 
 void MeshRenderer::Draw()
-{	
-	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);	
-	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
-	glm::mat4 model = transformMatrix * scaleMatrix;
-
-
-	//set shader
-	glUseProgram(program_);
-
-	//model ->  view -> projection matrix¸¦ uniform variables¸¦ ÅëÇØ ½¦ÀÌ´õ·Î Á¤º¸¸¦ º¸³¾¼ö ÀÖ´Ù.
-	//glGetUniformLocation()ÇÔ¼ö·Î ½¦ÀÌ´õÇÁ·Î±×·¥ ¾È¿¡ ¼±¾ğµÈ º¯¼öÀÇ ÀÌ¸§À¸·Î °¡Á®¿Ã ¼ö ÀÖ´Ù. ex) uniform mat4 model;
-	GLuint modelLocation = glGetUniformLocation(program_, "model");
-	//glUniformXXXÇü½ÄÀÇ ÇÔ¼ö·Î ½¦ÀÌ´õ¿¡  ¿¬°áµÈ À¯´ÏÆû º¯¼ö¿¡, °ªÀ» ¼³Á¤ÇÒ ¼ö ÀÖ´Ù.
-	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));	//À¯´ÏÆûº¯¼ö, ³Ñ±æµ¥ÀÌÅÍÀÇ ¼ö, ÀüÄ¡ÀÎÁö ¿©ºÎ, ³Ñ±æ DATAÀÇ Æ÷ÀÎÅÍ
-
-	glm::mat4 view = camera_->GetViewMatrix();
-	glm::mat4 proj = camera_->GetProjectMatrix();
-	glm::mat4 vp = proj * view;
-
-	GLuint vpLocation = glGetUniformLocation(program_, "vp");	//uniform mat4 view;
-	glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(vp));
-
-	//texture
-	glBindTexture(GL_TEXTURE_2D, texture_);
-
-	//draw
-	//ÇÑ¹ø¸¸ ±×¸± µ¥ÀÌÅÍ¸¦ ÀüºÎ ¿ä±¸ÇÑ´Ù.(vao_) ÀÌÈÄ glDrawElements¸¦ ÅëÇØ ±×¸°´Ù.
-	glBindVertexArray(vao_);
-	glDrawElements(GL_TRIANGLES, indicies_.size(), GL_UNSIGNED_INT, 0);
-
-	//marks end of draw function
-	glBindVertexArray(0);
-	glUseProgram(0);
-}
-
-void MeshRenderer::SetPosition(glm::vec3 position)
 {
-	position_ = position;
-}
+    glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
+    glm::mat4 model = transformMatrix * scaleMatrix;
 
-void MeshRenderer::SetScale(glm::vec3 scale)
-{
-	scale_ = scale;
-}
 
-void MeshRenderer::SetProgram(GLuint program)
-{
-	program_ = program;
-}
+    //set shader
+    glUseProgram(program_);
 
-void MeshRenderer::SetTexture(GLuint textureID)
-{
-	texture_ = textureID;
+    //model ->  view -> projection matrixë¥¼ uniform variablesë¥¼ í†µí•´ ì‰ì´ë”ë¡œ ì •ë³´ë¥¼ ë³´ë‚¼ìˆ˜ ìˆë‹¤.
+    //glGetUniformLocation()í•¨ìˆ˜ë¡œ ì‰ì´ë”í”„ë¡œê·¸ë¨ ì•ˆì— ì„ ì–¸ëœ ë³€ìˆ˜ì˜ ì´ë¦„ìœ¼ë¡œ ê°€ì ¸ì˜¬ ìˆ˜ ìˆë‹¤. ex) uniform mat4 model;
+    GLuint modelLocation = glGetUniformLocation(program_, "model");
+    //glUniformXXXí˜•ì‹ì˜ í•¨ìˆ˜ë¡œ ì‰ì´ë”ì—  ì—°ê²°ëœ ìœ ë‹ˆí¼ ë³€ìˆ˜ì—, ê°’ì„ ì„¤ì •í•  ìˆ˜ ìˆë‹¤.
+    glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));	//ìœ ë‹ˆí¼ë³€ìˆ˜, ë„˜ê¸¸ë°ì´í„°ì˜ ìˆ˜, ì „ì¹˜ì¸ì§€ ì—¬ë¶€, ë„˜ê¸¸ DATAì˜ í¬ì¸í„°
+
+    glm::mat4 view = camera_->GetViewMatrix();
+    glm::mat4 proj = camera_->GetProjectMatrix();
+    glm::mat4 vp = proj * view;
+
+    GLuint vpLocation = glGetUniformLocation(program_, "vp");	//uniform mat4 view;
+    glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(vp));
+
+    //texture
+    glBindTexture(GL_TEXTURE_2D, texture_);
+
+    //draw
+    //í•œë²ˆë§Œ ê·¸ë¦´ ë°ì´í„°ë¥¼ ì „ë¶€ ìš”êµ¬í•œë‹¤.(vao_) ì´í›„ glDrawElementsë¥¼ í†µí•´ ê·¸ë¦°ë‹¤.
+    glBindVertexArray(vao_);
+    glDrawElements(GL_TRIANGLES, indicies_.size(), GL_UNSIGNED_INT, 0);
+
+    //marks end of draw function
+    glBindVertexArray(0);
+    glUseProgram(0);
 }

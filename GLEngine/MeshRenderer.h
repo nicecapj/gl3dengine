@@ -1,45 +1,30 @@
-#pragma once
+﻿#pragma once
 
 #include <gl/glew.h>
 
 #include "Mesh.h"
 #include "ShaderLoader.h"
 #include "Camera.h"
-
-#include "Dependencies/glm/glm.hpp"
-#include "Dependencies/glm/gtc/matrix_transform.hpp"
-#include "Dependencies/glm/gtc/type_ptr.hpp"
+#include "Renderer.h"
 
 #include <vector>
 
-class MeshRenderer
+class MeshRenderer : public Renderer
 {
 public:
-	MeshRenderer(MeshType meshType, Camera* camera);
-	~MeshRenderer();
+    MeshRenderer(MeshType meshType, Camera* camera);
+    ~MeshRenderer();
 
-	void Draw();
-
-	void SetPosition(glm::vec3 position);
-	void SetScale(glm::vec3 scale);
-	
-	void SetProgram(GLuint program);
-	void SetTexture(GLuint textureID);	
+    virtual void Draw() override;
 
 private:
-	Camera* camera_;
+    Camera* camera_;
 
-	std::vector<Vertex> vertices_;
-	std::vector<GLuint> indicies_;
+    std::vector<Vertex> vertices_;
+    std::vector<GLuint> indicies_;
 
-	glm::vec3 position_;
-	glm::vec3 scale_;
-	
-	GLuint vao_;
-	GLuint vbo_;
-	GLuint ebo_;
-	GLuint texture_;
-	GLuint program_;
-
+    GLuint vao_;
+    GLuint vbo_;
+    GLuint ebo_;
 };
 

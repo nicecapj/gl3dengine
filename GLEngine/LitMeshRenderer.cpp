@@ -6,6 +6,7 @@
 
 
 LitMeshRenderer::LitMeshRenderer(MeshType meshType, Camera* camera, class LightRenderer* light)
+    :Renderer()
 {
     light_ = light;
     camera_ = camera;
@@ -88,9 +89,9 @@ LitMeshRenderer::~LitMeshRenderer()
 }
 
 void LitMeshRenderer::Draw()
-{	
+{
     glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
-    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);	
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
     glm::mat4 model = transformMatrix * scaleMatrix;
 
 
@@ -130,24 +131,4 @@ void LitMeshRenderer::Draw()
     //marks end of draw function
     glBindVertexArray(0);
     glUseProgram(0);
-}
-
-void LitMeshRenderer::SetPosition(glm::vec3 position)
-{
-    position_ = position;
-}
-
-void LitMeshRenderer::SetScale(glm::vec3 scale)
-{
-    scale_ = scale;
-}
-
-void LitMeshRenderer::SetProgram(GLuint program)
-{
-    program_ = program;
-}
-
-void LitMeshRenderer::SetTexture(GLuint textureID)
-{
-    texture_ = textureID;
 }

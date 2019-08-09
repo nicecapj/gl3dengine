@@ -3,6 +3,7 @@
 
 
 LightRenderer::LightRenderer(MeshType meshType, Camera* camera)
+	:Renderer()
 {
     camera_ = camera;
 
@@ -106,29 +107,4 @@ void LightRenderer::Draw()
     //marks end of draw function
     glBindVertexArray(0);
     glUseProgram(0);
-}
-
-void LightRenderer::SetPosition(glm::vec3 position)
-{
-    position_ = position;
-}
-
-void LightRenderer::SetColor(glm::vec3 color)
-{
-    color_ = color;
-}
-
-void LightRenderer::SetProgram(GLuint program)
-{
-    program_ = program;
-}
-
-glm::vec3 LightRenderer::GetPosition()
-{
-    return position_;
-}
-
-glm::vec3 LightRenderer::GetColor()
-{
-    return color_;
 }

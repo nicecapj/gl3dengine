@@ -16,12 +16,20 @@
 #include "TextureLoader.h"
 #include "TextRenderer.h"
 
+#include "Renderer.h"
+
+const int COUNT_X = 10;
+const int COUNT_Y = 10;
+const float DistanceWithObject = 16.0f;
+
 Camera* cam = nullptr;
 LightRenderer* light = nullptr;
 MeshRenderer* mesh = nullptr;
 LitMeshRenderer* litMesh = nullptr;
 LitMeshRenderer* bottom = nullptr;
 TextRenderer* label = nullptr;
+
+std::vector<Renderer*> renderList_;	//부모로 묶어서 해야하지만, 프로토는 이정도면 된다.
 
 void InitPhysics()
 {
@@ -37,13 +45,35 @@ void RenderScene()
     litMesh->Draw();
 	bottom->Draw();
     label->Draw();
+
+	//인스턴싱 안 했을떄 코드
+	for (auto* renderer : renderList_)
+	{
+		renderer->Draw();
+	}
     //draw
+}
+
+
+void UpdateScene(double deltaTimeMs)
+{
+	int counter = 0;
+	for (auto* renderer : renderList_)
+	{
+		double posFactorX = glm::sin(glfwGetTime() + (counter * deltaTimeMs));
+		double posFactorY = glm::cos(glfwGetTime() + (counter * deltaTimeMs));
+
+		auto pos = renderer->GetPosition();
+		pos = { pos.x, pos.y, pos.z + posFactorX };
+		renderer->SetPosition(pos);
+		++counter;
+	}
 }
 
 void InitScene()
 {
     glEnable(GL_DEPTH_TEST);
-    cam = new Camera(45.0f, 1280.f, 1024.f, 0.1f, 100.0f, { 0.0f, 6.0f, -40.0f });
+	cam = new Camera(45.0f, 1280.f, 720.f, 0.1f, 1000.0f, { 0.0f, 6.0f, -100.0f });
 
     //쉐이더는 컴파일하면 여러 지오메트리에서 공유할 수 있다.
     //매번 컴파일할것없이 부모만 컴파일해서 사용하면 된다. 여기서 언리얼의 메터리얼인스턴스 개념도 출발한다.
@@ -89,6 +119,43 @@ void InitScene()
 	bottom->SetScale(glm::vec3(20.0f, 2.0f, 20.0f));
 	bottom->SetTexture(sphereTexture);
 
+	glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
+	int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
+	for (int y = 0; y < COUNT_Y; ++y)
+	{
+		for (int x = 0; x < COUNT_X; ++x)
+		{
+			auto renderer = new LitMeshRenderer(MeshType::Sphere, cam, light);
+
+			renderer->SetProgram(textureLightShaderProgram);	//컴파일된 쉐이더 공유
+
+			//위치나, 회전, 스케일링은 자유롭게 바꿀수 있다.
+			renderer->SetPosition(glm::vec3(basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z));
+			renderer->SetScale(glm::vec3(8.0f));
+
+			//텍스쳐도 미리 로딩해놓고 공유할수 있다. 다만 draw할때 gpu로 전송은 된다.
+			renderer->SetTexture(sphereTexture);
+
+			renderList_.push_back(std::move(renderer));
+		}
+	}
+
+}
+
+void Destroy()
+{
+	for (auto* renderer : renderList_)
+	{
+		delete renderer;
+		renderer = nullptr;
+	}
+	renderList_.clear();
+
+	delete mesh;
+	delete litMesh;
+	delete light;
+	delete bottom;
+	delete cam;
 }
 
 static void ErrorFunction(int id, const char* desc)
@@ -103,7 +170,7 @@ int main()
 
     glfwInit();
 
-    GLFWwindow* window = glfwCreateWindow(1280, 1024, "OpenGL4.5(SM5) Renderer", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(1280, 720, "OpenGL4.5(SM5) Renderer", nullptr, nullptr);
 
     glfwMakeContextCurrent(window);
 
@@ -111,19 +178,24 @@ int main()
 
     InitScene();
 
+	double deltaTime = glfwGetTime();
     while (!glfwWindowShouldClose(window))
     {
+		double beginTime = glfwGetTime();
+		
+		UpdateScene(deltaTime);
+
         RenderScene();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+		deltaTime = glfwGetTime() - beginTime;
+
+		label->SetText(std::string("FPS : " + std::to_string((deltaTime))));	//c++11 to_string
     }
 
-	delete bottom;
-	delete litMesh;
-	delete label;
-	delete light;
-    delete cam;
+	Destroy();
 
     glfwTerminate();
     return 0;
