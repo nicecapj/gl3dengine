@@ -20,5 +20,7 @@ private:
     glm::mat4 projectionMatrix_;
     glm::vec3 camPos_;
     GLfloat fov_;
+
+	float moveSpeed_ = 100.0f;
 };
 

@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Camera.h"
+#include <GLFW/glfw3.h>	//OpenGL, window and input
 
 Camera::Camera(GLfloat fov, GLfloat width, GLfloat height, GLfloat nearPlane, GLfloat farPlane, glm::vec3 camPos)
 {
@@ -19,8 +20,23 @@ Camera::~Camera()
 }
 
 void Camera::ProcessKeyboard(int key, double deltatime)
-{
-	//need implements	
+{		
+	switch (key)
+	{
+	case GLFW_KEY_UP: {
+		this->camPos_.z += moveSpeed_ * deltatime;
+	}break;
+	case GLFW_KEY_DOWN: {
+		this->camPos_.z -= moveSpeed_ * deltatime;
+	}break;
+	case GLFW_KEY_LEFT: {
+		this->camPos_.x -= moveSpeed_ * deltatime;
+	}break;
+	case GLFW_KEY_RIGHT:  {
+		this->camPos_.x += moveSpeed_ * deltatime;
+	}break;
+
+	}
 }
 
 void Camera::ProcessMouseMovement(double x, double y)
