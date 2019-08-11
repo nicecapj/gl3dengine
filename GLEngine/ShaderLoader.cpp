@@ -23,6 +23,9 @@ GLuint ShaderLoader::CreateProgram(const char* vertexShaderFilename, const char*
     GLuint vs = CreateShader(GL_VERTEX_SHADER, vsFile, "vertexShader");
     GLuint fs = CreateShader(GL_FRAGMENT_SHADER, fsFile, "fragmentShader");
 
+	if (vs == GL_FALSE || fs == GL_FALSE)
+		return GL_FALSE;
+
     //쉐이더 프로그램을 만들고, 거기에 버텍스쉐이더와 프래그먼트 쉐이더를 붙인다.
     GLuint program = glCreateProgram();
     glAttachShader(program, vs);
@@ -83,7 +86,7 @@ GLuint ShaderLoader::CreateShader(GLenum shaderType, std::string source, const c
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLenth);
         std::vector<char> shader_log(logLenth);
         glGetShaderInfoLog(shader, logLenth, nullptr, &shader_log[0]);
-        std::cout << "ERROR Compile shader : " << std::endl << shader_log[0] << shaderNameForLog << std::endl;
+        std::cout << "ERROR Compile shader : " << shaderNameForLog << std::endl << shader_log.data() <<  std::endl;
         return 0;
     }
     return shader;

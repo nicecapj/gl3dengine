@@ -36,9 +36,5 @@ private:
     //    std::vector<GLuint> indicies_;
     //    GLuint texture_;
 
-    std::map<GLchar, Character> characters_;
-
-    GLuint vao_;
-    GLuint vbo_;
-    GLuint ebo_;    
+    std::map<GLchar, Character> characters_;    
 };

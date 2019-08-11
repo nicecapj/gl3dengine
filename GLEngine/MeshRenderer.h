@@ -19,12 +19,5 @@ public:
 
 private:
     Camera* camera_;
-
-    std::vector<Vertex> vertices_;
-    std::vector<GLuint> indicies_;
-
-    GLuint vao_;
-    GLuint vbo_;
-    GLuint ebo_;
 };
 

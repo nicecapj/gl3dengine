@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="LightRenderer.h" />
+    <ClInclude Include="LitInstanceMeshRenderer.h" />
     <ClInclude Include="LitMeshRenderer.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshRenderer.h" />
@@ -173,6 +174,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GLEngine.cpp" />
     <ClCompile Include="LightRenderer.cpp" />
+    <ClCompile Include="LitInstanceMeshRenderer.cpp" />
     <ClCompile Include="LitMeshRenderer.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshRenderer.cpp" />

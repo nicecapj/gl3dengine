@@ -11,12 +11,16 @@
 #include "LightRenderer.h"
 #include "MeshRenderer.h"
 #include "LitMeshRenderer.h"
+#include "LitInstanceMeshRenderer.h"
 #include "Camera.h"
 #include "ShaderLoader.h"
 #include "TextureLoader.h"
 #include "TextRenderer.h"
 
 #include "Renderer.h"
+#include <map>
+#include <vector>
+#include <assert.h>
 
 const int COUNT_X = 10;
 const int COUNT_Y = 10;
@@ -28,8 +32,14 @@ MeshRenderer* mesh = nullptr;
 LitMeshRenderer* litMesh = nullptr;
 LitMeshRenderer* bottom = nullptr;
 TextRenderer* label = nullptr;
+LitInstanceMeshRenderer* instancingMesh = nullptr;
 
-std::vector<Renderer*> renderList_;	//부모로 묶어서 해야하지만, 프로토는 이정도면 된다.
+std::vector<Renderer*> renderList_;	
+//std::map<Renderer*, int> instancingRendererMap_;
+std::vector<glm::mat4> transformList_;
+
+void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture);
+void RenderSceneForInstancing();
 
 void InitPhysics()
 {
@@ -49,8 +59,10 @@ void RenderScene()
 	//인스턴싱 안 했을떄 코드
 	for (auto* renderer : renderList_)
 	{
-		renderer->Draw();
+		//renderer->Draw();
 	}
+
+	RenderSceneForInstancing();
     //draw
 }
 
@@ -68,6 +80,28 @@ void UpdateScene(double deltaTimeMs)
 		renderer->SetPosition(pos);
 		++counter;
 	}
+
+	
+	glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
+	int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
+	for (int y = 0; y < COUNT_Y; ++y)
+	{
+		for (int x = 0; x < COUNT_X; ++x)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+						
+			//T
+			//glm::vec3 tempPos = { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z };
+			model = glm::translate(model, { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z });
+
+			//S			
+			model = glm::scale(model, glm::vec3((float)((rand() % 20) + 1)));
+
+			//R			
+			model = glm::rotate(model, 10.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+			transformList_[y * COUNT_Y + x] = model;
+		}
+	}
 }
 
 void InitScene()
@@ -80,6 +114,7 @@ void InitScene()
     //Draw할때, 파라미터(uniform)에 해당하는 것만 바꾸면 된다.
     ShaderLoader shaderLoader;
     GLuint shaderProgram = shaderLoader.CreateProgram("Assets/Shaders/FlatModel.vs", "Assets/Shaders/FlatModel.fs");
+	assert(shaderProgram != GL_FALSE);
 
     light = new LightRenderer(MeshType::Sphere, cam);
     light->SetProgram(shaderProgram);	
@@ -88,7 +123,8 @@ void InitScene()
 
     //unlit static mesh
     GLuint textureShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/TexturedModel.vs", "Assets/Shaders/TexturedModel.fs");
-    TextureLoader textureLoader;
+	assert(textureShaderProgram != GL_FALSE);
+	TextureLoader textureLoader;
     //텍스처 역시 캐시해서 공유가능하다.
     GLuint sphereTexture = textureLoader.GetTextureID("Assets/Textures/globe.dds");
     mesh = new MeshRenderer(MeshType::Sphere, cam);
@@ -98,7 +134,8 @@ void InitScene()
 
     //dynamic text
     GLuint textProgram = shaderLoader.CreateProgram("Assets/Shaders/text.vs", "Assets/Shaders/text.fs");
-    label = new TextRenderer("Text", "Assets/fonts/DMSerifDisplay-Regular.ttf", 64, { 0.0f, 0.0f, 1.0f }, textProgram);
+	assert(textProgram != GL_FALSE);
+	label = new TextRenderer("Text", "Assets/fonts/DMSerifDisplay-Regular.ttf", 64, { 0.0f, 0.0f, 1.0f }, textProgram);
     label->SetProgram(textProgram);
     label->SetPosition(glm::vec2(320.0f, 500.0f));
 
@@ -106,7 +143,8 @@ void InitScene()
 
     //lit static mesh
     GLuint textureLightShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/litTexturedModel.vs", "Assets/Shaders/litTexturedModel.fs");
-    litMesh = new LitMeshRenderer(MeshType::Sphere, cam, light);
+	assert(textureLightShaderProgram != GL_FALSE);
+	litMesh = new LitMeshRenderer(MeshType::Sphere, cam, light);
     litMesh->SetProgram(textureLightShaderProgram);
     litMesh->SetPosition({ 16.0f, 0.0f, 0.0f });
     litMesh->SetScale(glm::vec3(8.0f));
@@ -140,6 +178,7 @@ void InitScene()
 		}
 	}
 
+	InitSceneForInstancing(shaderLoader, sphereTexture);
 }
 
 void Destroy()
@@ -179,8 +218,8 @@ int main()
     
 	InitScene();
 
-	unsigned int frameCnt = 0;
-	double elapsedTime = 0;
+	unsigned int frameCnt = 0; 
+	double elapsedTime = 0; 
 	double deltaTime = glfwGetTime();
     while (!glfwWindowShouldClose(window))
     {
@@ -215,3 +254,74 @@ int main()
     return 0;
 }
 
+void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture)
+{
+	size_t amount = COUNT_Y * COUNT_X;
+
+	GLuint instancingShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/InstancingShader.vs", "Assets/Shaders/InstancingShader.fs");	
+	assert(instancingShaderProgram != GL_FALSE);
+	instancingMesh = new LitInstanceMeshRenderer(MeshType::Sphere, cam);
+	instancingMesh->SetProgram(instancingShaderProgram);
+	instancingMesh->SetPosition(glm::vec3(0.f, 0.f, 0.f));
+	instancingMesh->SetScale(glm::vec3(8.0f));
+	instancingMesh->SetTexture(texture);
+
+
+	//인스턴싱은 그릴 개체수만큼 생성하는 것이 아니라, 1개만 생성하고, 나머지는 개체수만큼 트랜스폼 정보가 있으면 된다.
+	//instancingRendererMap_.insert(std::make_pair(renderer, amount));
+	transformList_.resize(amount);
+
+	//instancing transform buffer
+	//https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml
+	GLuint buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &transformList_[0], GL_STATIC_DRAW);
+	GLsizei vec4Size = sizeof(glm::vec4);
+	unsigned int vao = instancingMesh->GetVAO();
+	
+	//uniform으로 접근 안하고, 정점 속성(Vertex Attribute)으로 접근하고 싶은데 최대 지원이 vec4임으로 4번에 vs로 넘겨야 한다.
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, vec4Size, (GLvoid*)0);
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, vec4Size, (GLvoid*)vec4Size);
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, vec4Size, (GLvoid*)(2 * vec4Size));
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, vec4Size, (GLvoid*)(3 * vec4Size));
+
+	//modify the rate at which generic vertex attributes advance during instanced rendering		
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+
+	glBindVertexArray(0);	
+}
+
+void RenderSceneForInstancing()
+{
+	glm::mat4 view = cam->GetViewMatrix();
+	glm::mat4 proj = cam->GetProjectMatrix();
+	glm::mat4 vp = proj * view;
+
+	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), instancingMesh->GetPosition());
+	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), instancingMesh->GetScale());
+	glm::mat4 model = transformMatrix * scaleMatrix;
+
+	//set shader
+	GLuint program = instancingMesh->GetProgram();
+	glUseProgram(program);
+
+	GLuint modelLocation = glGetUniformLocation(program, "model");
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));	//유니폼변수, 넘길데이터의 수, 전치인지 여부, 넘길 DATA의 포인터
+
+	GLuint vpLocation = glGetUniformLocation(program, "vp");	//uniform mat4 view;
+	glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(vp));
+
+	glBindTexture(GL_TEXTURE_2D, instancingMesh->GetTexture());
+
+	glBindVertexArray(instancingMesh->GetVAO());
+	glDrawElementsInstanced(GL_TRIANGLES, instancingMesh->GetIndiciesSize(), GL_UNSIGNED_INT, 0, renderList_.size());
+	glBindVertexArray(0);
+}
