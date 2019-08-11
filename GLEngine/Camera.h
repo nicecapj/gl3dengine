@@ -9,6 +9,9 @@ public:
     Camera(GLfloat fov, GLfloat width, GLfloat height, GLfloat nearPlane, GLfloat farPlane, glm::vec3 camPos);
     ~Camera();
 
+	void ProcessKeyboard(int key, double deltatime);
+	void ProcessMouseMovement(double x, double y);	
+
     glm::mat4 GetViewMatrix();
     glm::mat4 GetProjectMatrix();
     glm::vec3 GetCameraPosition();

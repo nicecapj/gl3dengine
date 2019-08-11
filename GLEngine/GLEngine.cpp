@@ -40,6 +40,9 @@ std::vector<glm::mat4> transformList_;
 
 void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture);
 void RenderSceneForInstancing();
+void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
+void ProcessMouseMove(GLFWwindow* window, double xpos, double ypos);
+void ProcessMouseButton(GLFWwindow* window, int button, int action, int mods);
 
 void InitPhysics()
 {
@@ -203,6 +206,8 @@ static void ErrorFunction(int id, const char* desc)
 }
 
 //-------------------------------------------------------------------------------------
+double deltaTime = 0;
+
 int main()
 {
 	bool isEnableWireFrame = false;
@@ -214,13 +219,17 @@ int main()
 
     glfwMakeContextCurrent(window);
 
+	glfwSetKeyCallback(window, ProcessKeyboard);
+	glfwSetCursorPosCallback(window, ProcessMouseMove);
+	glfwSetMouseButtonCallback(window, ProcessMouseButton);
+
     glewInit();
     
 	InitScene();
 
 	unsigned int frameCnt = 0; 
 	double elapsedTime = 0; 
-	double deltaTime = glfwGetTime();
+	deltaTime = glfwGetTime();
     while (!glfwWindowShouldClose(window))
     {
 		double beginTime = glfwGetTime();
@@ -324,4 +333,69 @@ void RenderSceneForInstancing()
 	glBindVertexArray(instancingMesh->GetVAO());
 	glDrawElementsInstanced(GL_TRIANGLES, instancingMesh->GetIndiciesSize(), GL_UNSIGNED_INT, 0, renderList_.size());
 	glBindVertexArray(0);
+}
+
+void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+		glfwSetWindowShouldClose(window, true);
+	}
+	
+	if (action == GLFW_PRESS)
+	{
+		printf("Press %d key\n", key);
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		printf("Release %d key\n", key);
+	}
+	else if (action == GLFW_REPEAT)
+	{
+		printf("Repeat %d key\n", key);
+	}
+
+	//update돌면서 키보드 콜백 등록안하는 경우 이렇게도 사용가능
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		cam->ProcessKeyboard(GLFW_KEY_UP, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cam->ProcessKeyboard(GLFW_KEY_DOWN, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		cam->ProcessKeyboard(GLFW_KEY_LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		cam->ProcessKeyboard(GLFW_KEY_RIGHT, deltaTime);
+}
+
+bool firstMouse = false;
+double lastX;
+double lastY;
+void ProcessMouseMove(GLFWwindow* window, double xpos, double ypos)
+{
+	printf("MouseMove %d %d\n", xpos, ypos);
+
+	if (::firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		::firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+	lastX = xpos;
+	lastY = ypos;
+
+	cam->ProcessMouseMovement(xoffset, yoffset);
+}
+
+void ProcessMouseButton(GLFWwindow* window, int button, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		printf("Press %d button\n", button);
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		printf("Release %d button\n", button);
+	}
 }

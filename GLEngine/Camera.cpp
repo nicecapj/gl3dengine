@@ -18,6 +18,16 @@ Camera::~Camera()
 {
 }
 
+void Camera::ProcessKeyboard(int key, double deltatime)
+{
+	//need implements	
+}
+
+void Camera::ProcessMouseMovement(double x, double y)
+{
+	//need implements
+}
+
 glm::mat4 Camera::GetViewMatrix()
 {
     return viewMatrix_;
