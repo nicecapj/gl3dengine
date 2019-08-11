@@ -166,6 +166,7 @@ static void ErrorFunction(int id, const char* desc)
 //-------------------------------------------------------------------------------------
 int main()
 {
+	bool isEnableWireFrame = false;
     glfwSetErrorCallback(&::ErrorFunction);
 
     glfwInit();
@@ -175,8 +176,8 @@ int main()
     glfwMakeContextCurrent(window);
 
     glewInit();
-
-    InitScene();
+    
+	InitScene();
 
 	unsigned int frameCnt = 0;
 	double elapsedTime = 0;
@@ -186,7 +187,8 @@ int main()
 		double beginTime = glfwGetTime();
 
 		UpdateScene(deltaTime);
-
+						
+		isEnableWireFrame ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         RenderScene();
 
         glfwSwapBuffers(window);
