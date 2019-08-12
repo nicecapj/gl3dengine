@@ -26,6 +26,10 @@ const int COUNT_X = 10;
 const int COUNT_Y = 10;
 const float DistanceWithObject = 16.0f;
 
+double deltaTime = 0;
+bool isEnableWireFrame = false;
+bool useInstancing = false;
+
 Camera* cam = nullptr;
 LightRenderer* light = nullptr;
 MeshRenderer* mesh = nullptr;
@@ -58,15 +62,18 @@ void RenderScene()
     litMesh->Draw();
 	bottom->Draw();
     label->Draw();
-
-	//인스턴싱 안 했을떄 코드
-	for (auto* renderer : renderList_)
+	
+	if (!useInstancing)
 	{
-		//renderer->Draw();
+		for (auto* renderer : renderList_)
+		{
+			renderer->Draw();
+		}
 	}
-
-	RenderSceneForInstancing();
-    //draw
+	else
+	{
+		RenderSceneForInstancing();
+	}    
 }
 
 
@@ -84,27 +91,28 @@ void UpdateScene(double deltaTimeMs)
 		++counter;
 	}
 
-	
-	glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
-	int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
-	for (int y = 0; y < COUNT_Y; ++y)
-	{
-		for (int x = 0; x < COUNT_X; ++x)
-		{
-			glm::mat4 model = glm::mat4(1.0f);
-						
-			//T
-			//glm::vec3 tempPos = { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z };
-			model = glm::translate(model, { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z });
+	//인스턴싱은 실시간 갱신 안하고, 스태틱으로 선언하였음.
+	//움직이는 처리는 버텍스쉐이더에서(윈드등에 반응하는 잔디등)
+	//glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
+	//int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
+	//for (int y = 0; y < COUNT_Y; ++y)
+	//{
+	//	for (int x = 0; x < COUNT_X; ++x)
+	//	{
+	//		glm::mat4 model = glm::mat4(1.0f);
+	//					
+	//		//T
+	//		//glm::vec3 tempPos = { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z };
+	//		model = glm::translate(model, { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z });
 
-			//S			
-			model = glm::scale(model, glm::vec3((float)((rand() % 20) + 1)));
+	//		//S			
+	//		model = glm::scale(model, glm::vec3((float)((rand() % 20) + 1)));
 
-			//R			
-			model = glm::rotate(model, 10.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-			transformList_[y * COUNT_Y + x] = model;
-		}
-	}
+	//		//R			
+	//		model = glm::rotate(model, 10.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	//		transformList_[y * COUNT_Y + x] = model;
+	//	}
+	//}
 }
 
 void InitScene()
@@ -206,11 +214,8 @@ static void ErrorFunction(int id, const char* desc)
 }
 
 //-------------------------------------------------------------------------------------
-double deltaTime = 0;
-
 int main()
-{
-	bool isEnableWireFrame = false;
+{	
     glfwSetErrorCallback(&::ErrorFunction);
 
     glfwInit();
@@ -279,6 +284,26 @@ void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture)
 	//인스턴싱은 그릴 개체수만큼 생성하는 것이 아니라, 1개만 생성하고, 나머지는 개체수만큼 트랜스폼 정보가 있으면 된다.
 	//instancingRendererMap_.insert(std::make_pair(renderer, amount));
 	transformList_.resize(amount);
+	glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
+	int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
+	for (int y = 0; y < COUNT_Y; ++y)
+	{
+		for (int x = 0; x < COUNT_X; ++x)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+
+			//T
+			//glm::vec3 tempPos = { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z };
+			model = glm::translate(model, { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z });
+
+			//S			
+			model = glm::scale(model, glm::vec3((float)((rand() % 8) + 8)));
+
+			//R			
+			//model = glm::rotate(model, 10.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+			transformList_[y * COUNT_Y + x] = model;
+		}
+	}
 
 	//instancing transform buffer
 	//https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml
@@ -288,7 +313,8 @@ void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture)
 	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &transformList_[0], GL_STATIC_DRAW);
 	GLsizei vec4Size = sizeof(glm::vec4);
 	unsigned int vao = instancingMesh->GetVAO();
-	
+	glBindVertexArray(vao);
+
 	//uniform으로 접근 안하고, 정점 속성(Vertex Attribute)으로 접근하고 싶은데 최대 지원이 vec4임으로 4번에 vs로 넘겨야 한다.
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, vec4Size, (GLvoid*)0);
@@ -314,19 +340,23 @@ void RenderSceneForInstancing()
 	glm::mat4 proj = cam->GetProjectMatrix();
 	glm::mat4 vp = proj * view;
 
-	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), instancingMesh->GetPosition());
-	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), instancingMesh->GetScale());
-	glm::mat4 model = transformMatrix * scaleMatrix;
-
 	//set shader
 	GLuint program = instancingMesh->GetProgram();
 	glUseProgram(program);
-
-	GLuint modelLocation = glGetUniformLocation(program, "model");
-	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));	//유니폼변수, 넘길데이터의 수, 전치인지 여부, 넘길 DATA의 포인터
-
+	
 	GLuint vpLocation = glGetUniformLocation(program, "vp");	//uniform mat4 view;
 	glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(vp));
+
+	auto camPos = cam->GetCameraPosition();
+	GLuint camPosLocation = glGetUniformLocation(program, "cameraPos");	//uniform vec3 cameraPos;
+	assert(camPosLocation != -1);
+	glUniform3f(camPosLocation, camPos.x, camPos.y, camPos.z);
+
+	GLuint lightPosLocation = glGetUniformLocation(program, "lightPos");	//uniform vec3 lightPos;
+	//assert(lightPosLocation != -1);
+	auto lightPos = light->GetPosition();
+	glUniform3f(lightPosLocation, lightPos.x, lightPos.y, lightPos.z);
+
 
 	glBindTexture(GL_TEXTURE_2D, instancingMesh->GetTexture());
 
@@ -348,6 +378,16 @@ void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int 
 	else if (action == GLFW_RELEASE)
 	{
 		printf("Release %d key\n", key);
+
+		if (key == GLFW_KEY_1)
+		{
+			isEnableWireFrame = !isEnableWireFrame;
+		}
+		else if (key == GLFW_KEY_2)
+		{
+			useInstancing = !useInstancing;
+		}
+
 	}
 	else if (action == GLFW_REPEAT)
 	{

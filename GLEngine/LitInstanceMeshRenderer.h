@@ -31,11 +31,4 @@ public:
 private:
     class LightRenderer* light_ = nullptr;
     class Camera* camera_ = nullptr;    
-
-    std::vector<Vertex> vertices_;
-    std::vector<GLuint> indicies_;
-
-    GLuint vao_;
-    GLuint vbo_;
-    GLuint ebo_;
 };
