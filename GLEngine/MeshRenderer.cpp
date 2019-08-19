@@ -93,6 +93,13 @@ void MeshRenderer::Draw()
     //glUniformXXX형식의 함수로 쉐이더에  연결된 유니폼 변수에, 값을 설정할 수 있다.
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));	//유니폼변수, 넘길데이터의 수, 전치인지 여부, 넘길 DATA의 포인터
 
+	GLuint depthMapTex = glGetUniformLocation(program_, "depthMap");	
+	if (depthMapTex != -1)
+	{
+		glUniform1ui(depthMapTex, 0);	//유니폼변수, 넘길데이터의 수, 전치인지 여부, 넘길 DATA의 포인터
+	}	
+
+
     glm::mat4 view = camera_->GetViewMatrix();
     glm::mat4 proj = camera_->GetProjectMatrix();
     glm::mat4 vp = proj * view;

@@ -33,6 +33,7 @@ const unsigned int SCR_WIDTH = 1280, SCR_HEIGHT = 720;
 double deltaTime = 0;
 bool isEnableWireFrame = false;
 bool useInstancing = false;
+bool useShadowmap = false;
 
 Camera* cam = nullptr;
 LightRenderer* light = nullptr;
@@ -40,7 +41,9 @@ MeshRenderer* mesh = nullptr;
 LitMeshRenderer* litMesh = nullptr;
 LitMeshRenderer* bottom = nullptr;
 TextRenderer* label = nullptr;
+LitMeshShadowRenderer* depthMesh = nullptr;
 MeshRenderer* debugQuad = nullptr;
+
 
 LitInstanceMeshRenderer* instancingMesh = nullptr;
 GLuint depthTextureShader;
@@ -69,7 +72,12 @@ void RenderScene()
     litMesh->Draw();
 	bottom->Draw();
     label->Draw();
-	debugQuad->Draw();
+	
+	if (useShadowmap)
+	{
+		depthMesh->Draw();
+		debugQuad->Draw();
+	}	
 	
 	if (!useInstancing)
 	{
@@ -152,6 +160,7 @@ void InitScene()
     mesh->SetScale(glm::vec3(8.0f));
 	mesh->SetTexture(sphereTexture);
 	
+	
 	GLuint depthTextureDebugShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/depthTextureDebug.vs", "Assets/Shaders/depthTextureDebug.fs");
 	debugQuad = new MeshRenderer(MeshType::Cube, cam);
 	debugQuad->SetProgram(depthTextureDebugShaderProgram);
@@ -181,10 +190,15 @@ void InitScene()
 	bottom = new LitMeshRenderer(MeshType::Cube, cam, light);
 	bottom->SetProgram(textureLightShaderProgram);
 	bottom->SetPosition({ 0.0f, -20.0f, 0.0f });
-	bottom->SetScale(glm::vec3(20.0f, 2.0f, 20.0f));
+	bottom->SetScale(glm::vec3(50.0f, 2.0f, 50.0f));
 	bottom->SetTexture(sphereTexture);
 
-	depthTextureShader = shaderLoader.CreateProgram("Assets/Shaders/depthTextureShader.vs", "Assets/Shaders/depthTextureShader.fs");
+	depthTextureShader = shaderLoader.CreateProgram("Assets/Shaders/depthTextureShader.vs", "Assets/Shaders/depthTextureShader.fs");	
+	depthMesh = new LitMeshShadowRenderer(MeshType::Sphere, cam, light);
+	depthMesh->SetProgram(textureShaderProgram);
+	depthMesh->SetPosition({ 32.0f, 0.0f, 0.0f });
+	depthMesh->SetScale(glm::vec3(8.0f));
+	depthMesh->SetTexture(depthTextureShader);
 
 	glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
 	int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
@@ -192,9 +206,9 @@ void InitScene()
 	{
 		for (int x = 0; x < COUNT_X; ++x)
 		{
-			auto renderer = new LitMeshShadowRenderer(MeshType::Sphere, cam, light);
+			auto renderer = new LitMeshRenderer(MeshType::Sphere, cam, light);
 
-			renderer->SetProgram(depthTextureShader);	//컴파일된 쉐이더 공유
+			renderer->SetProgram(textureLightShaderProgram);	//컴파일된 쉐이더 공유
 
 			//위치나, 회전, 스케일링은 자유롭게 바꿀수 있다.
 			renderer->SetPosition(glm::vec3(basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z));
@@ -262,24 +276,32 @@ int main()
 		isEnableWireFrame ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         
 
-		// 1. first render to depth map
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		if (!useShadowmap)
+		{
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			RenderScene();
+		}
+		else
+		{
+			// 1. first render to depth map
+			glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.0, 0.0, 0.0, 1.0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearColor(0.0, 0.0, 0.0, 1.0);
 
-		//render scene.	//쉐도우맵 그림자가 추가되면 2번 그려야 함. 부하가 2배
-		RenderScene();		
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			//render scene.	//쉐도우맵 그림자가 추가되면 2번 그려야 함. 부하가 2배
+			RenderScene();
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		// 2. then render scene as normal with shadow mapping (using depth map)
-		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//ConfigureShaderAndMatrices();		
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		debugQuad->SetTexture(depthMap);
-		RenderScene();
+			// 2. then render scene as normal with shadow mapping (using depth map)
+			glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			//ConfigureShaderAndMatrices();		
+			//glBindTexture(GL_TEXTURE_2D, depthMap);
+			debugQuad->SetTexture(depthMap);
+			RenderScene();
+		}
 
 
         glfwSwapBuffers(window);
@@ -425,7 +447,10 @@ void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int 
 		{
 			useInstancing = !useInstancing;
 		}
-
+		else if (key == GLFW_KEY_3)
+		{
+			useShadowmap = !useShadowmap;
+		}		
 	}
 	else if (action == GLFW_REPEAT)
 	{
