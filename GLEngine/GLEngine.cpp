@@ -12,6 +12,7 @@
 #include "MeshRenderer.h"
 #include "LitMeshRenderer.h"
 #include "LitInstanceMeshRenderer.h"
+#include "LitMeshShadowRenderer.h"
 #include "Camera.h"
 #include "ShaderLoader.h"
 #include "TextureLoader.h"
@@ -26,6 +27,9 @@ const int COUNT_X = 10;
 const int COUNT_Y = 10;
 const float DistanceWithObject = 16.0f;
 
+const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+const unsigned int SCR_WIDTH = 1280, SCR_HEIGHT = 720;
+
 double deltaTime = 0;
 bool isEnableWireFrame = false;
 bool useInstancing = false;
@@ -36,7 +40,13 @@ MeshRenderer* mesh = nullptr;
 LitMeshRenderer* litMesh = nullptr;
 LitMeshRenderer* bottom = nullptr;
 TextRenderer* label = nullptr;
+MeshRenderer* debugQuad = nullptr;
+
 LitInstanceMeshRenderer* instancingMesh = nullptr;
+GLuint depthTextureShader;
+
+GLuint depthMapFBO;
+GLuint depthMap;
 
 std::vector<Renderer*> renderList_;	
 //std::map<Renderer*, int> instancingRendererMap_;
@@ -53,15 +63,13 @@ void InitPhysics()
 }
 
 void RenderScene()
-{
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-
+{	
     light->Draw();
     mesh->Draw();
     litMesh->Draw();
 	bottom->Draw();
     label->Draw();
+	debugQuad->Draw();
 	
 	if (!useInstancing)
 	{
@@ -142,6 +150,14 @@ void InitScene()
     mesh->SetProgram(textureShaderProgram);
     mesh->SetPosition({ 0.0f, 0.0f, 0.0f });
     mesh->SetScale(glm::vec3(8.0f));
+	mesh->SetTexture(sphereTexture);
+	
+	GLuint depthTextureDebugShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/depthTextureDebug.vs", "Assets/Shaders/depthTextureDebug.fs");
+	debugQuad = new MeshRenderer(MeshType::Cube, cam);
+	debugQuad->SetProgram(depthTextureDebugShaderProgram);
+	debugQuad->SetPosition({ 0.0f, 0.0f, 0.0f });
+	debugQuad->SetScale(glm::vec3(8.0f));
+	//debugQuad->SetTexture(sphereTexture);
 
     //dynamic text
     GLuint textProgram = shaderLoader.CreateProgram("Assets/Shaders/text.vs", "Assets/Shaders/text.fs");
@@ -149,14 +165,14 @@ void InitScene()
 	label = new TextRenderer("Text", "Assets/fonts/DMSerifDisplay-Regular.ttf", 64, { 0.0f, 0.0f, 1.0f }, textProgram);
     label->SetProgram(textProgram);
     label->SetPosition(glm::vec2(320.0f, 500.0f));
-
-    mesh->SetTexture(sphereTexture);
+    
 
     //lit static mesh
     GLuint textureLightShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/litTexturedModel.vs", "Assets/Shaders/litTexturedModel.fs");
 	assert(textureLightShaderProgram != GL_FALSE);
-	litMesh = new LitMeshRenderer(MeshType::Sphere, cam, light);
-    litMesh->SetProgram(textureLightShaderProgram);
+	litMesh = new LitMeshRenderer(MeshType::Sphere, cam, light);    
+	litMesh->SetProgram(textureLightShaderProgram);
+	
     litMesh->SetPosition({ 16.0f, 0.0f, 0.0f });
     litMesh->SetScale(glm::vec3(8.0f));
     litMesh->SetTexture(sphereTexture);
@@ -168,15 +184,17 @@ void InitScene()
 	bottom->SetScale(glm::vec3(20.0f, 2.0f, 20.0f));
 	bottom->SetTexture(sphereTexture);
 
+	depthTextureShader = shaderLoader.CreateProgram("Assets/Shaders/depthTextureShader.vs", "Assets/Shaders/depthTextureShader.fs");
+
 	glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
 	int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
 	for (int y = 0; y < COUNT_Y; ++y)
 	{
 		for (int x = 0; x < COUNT_X; ++x)
 		{
-			auto renderer = new LitMeshRenderer(MeshType::Sphere, cam, light);
+			auto renderer = new LitMeshShadowRenderer(MeshType::Sphere, cam, light);
 
-			renderer->SetProgram(textureLightShaderProgram);	//컴파일된 쉐이더 공유
+			renderer->SetProgram(depthTextureShader);	//컴파일된 쉐이더 공유
 
 			//위치나, 회전, 스케일링은 자유롭게 바꿀수 있다.
 			renderer->SetPosition(glm::vec3(basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z));
@@ -189,7 +207,7 @@ void InitScene()
 		}
 	}
 
-	InitSceneForInstancing(shaderLoader, sphereTexture);
+	InitSceneForInstancing(shaderLoader, sphereTexture);		
 }
 
 void Destroy()
@@ -242,7 +260,27 @@ int main()
 		UpdateScene(deltaTime);
 						
 		isEnableWireFrame ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        RenderScene();
+        
+
+		// 1. first render to depth map
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.0, 0.0, 0.0, 1.0);
+
+		//render scene.	//쉐도우맵 그림자가 추가되면 2번 그려야 함. 부하가 2배
+		RenderScene();		
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// 2. then render scene as normal with shadow mapping (using depth map)
+		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//ConfigureShaderAndMatrices();		
+		//glBindTexture(GL_TEXTURE_2D, depthMap);
+		debugQuad->SetTexture(depthMap);
+		RenderScene();
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -439,3 +477,28 @@ void ProcessMouseButton(GLFWwindow* window, int button, int action, int mods)
 		printf("Release %d button\n", button);
 	}
 }
+
+
+void InitShadowmap()
+{
+	unsigned int depthMapFBO;
+	glGenFramebuffers(1, &depthMapFBO);
+
+	//깊이 텍스쳐는 깊이버퍼보다 느리지만, 쉐이더에서 텍스처 샘플로 사용할수 있는 장점이 있다.	
+	unsigned int depthMap;
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+		SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);	//color사용안함 설정.
+	glReadBuffer(GL_NONE);	//color사용안함 설정.
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+

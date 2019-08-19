@@ -101,6 +101,7 @@ void MeshRenderer::Draw()
     glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(vp));
 
     //texture
+	glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_);
 
     //draw
