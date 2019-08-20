@@ -30,7 +30,7 @@ public:
 
 	inline GLuint GetVAO() { return vao_; 	}	//used for instancing	
 	inline GLsizei GetIndiciesSize() {
-		return vertices_.size();
+		return indicies_.size();
 	}	
 	inline GLuint GetProgram() { return program_; }
 	inline GLuint GetTexture() {return texture_;	}

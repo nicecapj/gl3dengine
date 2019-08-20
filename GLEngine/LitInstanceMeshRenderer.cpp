@@ -105,14 +105,14 @@ void LitInstanceMeshRenderer::Draw()
 
 
     //texture
-    //glBindTexture(GL_TEXTURE_2D, texture_);
+    glBindTexture(GL_TEXTURE_2D, texture_);
 
     //draw
     //한번만 그릴 데이터를 전부 요구한다.(vao_) 이후 glDrawElements를 통해 그린다.
     glBindVertexArray(vao_);
 
-    //glDrawElements(GL_TRIANGLES, indicies_.size(), GL_UNSIGNED_INT, 0);
-	glDrawElementsInstanced(GL_TRIANGLES, indicies_.size(), GL_UNSIGNED_INT, 0, 100);
+    glDrawElements(GL_TRIANGLES, indicies_.size(), GL_UNSIGNED_INT, 0);
+	//glDrawElementsInstanced(GL_TRIANGLES, indicies_.size(), GL_UNSIGNED_INT, 0, 100);
 
     //marks end of draw function
     glBindVertexArray(0);

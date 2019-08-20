@@ -51,6 +51,8 @@ GLuint depthTextureShader;
 GLuint depthMapFBO;
 GLuint depthMap;
 
+GLuint instancingBuffer = -1;
+
 std::vector<Renderer*> renderList_;	
 //std::map<Renderer*, int> instancingRendererMap_;
 std::vector<glm::mat4> transformList_;
@@ -107,28 +109,42 @@ void UpdateScene(double deltaTimeMs)
 		++counter;
 	}
 
+	glBindVertexArray(instancingMesh->GetVAO());	
+	glBindBuffer(GL_ARRAY_BUFFER, instancingBuffer);
+
 	//인스턴싱은 실시간 갱신 안하고, 스태틱으로 선언하였음.
 	//움직이는 처리는 버텍스쉐이더에서(윈드등에 반응하는 잔디등)
-	//glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
-	//int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
-	//for (int y = 0; y < COUNT_Y; ++y)
-	//{
-	//	for (int x = 0; x < COUNT_X; ++x)
-	//	{
-	//		glm::mat4 model = glm::mat4(1.0f);
-	//					
-	//		//T
-	//		//glm::vec3 tempPos = { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z };
-	//		model = glm::translate(model, { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z });
+	glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
+	int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
+	for (int y = 0; y < COUNT_Y; ++y)
+	{
+		for (int x = 0; x < COUNT_X; ++x)
+		{
+			int index = y * COUNT_Y + x;
+			glm::mat4 model = glm::mat4(1.0f);
+				
+			double posFactorX = glm::sin(glfwGetTime() + (index * deltaTimeMs));
+			double posFactorY = glm::cos(glfwGetTime() + (index * deltaTimeMs));
 
-	//		//S			
-	//		model = glm::scale(model, glm::vec3((float)((rand() % 20) + 1)));
+			auto pos = instancingMesh->GetPosition();
+			//pos = { pos.x, pos.y, pos.z + posFactorX };
 
-	//		//R			
-	//		model = glm::rotate(model, 10.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-	//		transformList_[y * COUNT_Y + x] = model;
-	//	}
-	//}
+			//T
+			//glm::vec3 tempPos = { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z };
+			model = glm::translate(model, { pos.x, pos.y, pos.z + posFactorX - cam->GetCameraPosition().z });
+
+			//S			
+			//model = glm::scale(model, glm::vec3((float)((rand() % 20) + 1)));
+			model = glm::scale(model, glm::vec3(8.0f));
+
+			//R			
+			model = glm::rotate(model, 10.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+			transformList_[index] = model;
+		}
+	}
+
+	glBufferData(GL_ARRAY_BUFFER, COUNT_X * COUNT_Y * sizeof(glm::mat4), &transformList_[0], GL_STATIC_DRAW);
+	glBindVertexArray(0);
 }
 
 void InitScene()
@@ -357,7 +373,7 @@ void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture)
 			model = glm::translate(model, { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z });
 
 			//S			
-			model = glm::scale(model, glm::vec3((float)((rand() % 8) + 8)));
+			model = glm::scale(model, glm::vec3(8.0f));
 
 			//R			
 			//model = glm::rotate(model, 10.0f, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -367,11 +383,12 @@ void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture)
 
 	//instancing transform buffer
 	//https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml
-	GLuint buffer;
-	glGenBuffers(1, &buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+//	GLuint instancingBuffer;
+	glGenBuffers(1, &instancingBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, instancingBuffer);
 	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &transformList_[0], GL_STATIC_DRAW);
 	GLsizei vec4Size = sizeof(glm::vec4);
+
 	unsigned int vao = instancingMesh->GetVAO();
 	glBindVertexArray(vao);
 
