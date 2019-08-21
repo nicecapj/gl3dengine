@@ -26,6 +26,7 @@
 const int COUNT_X = 10;
 const int COUNT_Y = 10;
 const float DistanceWithObject = 16.0f;
+size_t amount = COUNT_Y * COUNT_X;
 
 const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 const unsigned int SCR_WIDTH = 1280, SCR_HEIGHT = 720;
@@ -109,42 +110,42 @@ void UpdateScene(double deltaTimeMs)
 		++counter;
 	}
 
-	glBindVertexArray(instancingMesh->GetVAO());	
-	glBindBuffer(GL_ARRAY_BUFFER, instancingBuffer);
+	//glBindVertexArray(instancingMesh->GetVAO());	
+	//glBindBuffer(GL_ARRAY_BUFFER, instancingBuffer);
 
-	//인스턴싱은 실시간 갱신 안하고, 스태틱으로 선언하였음.
-	//움직이는 처리는 버텍스쉐이더에서(윈드등에 반응하는 잔디등)
-	glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
-	int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
-	for (int y = 0; y < COUNT_Y; ++y)
-	{
-		for (int x = 0; x < COUNT_X; ++x)
-		{
-			int index = y * COUNT_Y + x;
-			glm::mat4 model = glm::mat4(1.0f);
-				
-			double posFactorX = glm::sin(glfwGetTime() + (index * deltaTimeMs));
-			double posFactorY = glm::cos(glfwGetTime() + (index * deltaTimeMs));
+	////인스턴싱은 실시간 갱신 안하고, 스태틱으로 선언하였음.
+	////움직이는 처리는 버텍스쉐이더에서(윈드등에 반응하는 잔디등)
+	//glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
+	//int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
+	//for (int y = 0; y < COUNT_Y; ++y)
+	//{
+	//	for (int x = 0; x < COUNT_X; ++x)
+	//	{
+	//		int index = y * COUNT_Y + x;
+	//		glm::mat4 model = glm::mat4(1.0f);
+	//			
+	//		double posFactorX = glm::sin(glfwGetTime() + (index * deltaTimeMs));
+	//		double posFactorY = glm::cos(glfwGetTime() + (index * deltaTimeMs));
 
-			auto pos = instancingMesh->GetPosition();
-			//pos = { pos.x, pos.y, pos.z + posFactorX };
+	//		auto pos = instancingMesh->GetPosition();
+	//		//pos = { pos.x, pos.y, pos.z + posFactorX };
 
-			//T
-			//glm::vec3 tempPos = { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z };
-			model = glm::translate(model, { pos.x, pos.y, pos.z + posFactorX - cam->GetCameraPosition().z });
+	//		//T
+	//		//glm::vec3 tempPos = { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z };
+	//		model = glm::translate(model, { pos.x, pos.y, pos.z + posFactorX - cam->GetCameraPosition().z });
 
-			//S			
-			//model = glm::scale(model, glm::vec3((float)((rand() % 20) + 1)));
-			model = glm::scale(model, glm::vec3(8.0f));
+	//		//S			
+	//		//model = glm::scale(model, glm::vec3((float)((rand() % 20) + 1)));
+	//		model = glm::scale(model, glm::vec3(8.0f));
 
-			//R			
-			model = glm::rotate(model, 10.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-			transformList_[index] = model;
-		}
-	}
+	//		//R			
+	//		model = glm::rotate(model, 10.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	//		transformList_[index] = model;
+	//	}
+	//}
 
-	glBufferData(GL_ARRAY_BUFFER, COUNT_X * COUNT_Y * sizeof(glm::mat4), &transformList_[0], GL_STATIC_DRAW);
-	glBindVertexArray(0);
+	//glBufferData(GL_ARRAY_BUFFER, COUNT_X * COUNT_Y * sizeof(glm::mat4), &transformList_[0], GL_STATIC_DRAW);
+	//glBindVertexArray(0);
 }
 
 void InitScene()
@@ -345,16 +346,15 @@ int main()
 }
 
 void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture)
-{
-	size_t amount = COUNT_Y * COUNT_X;
-
+{	
 	GLuint instancingShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/InstancingShader.vs", "Assets/Shaders/InstancingShader.fs");	
 	assert(instancingShaderProgram != GL_FALSE);
-	instancingMesh = new LitInstanceMeshRenderer(MeshType::Sphere, cam);
+	instancingMesh = new LitInstanceMeshRenderer(MeshType::Sphere, cam, light);
 	instancingMesh->SetProgram(instancingShaderProgram);
 	instancingMesh->SetPosition(glm::vec3(0.f, 0.f, 0.f));
 	instancingMesh->SetScale(glm::vec3(8.0f));
 	instancingMesh->SetTexture(texture);
+	instancingMesh->SetObjectCount(amount);
 
 
 	//인스턴싱은 그릴 개체수만큼 생성하는 것이 아니라, 1개만 생성하고, 나머지는 개체수만큼 트랜스폼 정보가 있으면 된다.
@@ -381,6 +381,10 @@ void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture)
 		}
 	}
 
+	unsigned int vao = instancingMesh->GetVAO();
+	glBindVertexArray(vao);
+
+
 	//instancing transform buffer
 	//https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml
 //	GLuint instancingBuffer;
@@ -389,18 +393,15 @@ void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture)
 	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &transformList_[0], GL_STATIC_DRAW);
 	GLsizei vec4Size = sizeof(glm::vec4);
 
-	unsigned int vao = instancingMesh->GetVAO();
-	glBindVertexArray(vao);
-
 	//uniform으로 접근 안하고, 정점 속성(Vertex Attribute)으로 접근하고 싶은데 최대 지원이 vec4임으로 4번에 vs로 넘겨야 한다.
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, vec4Size, (GLvoid*)0);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
 	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, vec4Size, (GLvoid*)vec4Size);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(vec4Size));
 	glEnableVertexAttribArray(5);
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, vec4Size, (GLvoid*)(2 * vec4Size));
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
 	glEnableVertexAttribArray(6);
-	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, vec4Size, (GLvoid*)(3 * vec4Size));
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
 
 	//modify the rate at which generic vertex attributes advance during instanced rendering		
 	glVertexAttribDivisor(3, 1);
@@ -413,33 +414,7 @@ void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture)
 
 void RenderSceneForInstancing()
 {
-	glm::mat4 view = cam->GetViewMatrix();
-	glm::mat4 proj = cam->GetProjectMatrix();
-	glm::mat4 vp = proj * view;
-
-	//set shader
-	GLuint program = instancingMesh->GetProgram();
-	glUseProgram(program);
-	
-	GLuint vpLocation = glGetUniformLocation(program, "vp");	//uniform mat4 view;
-	glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(vp));
-
-	auto camPos = cam->GetCameraPosition();
-	GLuint camPosLocation = glGetUniformLocation(program, "cameraPos");	//uniform vec3 cameraPos;
-	assert(camPosLocation != -1);
-	glUniform3f(camPosLocation, camPos.x, camPos.y, camPos.z);
-
-	GLuint lightPosLocation = glGetUniformLocation(program, "lightPos");	//uniform vec3 lightPos;
-	//assert(lightPosLocation != -1);
-	auto lightPos = light->GetPosition();
-	glUniform3f(lightPosLocation, lightPos.x, lightPos.y, lightPos.z);
-
-
-	glBindTexture(GL_TEXTURE_2D, instancingMesh->GetTexture());
-
-	glBindVertexArray(instancingMesh->GetVAO());
-	glDrawElementsInstanced(GL_TRIANGLES, instancingMesh->GetIndiciesSize(), GL_UNSIGNED_INT, 0, renderList_.size());
-	glBindVertexArray(0);
+	instancingMesh->Draw();
 }
 
 void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods)

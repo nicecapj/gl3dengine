@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "Mesh.h"
 #include "ShaderLoader.h"
-#include "Camera.h"
 #include <vector>
 
 #include "renderer.h"
@@ -22,13 +21,16 @@
 class LitInstanceMeshRenderer : public Renderer
 {
 public:
-    LitInstanceMeshRenderer(MeshType meshType, Camera* camera);
+    LitInstanceMeshRenderer(MeshType meshType, class Camera* camera, class LightRenderer* light);
     ~LitInstanceMeshRenderer();
 
     virtual void Draw() override;
     virtual void UpdateScene(double deltaTimeMs) override;
 
+	void SetObjectCount(GLuint count);
 private:
     class LightRenderer* light_ = nullptr;
     class Camera* camera_ = nullptr;    
+
+	GLuint objectCount_ = 1;
 };
