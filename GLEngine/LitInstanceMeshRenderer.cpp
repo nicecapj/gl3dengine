@@ -4,9 +4,6 @@
 #include "LightRenderer.h"
 #include <GLFW/glfw3.h>
 
-const int COUNT_X = 10;
-const int COUNT_Y = 10;
-const float DistanceWithObject = 16.0f;
 LitInstanceMeshRenderer::LitInstanceMeshRenderer(MeshType meshType, Camera* camera,  LightRenderer* light)
     :Renderer()
 {
@@ -108,6 +105,11 @@ void LitInstanceMeshRenderer::Draw()
 	glUniform3f(lightPosLocation, lightPos.x, lightPos.y, lightPos.z);
 
 
+	//-------static이면 할필요없고, 움직인다면 해주면 된다.-------	
+	glBindBuffer(GL_ARRAY_BUFFER, instancingBuffer_);
+	glBufferData(GL_ARRAY_BUFFER, objectCount_ * sizeof(glm::mat4), &transformList_[0], GL_STATIC_DRAW);
+	//-------static이면 할필요없고, 움직인다면 해주면 된다.-------
+
 	glBindTexture(GL_TEXTURE_2D, texture_);
 
 	glBindVertexArray(vao_);
@@ -116,11 +118,59 @@ void LitInstanceMeshRenderer::Draw()
 }
 
 void LitInstanceMeshRenderer::UpdateScene(double deltaTimeMs)
-{
+{	
+	GLuint counter = 0;
+	for (auto& model : transformList_)
+	{		
+		double posFactorX = glm::sin(glfwGetTime()) * 0.1f;
+		double posFactorY = glm::cos(glfwGetTime()) * 0.1f;
+		
+		//이동이 추가되도.(100000오브젝트 - 60fps)
+		model = glm::translate(model, { posFactorX, posFactorY, 0.0f});
 
+		//회전은 이동에 비해 4배이상 무겁다.(100000오브젝트 - 15fps)
+		//model = glm::rotate(model, (float)deltaTimeMs, glm::vec3(0.0f, 1.0f, 0.0f));
+		++counter;
+	}
 }
 
 void LitInstanceMeshRenderer::SetObjectCount(GLuint count)
 {
 	objectCount_ = count;
+}
+
+void LitInstanceMeshRenderer::SetTransforms(std::vector<glm::mat4>&& transforms)
+{
+	transformList_ = transforms;
+	SetObjectCount(transformList_.size());
+
+	
+	glBindVertexArray(vao_);
+
+
+	//instancing transform buffer
+	//https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml
+//	GLuint instancingBuffer;
+	glGenBuffers(1, &instancingBuffer_);
+	glBindBuffer(GL_ARRAY_BUFFER, instancingBuffer_);
+	glBufferData(GL_ARRAY_BUFFER, objectCount_ * sizeof(glm::mat4), &transformList_[0], GL_STATIC_DRAW);
+	GLsizei vec4Size = sizeof(glm::vec4);
+
+	//uniform으로 접근 안하고, 정점 속성(Vertex Attribute)으로 접근하고 싶은데 최대 지원이 vec4임으로 4번에 vs로 넘겨야 한다.
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(vec4Size));
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
+
+	//modify the rate at which generic vertex attributes advance during instanced rendering		
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+
+	glBindVertexArray(0);
 }

@@ -28,9 +28,12 @@ public:
     virtual void UpdateScene(double deltaTimeMs) override;
 
 	void SetObjectCount(GLuint count);
+	void SetTransforms(std::vector<glm::mat4>&& transforms);
 private:
     class LightRenderer* light_ = nullptr;
     class Camera* camera_ = nullptr;    
 
+	GLuint instancingBuffer_ = -1;
 	GLuint objectCount_ = 1;
+	std::vector<glm::mat4> transformList_;
 };

@@ -23,8 +23,8 @@
 #include <vector>
 #include <assert.h>
 
-const int COUNT_X = 10;
-const int COUNT_Y = 10;
+const int COUNT_X = 100;
+const int COUNT_Y = 100;
 const float DistanceWithObject = 16.0f;
 size_t amount = COUNT_Y * COUNT_X;
 
@@ -33,7 +33,7 @@ const unsigned int SCR_WIDTH = 1280, SCR_HEIGHT = 720;
 
 double deltaTime = 0;
 bool isEnableWireFrame = false;
-bool useInstancing = false;
+bool useInstancing = true;
 bool useShadowmap = false;
 
 Camera* cam = nullptr;
@@ -56,10 +56,8 @@ GLuint instancingBuffer = -1;
 
 std::vector<Renderer*> renderList_;	
 //std::map<Renderer*, int> instancingRendererMap_;
-std::vector<glm::mat4> transformList_;
 
 void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture);
-void RenderSceneForInstancing();
 void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
 void ProcessMouseMove(GLFWwindow* window, double xpos, double ypos);
 void ProcessMouseButton(GLFWwindow* window, int button, int action, int mods);
@@ -90,8 +88,8 @@ void RenderScene()
 		}
 	}
 	else
-	{
-		RenderSceneForInstancing();
+	{		
+		instancingMesh->Draw();
 	}    
 }
 
@@ -110,42 +108,10 @@ void UpdateScene(double deltaTimeMs)
 		++counter;
 	}
 
-	//glBindVertexArray(instancingMesh->GetVAO());	
-	//glBindBuffer(GL_ARRAY_BUFFER, instancingBuffer);
-
-	////인스턴싱은 실시간 갱신 안하고, 스태틱으로 선언하였음.
-	////움직이는 처리는 버텍스쉐이더에서(윈드등에 반응하는 잔디등)
-	//glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
-	//int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
-	//for (int y = 0; y < COUNT_Y; ++y)
-	//{
-	//	for (int x = 0; x < COUNT_X; ++x)
-	//	{
-	//		int index = y * COUNT_Y + x;
-	//		glm::mat4 model = glm::mat4(1.0f);
-	//			
-	//		double posFactorX = glm::sin(glfwGetTime() + (index * deltaTimeMs));
-	//		double posFactorY = glm::cos(glfwGetTime() + (index * deltaTimeMs));
-
-	//		auto pos = instancingMesh->GetPosition();
-	//		//pos = { pos.x, pos.y, pos.z + posFactorX };
-
-	//		//T
-	//		//glm::vec3 tempPos = { basePos.x + (x * DistanceWithObject) - posModFactor, basePos.y + (y * DistanceWithObject) - posModFactor, basePos.z };
-	//		model = glm::translate(model, { pos.x, pos.y, pos.z + posFactorX - cam->GetCameraPosition().z });
-
-	//		//S			
-	//		//model = glm::scale(model, glm::vec3((float)((rand() % 20) + 1)));
-	//		model = glm::scale(model, glm::vec3(8.0f));
-
-	//		//R			
-	//		model = glm::rotate(model, 10.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-	//		transformList_[index] = model;
-	//	}
-	//}
-
-	//glBufferData(GL_ARRAY_BUFFER, COUNT_X * COUNT_Y * sizeof(glm::mat4), &transformList_[0], GL_STATIC_DRAW);
-	//glBindVertexArray(0);
+	if (useInstancing)
+	{
+		instancingMesh->UpdateScene(deltaTimeMs);
+	}	
 }
 
 void InitScene()
@@ -353,13 +319,12 @@ void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture)
 	instancingMesh->SetProgram(instancingShaderProgram);
 	instancingMesh->SetPosition(glm::vec3(0.f, 0.f, 0.f));
 	instancingMesh->SetScale(glm::vec3(8.0f));
-	instancingMesh->SetTexture(texture);
-	instancingMesh->SetObjectCount(amount);
+	instancingMesh->SetTexture(texture);	
 
 
 	//인스턴싱은 그릴 개체수만큼 생성하는 것이 아니라, 1개만 생성하고, 나머지는 개체수만큼 트랜스폼 정보가 있으면 된다.
-	//instancingRendererMap_.insert(std::make_pair(renderer, amount));
-	transformList_.resize(amount);
+	std::vector<glm::mat4> transformList;
+	transformList.resize(amount);
 	glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
 	int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
 	for (int y = 0; y < COUNT_Y; ++y)
@@ -377,39 +342,11 @@ void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture)
 
 			//R			
 			//model = glm::rotate(model, 10.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-			transformList_[y * COUNT_Y + x] = model;
+			transformList[y * COUNT_Y + x] = model;
 		}
-	}
+	}		
 
-	unsigned int vao = instancingMesh->GetVAO();
-	glBindVertexArray(vao);
-
-
-	//instancing transform buffer
-	//https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml
-//	GLuint instancingBuffer;
-	glGenBuffers(1, &instancingBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, instancingBuffer);
-	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &transformList_[0], GL_STATIC_DRAW);
-	GLsizei vec4Size = sizeof(glm::vec4);
-
-	//uniform으로 접근 안하고, 정점 속성(Vertex Attribute)으로 접근하고 싶은데 최대 지원이 vec4임으로 4번에 vs로 넘겨야 한다.
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
-	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(vec4Size));
-	glEnableVertexAttribArray(5);
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
-	glEnableVertexAttribArray(6);
-	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
-
-	//modify the rate at which generic vertex attributes advance during instanced rendering		
-	glVertexAttribDivisor(3, 1);
-	glVertexAttribDivisor(4, 1);
-	glVertexAttribDivisor(5, 1);
-	glVertexAttribDivisor(6, 1);
-
-	glBindVertexArray(0);	
+	instancingMesh->SetTransforms(std::move(transformList));
 }
 
 void RenderSceneForInstancing()
