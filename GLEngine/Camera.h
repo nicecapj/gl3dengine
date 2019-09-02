@@ -19,12 +19,17 @@ public:
     glm::vec3 GetCameraPosition();
 	void SetPosition(glm::vec3 pos);
 	void SetTargetPosition(glm::vec3 pos);
+
+	void SetOrthProjection(float left, float right, float top, float bottom, float nearPlan, float farPlan);
+	void SetPerspectiveProjection(GLfloat fov, GLfloat width, GLfloat height, GLfloat nearPlane, GLfloat farPlane);
 private:
     glm::mat4 viewMatrix_;
     glm::mat4 projectionMatrix_;
-    glm::vec3 camPos_;
-	glm::vec3 targetPos_;
+	glm::vec3 camPos_ = { 0.0f,0.0f,0.0f };
+	glm::vec3 targetPos_ = { 0.0f,0.0f,0.0f };
     GLfloat fov_;
+
+	bool isPerspetive = true;
 
 	float moveSpeed_ = 100.0f;
 };

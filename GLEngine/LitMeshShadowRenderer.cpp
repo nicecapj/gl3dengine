@@ -95,15 +95,12 @@ void LitMeshShadowRenderer::Draw()
 	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
 	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
 	glm::mat4 model = transformMatrix * scaleMatrix;
-
-	//glm::mat4 view = camera_->GetViewMatrix();
-	//glm::mat4 proj = camera_->GetProjectMatrix();
-	//glm::mat4 vp = proj * view;
+	
 
 	//projection from light
 	//Light space transform
-	float near_plane = 1.0f, far_plane = 7.5f;
-	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	float near_plane = -100.0f, far_plane = 100.5f;
+	glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
 	//glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
 	//	glm::vec3(0.0f, 0.0f, 0.0f),
 	//	glm::vec3(0.0f, 1.0f, 0.0f));
@@ -112,6 +109,7 @@ void LitMeshShadowRenderer::Draw()
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+	//glm::mat4 lightSpaceMatrix = proj * lightView;
 
 	GLuint lightSpaceMatrixLocation = glGetUniformLocation(program_, "lightSpaceMatrix");
 	glUniformMatrix4fv(lightSpaceMatrixLocation, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));

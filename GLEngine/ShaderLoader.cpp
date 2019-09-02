@@ -42,7 +42,7 @@ GLuint ShaderLoader::CreateProgram(const char* vertexShaderFilename, const char*
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLenth);
         std::vector<char> link_log(logLenth);
         glGetProgramInfoLog(program, logLenth, nullptr, &link_log[0]);
-        std::cout << "ERROR Link shader program : " << std::endl << link_log[0] << std::endl;
+        std::cout << "ERROR Link shader program : " << vertexShaderFilename << " " << fragmentShaderFile << std::endl << link_log.data() << std::endl;
         return 0;
     }
 
@@ -74,7 +74,7 @@ GLuint ShaderLoader::CreateShader(GLenum shaderType, std::string source, const c
     int compileResult = 0;
     GLuint shader = glCreateShader(shaderType);
     const char* shaderCodePtr = source.c_str();
-    const int shaderCodeSize = source.size();
+    const int shaderCodeSize = (int)source.size();
 
     glShaderSource(shader, 1, &shaderCodePtr, &shaderCodeSize);
     glCompileShader(shader);

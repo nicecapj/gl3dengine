@@ -23,8 +23,8 @@
 #include <vector>
 #include <assert.h>
 
-const int COUNT_X = 100;
-const int COUNT_Y = 100;
+const int COUNT_X = 10;
+const int COUNT_Y = 10;
 const float DistanceWithObject = 16.0f;
 size_t amount = COUNT_Y * COUNT_X;
 
@@ -33,8 +33,9 @@ const unsigned int SCR_WIDTH = 1280, SCR_HEIGHT = 720;
 
 double deltaTime = 0;
 bool isEnableWireFrame = false;
-bool useInstancing = true;
-bool useShadowmap = false;
+bool useInstancing = false;
+bool useShadowmap = true;
+bool useOrthProjection = false;
 
 Camera* cam = nullptr;
 LightRenderer* light = nullptr;
@@ -57,14 +58,17 @@ GLuint instancingBuffer = -1;
 std::vector<Renderer*> renderList_;	
 //std::map<Renderer*, int> instancingRendererMap_;
 
+
+GLuint sphereTexture = -1;
+
 void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture);
 void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
 void ProcessMouseMove(GLFWwindow* window, double xpos, double ypos);
 void ProcessMouseButton(GLFWwindow* window, int button, int action, int mods);
 
-void InitPhysics()
-{
-}
+
+void InitShadowmap();
+void InitPhysics() {}
 
 void RenderScene()
 {	
@@ -72,30 +76,41 @@ void RenderScene()
     mesh->Draw();
     litMesh->Draw();
 	bottom->Draw();
-    label->Draw();
+//    label->Draw();
 	
 	if (useShadowmap)
 	{
-		depthMesh->Draw();
+//		depthMesh->Draw();
 		debugQuad->Draw();
-	}	
-	
-	if (!useInstancing)
-	{
-		for (auto* renderer : renderList_)
-		{
-			renderer->Draw();
-		}
 	}
 	else
-	{		
-		instancingMesh->Draw();
-	}    
+	{
+		if (!useInstancing)
+		{
+			for (auto* renderer : renderList_)
+			{
+				renderer->Draw();
+			}
+		}
+		else
+		{
+			instancingMesh->Draw();
+		}
+	}	
 }
 
 
 void UpdateScene(double deltaTimeMs)
 {	
+	if (useOrthProjection)
+	{
+		cam->SetOrthProjection(-100, 100, -100, 100, -10, 1000);
+	}
+	else
+	{
+		cam->SetPerspectiveProjection(45.0f, 1280.f, 720.f, 0.1f, 1000.0f);
+	}
+
 	int counter = 0;
 	for (auto* renderer : renderList_)
 	{
@@ -128,7 +143,7 @@ void InitScene()
 
     light = new LightRenderer(MeshType::Sphere, cam);
     light->SetProgram(shaderProgram);	
-    light->SetPosition({ 0.f, 0.f, -20.0f });
+    light->SetPosition({ 0.f, 0.f, -10.0f });
 
 
     //unlit static mesh
@@ -136,7 +151,8 @@ void InitScene()
 	assert(textureShaderProgram != GL_FALSE);
 	TextureLoader textureLoader;
     //텍스처 역시 캐시해서 공유가능하다.
-    GLuint sphereTexture = textureLoader.GetTextureID("Assets/Textures/globe.dds");
+    //GLuint sphereTexture = textureLoader.GetTextureID("Assets/Textures/globe.dds");
+	sphereTexture = textureLoader.GetTextureID("Assets/Textures/globe.dds");
     mesh = new MeshRenderer(MeshType::Sphere, cam);
     mesh->SetProgram(textureShaderProgram);
     mesh->SetPosition({ 0.0f, 0.0f, 0.0f });
@@ -147,7 +163,7 @@ void InitScene()
 	GLuint depthTextureDebugShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/depthTextureDebug.vs", "Assets/Shaders/depthTextureDebug.fs");
 	debugQuad = new MeshRenderer(MeshType::Cube, cam);
 	debugQuad->SetProgram(depthTextureDebugShaderProgram);
-	debugQuad->SetPosition({ 0.0f, 0.0f, 0.0f });
+	debugQuad->SetPosition({ 10.0f, 10.0f, 0.0f });
 	debugQuad->SetScale(glm::vec3(8.0f));
 	//debugQuad->SetTexture(sphereTexture);
 
@@ -173,7 +189,7 @@ void InitScene()
 	bottom = new LitMeshRenderer(MeshType::Cube, cam, light);
 	bottom->SetProgram(textureLightShaderProgram);
 	bottom->SetPosition({ 0.0f, -20.0f, 0.0f });
-	bottom->SetScale(glm::vec3(50.0f, 2.0f, 50.0f));
+	bottom->SetScale(glm::vec3(100.0f, 2.0f, 100.0f));
 	bottom->SetTexture(sphereTexture);
 
 	depthTextureShader = shaderLoader.CreateProgram("Assets/Shaders/depthTextureShader.vs", "Assets/Shaders/depthTextureShader.fs");	
@@ -205,6 +221,8 @@ void InitScene()
 	}
 
 	InitSceneForInstancing(shaderLoader, sphereTexture);		
+
+	InitShadowmap();
 }
 
 void Destroy()
@@ -283,6 +301,7 @@ int main()
 			//ConfigureShaderAndMatrices();		
 			//glBindTexture(GL_TEXTURE_2D, depthMap);
 			debugQuad->SetTexture(depthMap);
+
 			RenderScene();
 		}
 
@@ -380,6 +399,11 @@ void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int 
 		{
 			useShadowmap = !useShadowmap;
 		}		
+		else if (key == GLFW_KEY_4)
+		{
+			useOrthProjection = !useOrthProjection;
+		}
+		
 	}
 	else if (action == GLFW_REPEAT)
 	{
@@ -439,7 +463,7 @@ void InitShadowmap()
 	glGenFramebuffers(1, &depthMapFBO);
 
 	//깊이 텍스쳐는 깊이버퍼보다 느리지만, 쉐이더에서 텍스처 샘플로 사용할수 있는 장점이 있다.	
-	unsigned int depthMap;
+	//unsigned int depthMap;
 	glGenTextures(1, &depthMap);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,

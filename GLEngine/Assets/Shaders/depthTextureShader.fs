@@ -1,9 +1,8 @@
-#version 330 core
-
-out vec4 color;
+#version 450 core
+layout (location = 0) out vec4 color;
 
 void main()
 {             
     // gl_FragDepth = gl_FragCoord.z;
-	color = vec4(gl_FragCoord, 1);
-}  
+	color = vec4(gl_FragCoord.z,gl_FragCoord.z,gl_FragCoord.z,1);
+}

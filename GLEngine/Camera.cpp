@@ -3,15 +3,9 @@
 #include <GLFW/glfw3.h>	//OpenGL, window and input
 
 Camera::Camera(GLfloat fov, GLfloat width, GLfloat height, GLfloat nearPlane, GLfloat farPlane, glm::vec3 camPos)
-{
-    fov_ = fov;
-    camPos_ = camPos;
-
-    targetPos_ = { 0.0f, 0.0f, 0.0f };
-    glm::vec3 camUp = { 0.0f, 1.0f, 0.0f };
-
-    viewMatrix_ = glm::lookAt(camPos_, targetPos_, camUp);
-    projectionMatrix_ = glm::perspective(fov_, width / height, nearPlane, farPlane);
+{            
+	SetPosition(camPos);    
+	SetPerspectiveProjection(fov_, width, height, nearPlane, farPlane);    
 }
 
 
@@ -74,5 +68,17 @@ void Camera::SetPosition(glm::vec3 pos)
 void Camera::SetTargetPosition(glm::vec3 pos)
 {
 	targetPos_ = pos;
-	viewMatrix_ = glm::lookAt(camPos_, targetPos_, glm::vec3(0,1,0));
+
+	viewMatrix_ = glm::lookAt(camPos_, targetPos_, glm::vec3(0, 1, 0));
+}
+
+void Camera::SetOrthProjection(float left, float right, float top, float bottom, float nearPlan, float farPlan)
+{
+	projectionMatrix_ = glm::ortho(left, right, top, bottom, nearPlan, farPlan);	
+}
+
+void Camera::SetPerspectiveProjection(GLfloat fov, GLfloat width, GLfloat height, GLfloat nearPlane, GLfloat farPlane)
+{
+	fov_ = fov;
+	projectionMatrix_ = projectionMatrix_ = glm::perspective(fov_, width / height, nearPlane, farPlane);
 }
