@@ -17,7 +17,10 @@ public:
 
     virtual void Draw() override;
 
+	bool isDebug = false;
 private:
     Camera* camera_;
+
+	
 };
 

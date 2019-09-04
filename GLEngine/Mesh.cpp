@@ -11,6 +11,14 @@ Mesh::~Mesh()
 {
 }
 
+// Unity coord
+//        +y
+//         | z
+//         | /
+//    -x ---/------- +x
+//         /|
+//      -z/ | -y
+
 // opengl coord
 //        +y
 //         | -z

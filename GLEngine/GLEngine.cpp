@@ -80,6 +80,9 @@ void RenderScene()
 	
 	if (useShadowmap)
 	{
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			return;
+
 //		depthMesh->Draw();
 		debugQuad->Draw();
 	}
@@ -132,7 +135,7 @@ void UpdateScene(double deltaTimeMs)
 void InitScene()
 {
     glEnable(GL_DEPTH_TEST);
-	cam = new Camera(45.0f, 1280.f, 720.f, 0.1f, 1000.0f, { 0.0f, 6.0f, -100.0f });
+	cam = new Camera(45.0f, 1280.f, 720.f, 0.1f, 1000.0f, { 0.0f, 6.0f, 100.0f });
 
     //쉐이더는 컴파일하면 여러 지오메트리에서 공유할 수 있다.
     //매번 컴파일할것없이 부모만 컴파일해서 사용하면 된다. 여기서 언리얼의 메터리얼인스턴스 개념도 출발한다.
@@ -143,7 +146,7 @@ void InitScene()
 
     light = new LightRenderer(MeshType::Sphere, cam);
     light->SetProgram(shaderProgram);	
-    light->SetPosition({ 0.f, 0.f, -10.0f });
+    light->SetPosition({ 19.f, 19.f, 13.0f });
 
 
     //unlit static mesh
@@ -152,7 +155,8 @@ void InitScene()
 	TextureLoader textureLoader;
     //텍스처 역시 캐시해서 공유가능하다.
     //GLuint sphereTexture = textureLoader.GetTextureID("Assets/Textures/globe.dds");
-	sphereTexture = textureLoader.GetTextureID("Assets/Textures/globe.dds");
+	sphereTexture = textureLoader.GetTextureID("Assets/Textures/globe.dds");	
+	
     mesh = new MeshRenderer(MeshType::Sphere, cam);
     mesh->SetProgram(textureShaderProgram);
     mesh->SetPosition({ 0.0f, 0.0f, 0.0f });
@@ -160,13 +164,6 @@ void InitScene()
 	mesh->SetTexture(sphereTexture);
 	
 	
-	GLuint depthTextureDebugShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/depthTextureDebug.vs", "Assets/Shaders/depthTextureDebug.fs");
-	debugQuad = new MeshRenderer(MeshType::Cube, cam);
-	debugQuad->SetProgram(depthTextureDebugShaderProgram);
-	debugQuad->SetPosition({ 10.0f, 10.0f, 0.0f });
-	debugQuad->SetScale(glm::vec3(8.0f));
-	//debugQuad->SetTexture(sphereTexture);
-
     //dynamic text
     GLuint textProgram = shaderLoader.CreateProgram("Assets/Shaders/text.vs", "Assets/Shaders/text.fs");
 	assert(textProgram != GL_FALSE);
@@ -190,14 +187,26 @@ void InitScene()
 	bottom->SetProgram(textureLightShaderProgram);
 	bottom->SetPosition({ 0.0f, -20.0f, 0.0f });
 	bottom->SetScale(glm::vec3(100.0f, 2.0f, 100.0f));
-	bottom->SetTexture(sphereTexture);
+	GLuint groundTexture = textureLoader.GetTextureID("Assets/Textures/ground.dds");
+	bottom->SetTexture(groundTexture);
 
+
+	//shadowmap
 	depthTextureShader = shaderLoader.CreateProgram("Assets/Shaders/depthTextureShader.vs", "Assets/Shaders/depthTextureShader.fs");	
 	depthMesh = new LitMeshShadowRenderer(MeshType::Sphere, cam, light);
 	depthMesh->SetProgram(textureShaderProgram);
 	depthMesh->SetPosition({ 32.0f, 0.0f, 0.0f });
 	depthMesh->SetScale(glm::vec3(8.0f));
 	depthMesh->SetTexture(depthTextureShader);
+
+	GLuint depthTextureDebugShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/depthTextureDebug.vs", "Assets/Shaders/depthTextureDebug.fs");
+	debugQuad = new MeshRenderer(MeshType::Cube, cam);
+	debugQuad->SetProgram(shaderProgram);
+	debugQuad->SetPosition({ -40.0f, 10.0f, -20.0f });
+	debugQuad->SetScale(glm::vec3(10.0f));
+	debugQuad->SetTexture(sphereTexture);
+	debugQuad->isDebug = false;
+
 
 	glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };
 	int posModFactor = COUNT_X * static_cast<int>((DistanceWithObject * 0.5f));
@@ -222,7 +231,6 @@ void InitScene()
 
 	InitSceneForInstancing(shaderLoader, sphereTexture);		
 
-	InitShadowmap();
 }
 
 void Destroy()
@@ -264,6 +272,33 @@ int main()
     glewInit();
     
 	InitScene();
+
+
+	//InitShadowmap();
+
+// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+	GLuint FramebufferName = 0;
+	glGenFramebuffers(1, &FramebufferName);
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+
+	// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
+	GLuint depthTexture;
+	glGenTextures(1, &depthTexture);
+	glBindTexture(GL_TEXTURE_2D, depthTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
+
+	glDrawBuffer(GL_NONE); // No color buffer is drawn to.
+
+	// Always check that our framebuffer is ok
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		return false;
+
 
 	unsigned int frameCnt = 0; 
 	double elapsedTime = 0; 
@@ -458,25 +493,32 @@ void ProcessMouseButton(GLFWwindow* window, int button, int action, int mods)
 
 
 void InitShadowmap()
-{
-	unsigned int depthMapFBO;
+{	
 	glGenFramebuffers(1, &depthMapFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 
 	//깊이 텍스쳐는 깊이버퍼보다 느리지만, 쉐이더에서 텍스처 샘플로 사용할수 있는 장점이 있다.	
 	//unsigned int depthMap;
 	glGenTextures(1, &depthMap);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-		SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	glDrawBuffer(GL_NONE);	//color사용안함 설정.
-	glReadBuffer(GL_NONE);	//color사용안함 설정.
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMap, 0);
+
+	glDrawBuffer(GL_NONE);	//버퍼에 컬러 그리지 않음
+	glReadBuffer(GL_NONE);	//버퍼에서 컬러 읽지 않음.
+
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	//return;
 }
 
