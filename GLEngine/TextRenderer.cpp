@@ -179,10 +179,8 @@ void TextRenderer::SetText(std::string str)
 
 void TextRenderer::PreDraw()
 {
-	throw std::logic_error("The method or operation is not implemented.");
 }
 
 void TextRenderer::PostDraw()
 {
-	throw std::logic_error("The method or operation is not implemented.");
 }

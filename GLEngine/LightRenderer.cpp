@@ -111,10 +111,8 @@ void LightRenderer::Draw()
 
 void LightRenderer::PreDraw()
 {
-	throw std::logic_error("The method or operation is not implemented.");
 }
 
 void LightRenderer::PostDraw()
 {
-	throw std::logic_error("The method or operation is not implemented.");
 }

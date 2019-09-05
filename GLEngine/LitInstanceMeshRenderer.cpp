@@ -177,10 +177,8 @@ void LitInstanceMeshRenderer::SetTransforms(std::vector<glm::mat4>&& transforms)
 
 void LitInstanceMeshRenderer::PreDraw()
 {
-	throw std::logic_error("The method or operation is not implemented.");
 }
 
 void LitInstanceMeshRenderer::PostDraw()
 {
-	throw std::logic_error("The method or operation is not implemented.");
 }

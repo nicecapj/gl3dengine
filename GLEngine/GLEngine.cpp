@@ -75,47 +75,46 @@ void InitPhysics() {}
 
 void PreRenderScene()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-
 	if (useShadowmap)
 	{
 		// 1. first render to depth map
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);		
+		glClear(GL_DEPTH_BUFFER_BIT);		
+		
 		for (auto renderObj : shadowRenderList_)
 		{
 			renderObj->SetProgram(depthTextureShader);
-			renderObj->Draw();
+			renderObj->PreDraw();
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}	
+	}
+	
+
 }
 
 void PostRenderScene()
 {
-	light->Draw();
-	mesh->Draw();
-	litMesh->Draw();
-	bottom->Draw();
-	//    label->Draw();
+	// 2. then render scene as normal with shadow mapping (using depth map)
+	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 
 	if (useShadowmap)
 	{		
 		// 2. then render scene as normal with shadow mapping (using depth map)
-		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//ConfigureShaderAndMatrices();		
 		//glBindTexture(GL_TEXTURE_2D, depthMap);
 				
 		for (auto renderObj : shadowRenderList_)
 		{
-			renderObj->SetProgram(depthTextureShader);
-			renderObj->Draw();
+			renderObj->SetProgram(textureLightShaderProgram);			
+			renderObj->SetTexture(sphereTexture);
+			renderObj->PostDraw();
 		}
 
+		glBindTexture(GL_TEXTURE_2D, depthMap);
 		debugQuad->SetTexture(depthMap);
 		debugQuad->Draw();
 	}
@@ -133,6 +132,12 @@ void PostRenderScene()
 			instancingMesh->Draw();
 		}
 	}
+
+	light->Draw();
+	mesh->Draw();
+	litMesh->Draw();
+	bottom->Draw();
+	//    label->Draw();
 }
 
 
@@ -240,11 +245,10 @@ void InitScene()
 
 	GLuint depthTextureDebugShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/depthTextureDebug.vs", "Assets/Shaders/depthTextureDebug.fs");
 	debugQuad = new MeshRenderer(MeshType::Cube, cam);
-	debugQuad->SetProgram(shaderProgram);
+	debugQuad->SetProgram(textureShaderProgram);
 	debugQuad->SetPosition({ -40.0f, 10.0f, -20.0f });
 	debugQuad->SetScale(glm::vec3(10.0f));
-	debugQuad->SetTexture(sphereTexture);
-	debugQuad->isDebug = false;
+	//debugQuad->SetTexture(sphereTexture);
 
 
 	glm::vec3 basePos{ 0.0f, 0.0f, 0.0f };

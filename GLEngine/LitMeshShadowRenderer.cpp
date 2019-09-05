@@ -49,21 +49,21 @@ LitMeshShadowRenderer::LitMeshShadowRenderer(MeshType meshType, Camera* camera, 
                           sizeof(Vertex),
                           (GLvoid*)0);
 
-    //glEnableVertexAttribArray(1);	//layout (location = 1) in vec2 texCoord;
-    //glVertexAttribPointer(1,
-    //                      2,
-    //                      GL_FLOAT,
-    //                      GL_FALSE,
-    //                      sizeof(Vertex),
-    //                      (GLvoid*)(offsetof(Vertex, Vertex::texCoords)));
+    glEnableVertexAttribArray(1);	//layout (location = 1) in vec2 texCoord;
+    glVertexAttribPointer(1,
+                          2,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          sizeof(Vertex),
+                          (GLvoid*)(offsetof(Vertex, Vertex::texCoords)));
 
-    //glEnableVertexAttribArray(2);	//VS : layout (location = 2) in vec3 normal;
-    //glVertexAttribPointer(2,
-    //                      3,
-    //                      GL_FLOAT,
-    //                      GL_FALSE,
-    //                      sizeof(Vertex),
-    //                      (GLvoid*)(offsetof(Vertex, Vertex::normal)));
+    glEnableVertexAttribArray(2);	//VS : layout (location = 2) in vec3 normal;
+    glVertexAttribPointer(2,
+                          3,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          sizeof(Vertex),
+                          (GLvoid*)(offsetof(Vertex, Vertex::normal)));
 
     //glEnableVertexAttribArray(3);	//VS : layout (location = 3) in vec3 color;
     //glVertexAttribPointer(3,
@@ -90,12 +90,17 @@ LitMeshShadowRenderer::~LitMeshShadowRenderer()
 
 void LitMeshShadowRenderer::Draw()
 {	   
+
+}
+
+void LitMeshShadowRenderer::PreDraw()
+{
 	glUseProgram(program_);
 
 	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
 	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
 	glm::mat4 model = transformMatrix * scaleMatrix;
-	
+
 
 	//projection from light
 	//Light space transform
@@ -105,34 +110,74 @@ void LitMeshShadowRenderer::Draw()
 	//	glm::vec3(0.0f, 0.0f, 0.0f),
 	//	glm::vec3(0.0f, 1.0f, 0.0f));
 
-	glm::mat4 lightView = glm::lookAt(light_->GetPosition(),
+	glm::mat4 lightView = glm::lookAt(-light_->GetPosition(),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-	//glm::mat4 lightSpaceMatrix = proj * lightView;
+	glm::mat4 lightSpaceMatrix = lightProjection * lightView;	
+	glm::mat4 depthBiasMVP = lightSpaceMatrix * biasMatrix;
 
 	GLuint lightSpaceMatrixLocation = glGetUniformLocation(program_, "lightSpaceMatrix");
 	glUniformMatrix4fv(lightSpaceMatrixLocation, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
-	GLuint modelLocation = glGetUniformLocation(program_, "model");	
+	/*GLuint DepthBiasMVPLocation = glGetUniformLocation(program_, "DepthBiasMVP");
+	glUniformMatrix4fv(DepthBiasMVPLocation, 1, GL_FALSE, glm::value_ptr(depthBiasMVP));
+
+	*/
+
+	GLuint modelLocation = glGetUniformLocation(program_, "model");
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
 
-    //draw
-    //한번만 그릴 데이터를 전부 요구한다.(vao_) 이후 glDrawElements를 통해 그린다.
-    glBindVertexArray(vao_);
-    glDrawElements(GL_TRIANGLES, indicies_.size(), GL_UNSIGNED_INT, 0);
+	//draw
+	//한번만 그릴 데이터를 전부 요구한다.(vao_) 이후 glDrawElements를 통해 그린다.
+	glBindVertexArray(vao_);
+	glDrawElements(GL_TRIANGLES, indicies_.size(), GL_UNSIGNED_INT, 0);
 
-    //marks end of draw function
-    glBindVertexArray(0);
-    glUseProgram(0);
-}
-
-void LitMeshShadowRenderer::PreDraw()
-{
-	throw std::logic_error("The method or operation is not implemented.");
+	//marks end of draw function
+	glBindVertexArray(0);
+	glUseProgram(0);
 }
 
 void LitMeshShadowRenderer::PostDraw()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
+	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
+	glm::mat4 model = transformMatrix * scaleMatrix;
+
+
+	//shader
+	glUseProgram(program_);
+
+	GLuint modelLocation = glGetUniformLocation(program_, "model");
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));	//유니폼변수, 넘길데이터의 수, 전치인지 여부, 넘길 DATA의 포인터
+
+	glm::mat4 view = camera_->GetViewMatrix();
+	glm::mat4 proj = camera_->GetProjectMatrix();
+	glm::mat4 vp = proj * view;
+
+	//uniform은 쉐이더 에러나, 쉐이더에서 선언만 되고 사용되는 곳 없으면, 가져오는데 실패(-1) 한다.
+	GLuint vpLocation = glGetUniformLocation(program_, "vp");	//uniform mat4 view;
+	//assert(vpLocation != -1);
+	glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(vp));
+
+	auto camPos = camera_->GetCameraPosition();
+	GLuint camPosLocation = glGetUniformLocation(program_, "cameraPos");	//uniform vec3 cameraPos;
+	assert(camPosLocation != -1);
+	glUniform3f(camPosLocation, camPos.x, camPos.y, camPos.z);
+
+	GLuint lightPosLocation = glGetUniformLocation(program_, "lightPos");	//uniform vec3 lightPos;
+	//assert(lightPosLocation != -1);
+	auto lightPos = light_->GetPosition();
+	glUniform3f(lightPosLocation, lightPos.x, lightPos.y, lightPos.z);
+
+	//texture
+	glBindTexture(GL_TEXTURE_2D, texture_);
+
+	//draw
+	//한번만 그릴 데이터를 전부 요구한다.(vao_) 이후 glDrawElements를 통해 그린다.
+	glBindVertexArray(vao_);
+	glDrawElements(GL_TRIANGLES, indicies_.size(), GL_UNSIGNED_INT, 0);
+
+	//marks end of draw function
+	glBindVertexArray(0);
+	glUseProgram(0);
 }

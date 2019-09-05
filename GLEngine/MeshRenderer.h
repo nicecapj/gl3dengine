@@ -15,13 +15,8 @@ public:
     MeshRenderer(MeshType meshType, Camera* camera);
     ~MeshRenderer();
 
-    virtual void Draw() override;
-
-	bool isDebug = false;
-
+    virtual void Draw() override;	
 	virtual void PreDraw() override;
-
-
 	virtual void PostDraw() override;
 
 private:

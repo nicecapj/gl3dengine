@@ -135,10 +135,8 @@ void LitMeshRenderer::Draw()
 
 void LitMeshRenderer::PreDraw()
 {
-	throw std::logic_error("The method or operation is not implemented.");
 }
 
 void LitMeshRenderer::PostDraw()
 {
-	throw std::logic_error("The method or operation is not implemented.");
 }
