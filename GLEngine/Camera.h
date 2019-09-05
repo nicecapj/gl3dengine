@@ -17,7 +17,7 @@ public:
     glm::mat4 GetProjectMatrix();	
 
     glm::vec3 GetCameraPosition();
-	void SetPosition(glm::vec3 pos);
+	void SetPosition(glm::vec3 pos);	
 	void SetTargetPosition(glm::vec3 pos);
 
 	void SetOrthProjection(float left, float right, float top, float bottom, float nearPlan, float farPlan);

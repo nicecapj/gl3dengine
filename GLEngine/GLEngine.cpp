@@ -43,11 +43,12 @@ MeshRenderer* mesh = nullptr;
 LitMeshRenderer* litMesh = nullptr;
 LitMeshRenderer* bottom = nullptr;
 TextRenderer* label = nullptr;
-LitMeshShadowRenderer* depthMesh = nullptr;
+//LitMeshShadowRenderer* depthMesh = nullptr;
 MeshRenderer* debugQuad = nullptr;
 
 
 LitInstanceMeshRenderer* instancingMesh = nullptr;
+GLuint textureLightShaderProgram;
 GLuint depthTextureShader;
 
 GLuint depthMapFBO;
@@ -56,6 +57,7 @@ GLuint depthMap;
 GLuint instancingBuffer = -1;
 
 std::vector<Renderer*> renderList_;	
+std::vector<Renderer*> shadowRenderList_;
 //std::map<Renderer*, int> instancingRendererMap_;
 
 
@@ -70,20 +72,51 @@ void ProcessMouseButton(GLFWwindow* window, int button, int action, int mods);
 void InitShadowmap();
 void InitPhysics() {}
 
-void RenderScene()
-{	
-    light->Draw();
-    mesh->Draw();
-    litMesh->Draw();
-	bottom->Draw();
-//    label->Draw();
-	
+
+void PreRenderScene()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+
 	if (useShadowmap)
 	{
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			return;
+		// 1. first render to depth map
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 
-//		depthMesh->Draw();
+		for (auto renderObj : shadowRenderList_)
+		{
+			renderObj->SetProgram(depthTextureShader);
+			renderObj->Draw();
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}	
+}
+
+void PostRenderScene()
+{
+	light->Draw();
+	mesh->Draw();
+	litMesh->Draw();
+	bottom->Draw();
+	//    label->Draw();
+
+	if (useShadowmap)
+	{		
+		// 2. then render scene as normal with shadow mapping (using depth map)
+		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//ConfigureShaderAndMatrices();		
+		//glBindTexture(GL_TEXTURE_2D, depthMap);
+				
+		for (auto renderObj : shadowRenderList_)
+		{
+			renderObj->SetProgram(depthTextureShader);
+			renderObj->Draw();
+		}
+
+		debugQuad->SetTexture(depthMap);
 		debugQuad->Draw();
 	}
 	else
@@ -99,7 +132,7 @@ void RenderScene()
 		{
 			instancingMesh->Draw();
 		}
-	}	
+	}
 }
 
 
@@ -173,7 +206,7 @@ void InitScene()
     
 
     //lit static mesh
-    GLuint textureLightShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/litTexturedModel.vs", "Assets/Shaders/litTexturedModel.fs");
+    textureLightShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/litTexturedModel.vs", "Assets/Shaders/litTexturedModel.fs");
 	assert(textureLightShaderProgram != GL_FALSE);
 	litMesh = new LitMeshRenderer(MeshType::Sphere, cam, light);    
 	litMesh->SetProgram(textureLightShaderProgram);
@@ -193,11 +226,17 @@ void InitScene()
 
 	//shadowmap
 	depthTextureShader = shaderLoader.CreateProgram("Assets/Shaders/depthTextureShader.vs", "Assets/Shaders/depthTextureShader.fs");	
-	depthMesh = new LitMeshShadowRenderer(MeshType::Sphere, cam, light);
-	depthMesh->SetProgram(textureShaderProgram);
-	depthMesh->SetPosition({ 32.0f, 0.0f, 0.0f });
-	depthMesh->SetScale(glm::vec3(8.0f));
-	depthMesh->SetTexture(depthTextureShader);
+	
+	for (int i = 0; i < 10; ++i)
+	{
+		auto depthMesh = new LitMeshShadowRenderer(MeshType::Sphere, cam, light);
+		depthMesh->SetProgram(textureShaderProgram);
+		depthMesh->SetPosition({ 32.0f + (16 * i), 0.0f, 0.0f });
+		depthMesh->SetScale(glm::vec3(8.0f));
+		depthMesh->SetTexture(depthTextureShader);
+
+		shadowRenderList_.push_back(depthMesh);
+	}
 
 	GLuint depthTextureDebugShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/depthTextureDebug.vs", "Assets/Shaders/depthTextureDebug.fs");
 	debugQuad = new MeshRenderer(MeshType::Cube, cam);
@@ -242,6 +281,14 @@ void Destroy()
 	}
 	renderList_.clear();
 
+	for (auto* renderer : shadowRenderList_)
+	{
+		delete renderer;
+		renderer = nullptr;
+	}
+	shadowRenderList_.clear();
+	
+
 	delete mesh;
 	delete litMesh;
 	delete light;
@@ -274,30 +321,7 @@ int main()
 	InitScene();
 
 
-	//InitShadowmap();
-
-// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-	GLuint FramebufferName = 0;
-	glGenFramebuffers(1, &FramebufferName);
-	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-
-	// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
-	GLuint depthTexture;
-	glGenTextures(1, &depthTexture);
-	glBindTexture(GL_TEXTURE_2D, depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
-
-	glDrawBuffer(GL_NONE); // No color buffer is drawn to.
-
-	// Always check that our framebuffer is ok
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		return false;
+	InitShadowmap();
 
 
 	unsigned int frameCnt = 0; 
@@ -313,31 +337,16 @@ int main()
         
 
 		if (!useShadowmap)
-		{
+		{			
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			RenderScene();
+			PostRenderScene();			
 		}
 		else
-		{
-			// 1. first render to depth map
-			glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glClearColor(0.0, 0.0, 0.0, 1.0);
+		{			
+			PreRenderScene();
 
 			//render scene.	//쉐도우맵 그림자가 추가되면 2번 그려야 함. 부하가 2배
-			RenderScene();
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-			// 2. then render scene as normal with shadow mapping (using depth map)
-			glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			//ConfigureShaderAndMatrices();		
-			//glBindTexture(GL_TEXTURE_2D, depthMap);
-			debugQuad->SetTexture(depthMap);
-
-			RenderScene();
+			PostRenderScene();
 		}
 
 
@@ -461,7 +470,7 @@ double lastX;
 double lastY;
 void ProcessMouseMove(GLFWwindow* window, double xpos, double ypos)
 {
-	printf("MouseMove %d %d\n", xpos, ypos);
+	//printf("MouseMove %d %d\n", xpos, ypos);
 
 	if (::firstMouse)
 	{
@@ -501,13 +510,13 @@ void InitShadowmap()
 	//unsigned int depthMap;
 	glGenTextures(1, &depthMap);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-
+	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
 	
 	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMap, 0);
@@ -518,7 +527,9 @@ void InitShadowmap()
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	//if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	//return;
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{ 
+		std::cout << "error framebuffer" << std::endl;
+	}		
 }
 

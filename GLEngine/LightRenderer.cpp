@@ -108,3 +108,13 @@ void LightRenderer::Draw()
     glBindVertexArray(0);
     glUseProgram(0);
 }
+
+void LightRenderer::PreDraw()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void LightRenderer::PostDraw()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}

@@ -21,10 +21,16 @@ class TextRenderer : public Renderer
 public:
     TextRenderer(std::string str, std::string fontName, int size, glm::vec3 color, GLuint program);
     ~TextRenderer();
+    	
+	virtual void PreDraw() override;	
+	virtual void Draw() override;
+	virtual void PostDraw() override;
 
-    virtual void Draw() override;
 	void SetPosition(glm::vec2 position);	
     void SetText(std::string str);
+
+
+
 private:
     std::string text_;        
     glm::vec2 position2D_;

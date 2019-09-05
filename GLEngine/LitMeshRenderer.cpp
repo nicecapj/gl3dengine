@@ -132,3 +132,13 @@ void LitMeshRenderer::Draw()
     glBindVertexArray(0);
     glUseProgram(0);
 }
+
+void LitMeshRenderer::PreDraw()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void LitMeshRenderer::PostDraw()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}

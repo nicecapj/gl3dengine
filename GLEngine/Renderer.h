@@ -14,7 +14,9 @@ public:
     Renderer();
     virtual ~Renderer();
 
-    virtual void Draw() = 0;
+	virtual void PreDraw() = 0;
+	virtual void Draw() = 0;
+	virtual void PostDraw() = 0;
     virtual void UpdateScene(double deltaTimeMs);
 
     inline glm::vec3 GetPosition(){ return position_; }

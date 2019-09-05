@@ -11,8 +11,9 @@ public:
 	LitMeshShadowRenderer(MeshType meshType, class Camera* camera, class LightRenderer* light);
     ~LitMeshShadowRenderer();
 
-    void Draw();
-
+	virtual void PreDraw() override;
+	virtual void Draw() override;
+	virtual void PostDraw() override;
 
 private:
     class LightRenderer* light_ = nullptr;

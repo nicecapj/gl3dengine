@@ -24,11 +24,16 @@ public:
     LitInstanceMeshRenderer(MeshType meshType, class Camera* camera, class LightRenderer* light);
     ~LitInstanceMeshRenderer();
 
-    virtual void Draw() override;
+	virtual void PreDraw() override;
+	virtual void Draw() override;
+	virtual void PostDraw() override
+		;
     virtual void UpdateScene(double deltaTimeMs) override;
 
 	void SetObjectCount(GLuint count);
 	void SetTransforms(std::vector<glm::mat4>&& transforms);
+
+
 private:
     class LightRenderer* light_ = nullptr;
     class Camera* camera_ = nullptr;    

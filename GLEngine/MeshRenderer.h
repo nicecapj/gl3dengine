@@ -18,6 +18,12 @@ public:
     virtual void Draw() override;
 
 	bool isDebug = false;
+
+	virtual void PreDraw() override;
+
+
+	virtual void PostDraw() override;
+
 private:
     Camera* camera_;
 
