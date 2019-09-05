@@ -31,6 +31,6 @@ private:
 
 	bool isPerspetive = true;
 
-	float moveSpeed_ = 100.0f;
+	float moveSpeed_ = 1000.0f;
 };
 

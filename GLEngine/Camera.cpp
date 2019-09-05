@@ -18,11 +18,10 @@ void Camera::ProcessKeyboard(int key, double deltatime)
 	switch (key)
 	{
 	case GLFW_KEY_UP: {
-		SetPosition(glm::vec3(camPos_.x, camPos_.y, camPos_.z + moveSpeed_ * deltatime));
-		this->camPos_.z += moveSpeed_ * deltatime;
+		SetPosition(glm::vec3(camPos_.x, camPos_.y, camPos_.z - moveSpeed_ * deltatime));		
 	}break;
 	case GLFW_KEY_DOWN: {
-		SetPosition(glm::vec3(camPos_.x, camPos_.y, camPos_.z - moveSpeed_ * deltatime));		
+		SetPosition(glm::vec3(camPos_.x, camPos_.y, camPos_.z + moveSpeed_ * deltatime));		
 	}break;
 	case GLFW_KEY_LEFT: {		
 		SetPosition(glm::vec3(camPos_.x - moveSpeed_ * deltatime, camPos_.y, camPos_.z ));
