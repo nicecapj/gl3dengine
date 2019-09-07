@@ -95,15 +95,77 @@ void LitMeshShadowRenderer::Draw()
 
 void LitMeshShadowRenderer::PreDraw()
 {
+	if (enableDynamicShadow_)
+	{
+		glUseProgram(program_);
+
+		glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
+		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
+		glm::mat4 model = transformMatrix * scaleMatrix;
+
+
+		//projection from light
+		//Light space transform
+		float near_plane = -100.0f, far_plane = 100.5f;
+		glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
+		//glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
+		//	glm::vec3(0.0f, 0.0f, 0.0f),
+		//	glm::vec3(0.0f, 1.0f, 0.0f));
+
+		glm::mat4 lightView = glm::lookAt(-light_->GetPosition(),
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+		glm::mat4 depthBiasMVP = lightSpaceMatrix * biasMatrix;
+
+		GLuint lightSpaceMatrixLocation = glGetUniformLocation(program_, "lightSpaceMatrix");
+		glUniformMatrix4fv(lightSpaceMatrixLocation, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+
+		/*GLuint DepthBiasMVPLocation = glGetUniformLocation(program_, "DepthBiasMVP");
+		glUniformMatrix4fv(DepthBiasMVPLocation, 1, GL_FALSE, glm::value_ptr(depthBiasMVP));
+
+		*/
+
+		GLuint modelLocation = glGetUniformLocation(program_, "model");
+		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
+
+		//draw
+		//한번만 그릴 데이터를 전부 요구한다.(vao_) 이후 glDrawElements를 통해 그린다.
+		glBindVertexArray(vao_);
+		glDrawElements(GL_TRIANGLES, indicies_.size(), GL_UNSIGNED_INT, 0);
+
+		//marks end of draw function
+		glBindVertexArray(0);
+		glUseProgram(0);
+	}
+}
+
+void LitMeshShadowRenderer::PostDraw()
+{
 	glUseProgram(program_);
 
+	//MVP
 	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
 	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
 	glm::mat4 model = transformMatrix * scaleMatrix;
 
+	glm::mat4 view = camera_->GetViewMatrix();
+	glm::mat4 proj = camera_->GetProjectMatrix();
+
+	GLuint modelLocation = glGetUniformLocation(program_, "model");
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
+
+	GLuint vpLocation = glGetUniformLocation(program_, "view");
+	glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(view));
+
+	GLuint projectionpLocation = glGetUniformLocation(program_, "projection");
+	glUniformMatrix4fv(projectionpLocation, 1, GL_FALSE, glm::value_ptr(proj));
+
 
 	//projection from light
 	//Light space transform
+	//빛에서 평행하게 광선이 진행해야 하는데, 원근이 적용되면 변형됨으로, 직교투영으로 한다.
+	//원하는 오브젝트가 그림자를 뎁스맵에 그리려 해도, 클리핑되면 안됨으로. near / far_plane을 잘 지정해야 한다.
 	float near_plane = -100.0f, far_plane = 100.5f;
 	glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
 	//glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
@@ -113,54 +175,14 @@ void LitMeshShadowRenderer::PreDraw()
 	glm::mat4 lightView = glm::lookAt(-light_->GetPosition(),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightSpaceMatrix = lightProjection * lightView;	
+	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 	glm::mat4 depthBiasMVP = lightSpaceMatrix * biasMatrix;
 
 	GLuint lightSpaceMatrixLocation = glGetUniformLocation(program_, "lightSpaceMatrix");
 	glUniformMatrix4fv(lightSpaceMatrixLocation, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
-	/*GLuint DepthBiasMVPLocation = glGetUniformLocation(program_, "DepthBiasMVP");
-	glUniformMatrix4fv(DepthBiasMVPLocation, 1, GL_FALSE, glm::value_ptr(depthBiasMVP));
-
-	*/
-
-	GLuint modelLocation = glGetUniformLocation(program_, "model");
-	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
-
-	//draw
-	//한번만 그릴 데이터를 전부 요구한다.(vao_) 이후 glDrawElements를 통해 그린다.
-	glBindVertexArray(vao_);
-	glDrawElements(GL_TRIANGLES, indicies_.size(), GL_UNSIGNED_INT, 0);
-
-	//marks end of draw function
-	glBindVertexArray(0);
-	glUseProgram(0);
-}
-
-void LitMeshShadowRenderer::PostDraw()
-{
-	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
-	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
-	glm::mat4 model = transformMatrix * scaleMatrix;
-
-
-	//shader
-	glUseProgram(program_);
-
-	GLuint modelLocation = glGetUniformLocation(program_, "model");
-	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));	//유니폼변수, 넘길데이터의 수, 전치인지 여부, 넘길 DATA의 포인터
-
-	glm::mat4 view = camera_->GetViewMatrix();
-	glm::mat4 proj = camera_->GetProjectMatrix();
-	glm::mat4 vp = proj * view;
-
-	//uniform은 쉐이더 에러나, 쉐이더에서 선언만 되고 사용되는 곳 없으면, 가져오는데 실패(-1) 한다.
-	GLuint vpLocation = glGetUniformLocation(program_, "vp");	//uniform mat4 view;
-	//assert(vpLocation != -1);
-	glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(vp));
-
 	auto camPos = camera_->GetCameraPosition();
-	GLuint camPosLocation = glGetUniformLocation(program_, "cameraPos");	//uniform vec3 cameraPos;
+	GLuint camPosLocation = glGetUniformLocation(program_, "viewPos");	//uniform vec3 cameraPos;
 	assert(camPosLocation != -1);
 	glUniform3f(camPosLocation, camPos.x, camPos.y, camPos.z);
 
@@ -170,12 +192,21 @@ void LitMeshShadowRenderer::PostDraw()
 	glUniform3f(lightPosLocation, lightPos.x, lightPos.y, lightPos.z);
 
 	//texture
-	glBindTexture(GL_TEXTURE_2D, texture_);
+	//GLuint diffuse = GetTexture(0);	
+	//GLuint depthMap = GetTexture(1);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, GetTexture(0));
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, GetTexture(0));	
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, GetTexture(1));
+
 
 	//draw
 	//한번만 그릴 데이터를 전부 요구한다.(vao_) 이후 glDrawElements를 통해 그린다.
 	glBindVertexArray(vao_);
-	glDrawElements(GL_TRIANGLES, indicies_.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, (GLsizei)indicies_.size(), GL_UNSIGNED_INT, 0);
 
 	//marks end of draw function
 	glBindVertexArray(0);

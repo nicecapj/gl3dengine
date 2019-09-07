@@ -110,7 +110,7 @@ void LitInstanceMeshRenderer::Draw()
 	glBufferData(GL_ARRAY_BUFFER, objectCount_ * sizeof(glm::mat4), &transformList_[0], GL_STATIC_DRAW);
 	//-------static이면 할필요없고, 움직인다면 해주면 된다.-------
 
-	glBindTexture(GL_TEXTURE_2D, texture_);
+	glBindTexture(GL_TEXTURE_2D, GetTexture(0));
 
 	glBindVertexArray(vao_);
 	glDrawElementsInstanced(GL_TRIANGLES, GetIndiciesSize(), GL_UNSIGNED_INT, 0, objectCount_);

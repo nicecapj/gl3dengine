@@ -50,6 +50,7 @@ MeshRenderer* debugQuad = nullptr;
 LitInstanceMeshRenderer* instancingMesh = nullptr;
 GLuint textureLightShaderProgram;
 GLuint depthTextureShader;
+GLuint shadowmapTextureLitShader;
 
 GLuint depthMapFBO;
 GLuint depthMap;
@@ -109,14 +110,14 @@ void PostRenderScene()
 				
 		for (auto renderObj : shadowRenderList_)
 		{
-			renderObj->SetProgram(textureLightShaderProgram);			
-			renderObj->SetTexture(sphereTexture);
+			renderObj->SetProgram(shadowmapTextureLitShader);			
+			renderObj->SetTexture(0, sphereTexture);
+			renderObj->SetTexture(1, depthMap);
 			renderObj->PostDraw();
 		}
-
-		glBindTexture(GL_TEXTURE_2D, depthMap);
-		debugQuad->SetTexture(depthMap);
-		debugQuad->Draw();
+		
+		debugQuad->SetTexture(0, depthMap);
+		debugQuad->Draw();				
 	}
 	else
 	{
@@ -131,12 +132,13 @@ void PostRenderScene()
 		{
 			instancingMesh->Draw();
 		}
+		bottom->Draw();
 	}
 
-	light->Draw();
-	mesh->Draw();
-	litMesh->Draw();
-	bottom->Draw();
+	//light->Draw();
+	//mesh->Draw();
+	//litMesh->Draw();	
+
 	//    label->Draw();
 }
 
@@ -199,7 +201,7 @@ void InitScene()
     mesh->SetProgram(textureShaderProgram);
     mesh->SetPosition({ 0.0f, 0.0f, 0.0f });
     mesh->SetScale(glm::vec3(8.0f));
-	mesh->SetTexture(sphereTexture);
+	mesh->SetTexture(0, sphereTexture);
 	
 	
     //dynamic text
@@ -218,7 +220,7 @@ void InitScene()
 	
     litMesh->SetPosition({ 16.0f, 0.0f, 0.0f });
     litMesh->SetScale(glm::vec3(8.0f));
-    litMesh->SetTexture(sphereTexture);
+    litMesh->SetTexture(0, sphereTexture);
 
 		
 	bottom = new LitMeshRenderer(MeshType::Cube, cam, light);
@@ -226,22 +228,34 @@ void InitScene()
 	bottom->SetPosition({ 0.0f, -20.0f, 0.0f });
 	bottom->SetScale(glm::vec3(100.0f, 2.0f, 100.0f));
 	GLuint groundTexture = textureLoader.GetTextureID("Assets/Textures/ground.dds");
-	bottom->SetTexture(groundTexture);
+	bottom->SetTexture(0, groundTexture);
 
 
-	//shadowmap
-	depthTextureShader = shaderLoader.CreateProgram("Assets/Shaders/depthTextureShader.vs", "Assets/Shaders/depthTextureShader.fs");	
+	//shadowmap	
+	depthTextureShader = shaderLoader.CreateProgram("Assets/Shaders/depthTexture.vs", "Assets/Shaders/depthTexture.fs");
+	shadowmapTextureLitShader = shaderLoader.CreateProgram("Assets/Shaders/shadowmapTextureShader.vs", "Assets/Shaders/shadowmapTextureShader.fs");
 	
 	for (int i = 0; i < 10; ++i)
 	{
 		auto depthMesh = new LitMeshShadowRenderer(MeshType::Sphere, cam, light);
-		depthMesh->SetProgram(textureShaderProgram);
+		depthMesh->SetProgram(depthTextureShader);
 		depthMesh->SetPosition({ 32.0f + (16 * i), 0.0f, 0.0f });
 		depthMesh->SetScale(glm::vec3(8.0f));
-		depthMesh->SetTexture(depthTextureShader);
+		//depthMesh->SetTexture(0, depthTextureShader);
+		depthMesh->SetEnableDynamicShadow(true);
 
 		shadowRenderList_.push_back(depthMesh);
 	}
+
+	//auto shadowBottom = new LitMeshShadowRenderer(MeshType::Cube, cam, light);
+	//shadowBottom->SetProgram(depthTextureShader);
+	//shadowBottom->SetPosition({ 0.0f, -20.0f, 0.0f });
+	//shadowBottom->SetScale(glm::vec3(100.0f, 2.0f, 100.0f));	
+	//shadowBottom->SetTexture(0, groundTexture);	
+	//shadowBottom->SetEnableDynamicShadow(false);
+	//shadowRenderList_.push_back(shadowBottom);
+
+
 
 	GLuint depthTextureDebugShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/depthTextureDebug.vs", "Assets/Shaders/depthTextureDebug.fs");
 	debugQuad = new MeshRenderer(MeshType::Cube, cam);
@@ -266,7 +280,7 @@ void InitScene()
 			renderer->SetScale(glm::vec3(8.0f));
 
 			//텍스쳐도 미리 로딩해놓고 공유할수 있다. 다만 draw할때 gpu로 전송은 된다.
-			renderer->SetTexture(sphereTexture);
+			renderer->SetTexture(0, sphereTexture);
 
 			renderList_.push_back(std::move(renderer));
 		}
@@ -310,7 +324,10 @@ int main()
 {	
     glfwSetErrorCallback(&::ErrorFunction);
 
-    glfwInit();
+    glfwInit();	
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+#endif
 
 	GLFWwindow* window = glfwCreateWindow(1280, 720, "OpenGL4.5(SM5) Renderer", nullptr, nullptr);
 
@@ -386,7 +403,7 @@ void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture)
 	instancingMesh->SetProgram(instancingShaderProgram);
 	instancingMesh->SetPosition(glm::vec3(0.f, 0.f, 0.f));
 	instancingMesh->SetScale(glm::vec3(8.0f));
-	instancingMesh->SetTexture(texture);	
+	instancingMesh->SetTexture(0, texture);	
 
 
 	//인스턴싱은 그릴 개체수만큼 생성하는 것이 아니라, 1개만 생성하고, 나머지는 개체수만큼 트랜스폼 정보가 있으면 된다.
@@ -483,8 +500,8 @@ void ProcessMouseMove(GLFWwindow* window, double xpos, double ypos)
 		::firstMouse = false;
 	}
 
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+	auto xoffset = xpos - lastX;
+	auto yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
 
 	lastX = xpos;
 	lastY = ypos;

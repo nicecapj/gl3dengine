@@ -4,11 +4,12 @@
 
 Renderer::Renderer()
 {
+	textures_.reserve(8);
 }
 
 
 Renderer::~Renderer()
-{
+{	
 }
 
 void Renderer::UpdateScene(double deltaTimeMs)
@@ -31,12 +32,21 @@ void Renderer::SetProgram(GLuint program)
     program_ = program;
 }
 
-void Renderer::SetTexture(GLuint textureID)
+void Renderer::SetTexture(int index, GLuint textureID)
 {
-    texture_ = textureID;
+	if (textures_.size() <= index)
+	{
+		textures_.push_back(textureID);
+	}
+	textures_[index] = textureID;
 }
 
 void Renderer::SetColor(glm::vec3 color)
 {
 	color_ = color;
+}
+
+void Renderer::SetEnableDynamicShadow(bool isEnable)
+{
+	enableDynamicShadow_ = isEnable;
 }

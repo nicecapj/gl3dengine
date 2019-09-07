@@ -24,22 +24,25 @@ public:
 	inline glm::vec3 GetScale() { return scale_; }
     void SetScale(glm::vec3 scale);
 
-    void SetProgram(GLuint program);
-    void SetTexture(GLuint textureID);
-	
+	inline GLuint GetProgram() { return program_; }
+	void SetProgram(GLuint program);
+
+	inline GLuint GetTexture(int index) { return textures_[index]; }		
+	void SetTexture(int index, GLuint textureID);
+
 	inline glm::vec3 GetColor() { return color_; 	}
 	void SetColor(glm::vec3 color);
 
 	inline GLuint GetVAO() { return vao_; 	}	//used for instancing	
 	inline GLsizei GetIndiciesSize() {
 		return (GLsizei)indicies_.size();
-	}	
-	inline GLuint GetProgram() { return program_; }
-	inline GLuint GetTexture() {return texture_;	}
+	}			
+
+	void SetEnableDynamicShadow(bool isEnable);
 protected:
     glm::vec3 position_;
     glm::vec3 scale_;
-    GLuint texture_;
+    std::vector<GLuint> textures_;
     GLuint program_;
 	glm::vec3 color_;
 
@@ -52,5 +55,7 @@ protected:
 
 	//buffer store in GPU. Modern GPU bandwidth is 600GB/s, Modern CPU bandwidth is 12GB/s
 	//Buffer objects are used to store, retrive, move data.    
+
+	bool enableDynamicShadow_ = false;
 };
 

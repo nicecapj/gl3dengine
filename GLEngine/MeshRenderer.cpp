@@ -101,13 +101,13 @@ void MeshRenderer::Draw()
 
 	//texture
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture_);
+	glBindTexture(GL_TEXTURE_2D, GetTexture(0));
 
 
 	//draw
 	//한번만 그릴 데이터를 전부 요구한다.(vao_) 이후 glDrawElements를 통해 그린다.
 	glBindVertexArray(vao_);
-	glDrawElements(GL_TRIANGLES, indicies_.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, (GLsizei)indicies_.size(), GL_UNSIGNED_INT, 0);
 
 	//marks end of draw function
 	glBindVertexArray(0);

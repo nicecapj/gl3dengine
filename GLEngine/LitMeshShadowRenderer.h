@@ -4,7 +4,9 @@
 
 #include <vector>
 
-
+//static mesh의 경우, 라이트맵으로 그림자를 구워서, 합성하면 그만이다.
+//그러나 움직이는 물체는 라이트맵으로 처리할 수 없다. 실시간 그림자는 매프레임마다 그림자를 생성해서
+//합성해야 한다. ->shadowmap
 class LitMeshShadowRenderer : public Renderer
 {
 public:

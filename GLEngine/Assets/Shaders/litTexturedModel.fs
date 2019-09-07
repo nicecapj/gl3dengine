@@ -11,7 +11,7 @@ uniform vec3 lightPos;
 uniform vec3 cameraPos;
 
 float specularPower = 3.0f;
-float ambientPower = 0.3f;
+float ambientPower = 0.15f;
 vec4 ambientColor = vec4(1.0, 0.0, 0.0, 1.0);
 vec4 rimLightColor = vec4(0.0, 0.0, 1.0, 1.0);
 
@@ -20,6 +20,9 @@ out vec4 color;
 void main(){
 		
 		color = texture(Texture, TexCoord);
+		
+		ambientColor = color * ambientPower;
+		
 		vec3 normal = normalize(Normal);		
 		vec3 lightDir = normalize(lightPos - WorldPos);
 		float ndl = max(dot(normal, lightDir), 0);
@@ -37,6 +40,7 @@ void main(){
 		else
 			rim = 0;
 					
+		//PHONG Specular
 		vec3 reflectionDir = reflect(-lightDir, normal);
 		float spec = pow(max(dot(viewDir, reflectionDir),0.0),128);			
 		spec = spec * specularPower;
