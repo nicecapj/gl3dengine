@@ -112,7 +112,8 @@ void LitMeshShadowRenderer::PreDraw()
 		//	glm::vec3(0.0f, 0.0f, 0.0f),
 		//	glm::vec3(0.0f, 1.0f, 0.0f));
 
-		glm::mat4 lightView = glm::lookAt(-light_->GetPosition(),
+		glm::vec3 InvlightPos(-light_->GetPosition().x, light_->GetPosition().y, -light_->GetPosition().z);
+		glm::mat4 lightView = glm::lookAt(InvlightPos,
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
@@ -172,7 +173,8 @@ void LitMeshShadowRenderer::PostDraw()
 	//	glm::vec3(0.0f, 0.0f, 0.0f),
 	//	glm::vec3(0.0f, 1.0f, 0.0f));
 
-	glm::mat4 lightView = glm::lookAt(-light_->GetPosition(),
+	glm::vec3 InvlightPos(-light_->GetPosition().x, light_->GetPosition().y, -light_->GetPosition().z);
+	glm::mat4 lightView = glm::lookAt(InvlightPos,
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
@@ -191,14 +193,14 @@ void LitMeshShadowRenderer::PostDraw()
 	auto lightPos = light_->GetPosition();
 	glUniform3f(lightPosLocation, lightPos.x, lightPos.y, lightPos.z);
 
-	//texture
-	//GLuint diffuse = GetTexture(0);	
-	//GLuint depthMap = GetTexture(1);
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, GetTexture(0));
-
-	glActiveTexture(GL_TEXTURE0);
+	//multi texture			
+	GLuint diffuseTextureLocation = glGetUniformLocation(program_, "diffuseTexture");
+	glUniform1i(diffuseTextureLocation, 0);
+	glActiveTexture(GL_TEXTURE0);	
 	glBindTexture(GL_TEXTURE_2D, GetTexture(0));	
+
+	GLuint shadowMapLocation = glGetUniformLocation(program_, "shadowMap");
+	glUniform1i(shadowMapLocation, 1);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, GetTexture(1));
 

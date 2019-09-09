@@ -135,11 +135,11 @@ void PostRenderScene()
 		bottom->Draw();
 	}
 
-	//light->Draw();
-	//mesh->Draw();
-	//litMesh->Draw();	
+	light->Draw();
+	mesh->Draw();
+	litMesh->Draw();	
 
-	//    label->Draw();
+	label->Draw();
 }
 
 
@@ -247,13 +247,13 @@ void InitScene()
 		shadowRenderList_.push_back(depthMesh);
 	}
 
-	//auto shadowBottom = new LitMeshShadowRenderer(MeshType::Cube, cam, light);
-	//shadowBottom->SetProgram(depthTextureShader);
-	//shadowBottom->SetPosition({ 0.0f, -20.0f, 0.0f });
-	//shadowBottom->SetScale(glm::vec3(100.0f, 2.0f, 100.0f));	
-	//shadowBottom->SetTexture(0, groundTexture);	
-	//shadowBottom->SetEnableDynamicShadow(false);
-	//shadowRenderList_.push_back(shadowBottom);
+	auto shadowBottom = new LitMeshShadowRenderer(MeshType::Cube, cam, light);
+	shadowBottom->SetProgram(depthTextureShader);
+	shadowBottom->SetPosition({ 0.0f, -20.0f, 0.0f });
+	shadowBottom->SetScale(glm::vec3(100.0f, 2.0f, 100.0f));
+	shadowBottom->SetTexture(0, groundTexture);
+	shadowBottom->SetEnableDynamicShadow(true);
+	shadowRenderList_.push_back(shadowBottom);
 
 
 
