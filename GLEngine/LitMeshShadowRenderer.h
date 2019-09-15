@@ -21,8 +21,6 @@ private:
     class LightRenderer* light_ = nullptr;
     class Camera* camera_ = nullptr;
 
-    std::vector<Vertex> vertices_;
-    std::vector<GLuint> indicies_;
 
 	//최상위로 옮겨야 함
 	GLuint depthMap_;

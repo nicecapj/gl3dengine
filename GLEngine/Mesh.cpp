@@ -160,6 +160,49 @@ void Mesh::setCubeData(std::vector<Vertex>& vertices, std::vector<uint32_t>& ind
     indices = _indices;
 }
 
+//minecraft 캐릭터 텍스쳐는 64x32사이즈로, 8 x 4개의 블록으로 구성되 있다.
+void Mesh::setMineCraftFaceUV(std::vector<Vertex>& vertices)
+{
+	float u = 0.125; // 1 / 8;
+	float v = 0.25;  // 1 / 4;
+
+	//front
+	vertices[0].texCoords = { u * 1, 1 - v * 1 };	//텍스쳐 좌표계가 V(Y)는 위로 올라갈수록 1이라서, 1-x
+	vertices[1].texCoords = { u * 1, 1 - v * 2 };
+	vertices[2].texCoords = { u * 2, 1 - v * 2 };
+	vertices[3].texCoords = { u * 2, 1 - v * 1 };
+
+	//back
+	vertices[4].texCoords = { u * 3, 1 - v * 1 };
+	vertices[5].texCoords = { u * 3, 1 - v * 2 };
+	vertices[6].texCoords = { u * 4, 1 - v * 2 };
+	vertices[7].texCoords = { u * 4, 1 - v * 1 };
+
+	//left
+	vertices[8].texCoords = { u * 0, 1 - v * 1 };
+	vertices[9].texCoords = { u * 0, 1 - v * 2 };
+	vertices[10].texCoords = { u * 1, 1 - v * 2 };
+	vertices[11].texCoords = { u * 1, 1 - v * 1 };
+
+	//right
+	vertices[8].texCoords = { u * 2, 1 - v * 1 };
+	vertices[9].texCoords = { u * 2, 1 - v * 2 };
+	vertices[10].texCoords = { u * 3, 1 - v * 2 };
+	vertices[11].texCoords = { u * 3, 1 - v * 1 };
+
+	//top
+	vertices[11].texCoords = { u * 1, 1 - v * 0 };
+	vertices[12].texCoords = { u * 1, 1 - v * 1 };
+	vertices[13].texCoords = { u * 2, 1 - v * 1 };
+	vertices[14].texCoords = { u * 2, 1 - v * 0 };
+
+	//bottom
+	vertices[11].texCoords = { u * 2, 1 - v * 0 };
+	vertices[12].texCoords = { u * 2, 1 - v * 1 };
+	vertices[13].texCoords = { u * 3, 1 - v * 1 };
+	vertices[14].texCoords = { u * 3, 1 - v * 0 };
+}
+
 void Mesh::setSphereData(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
 {
     std::vector<Vertex> _vertices;

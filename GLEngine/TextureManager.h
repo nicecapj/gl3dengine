@@ -4,6 +4,13 @@
 #include <gl/glew.h>
 #include<map>
 
+
+// OPENGL TEXTURE COORD
+// 
+//  (0,1) --- (1,1)
+//    |        |
+//    |        |
+//  (0,0) --- (1,0)
 class TextureManager
 {
 public:	

@@ -38,6 +38,10 @@ public:
 	inline GLsizei GetIndiciesSize() {
 		return (GLsizei)indicies_.size();
 	}			
+	
+
+	std::vector<Vertex>& GetVertics() { return vertices_; }
+	std::vector<GLuint>& GetIndicis() { return indicies_; }
 
 	virtual void SetEnableDynamicShadow(bool isEnable);
 

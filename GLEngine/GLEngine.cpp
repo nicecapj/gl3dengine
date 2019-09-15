@@ -486,6 +486,10 @@ void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int 
 		else if (key == GLFW_KEY_5)
 		{
 			useHierachySample = !useHierachySample;
+			if (useHierachySample)
+			{
+				cam->SetPosition({0.0f, 10.0f, 10.0f});
+			}
 		}
 		
 		
