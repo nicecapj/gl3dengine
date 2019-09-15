@@ -5,6 +5,7 @@
 #include "Dependencies/glm/gtc/type_ptr.hpp"
 
 #include <vector>
+#include <string.h>
 
 #include "Mesh.h"
 
@@ -25,10 +26,10 @@ public:
     void SetScale(glm::vec3 scale);
 
 	inline GLuint GetProgram() { return program_; }
-	void SetProgram(GLuint program);
+	virtual void SetProgram(GLuint program);
 
-	inline GLuint GetTexture(int index) { return textures_[index]; }		
-	void SetTexture(int index, GLuint textureID);
+	inline GLuint GetTexture(int index) { return textures_[index]; }
+	virtual void SetTexture(int index, GLuint textureID);
 
 	inline glm::vec3 GetColor() { return color_; 	}
 	void SetColor(glm::vec3 color);
@@ -38,7 +39,16 @@ public:
 		return (GLsizei)indicies_.size();
 	}			
 
-	void SetEnableDynamicShadow(bool isEnable);
+	virtual void SetEnableDynamicShadow(bool isEnable);
+
+	void AddChild(Renderer* renderer);
+	void RemoveChild(Renderer* renderer);
+
+	//이게 있으면 디버깅할때 대상 산정하기 좋다.
+	void SetName(std::string name) {
+		name_ = name;
+	};	
+	std::string GetName() { return name_; }
 protected:
     glm::vec3 position_;
     glm::vec3 scale_;
@@ -56,6 +66,13 @@ protected:
 	//buffer store in GPU. Modern GPU bandwidth is 600GB/s, Modern CPU bandwidth is 12GB/s
 	//Buffer objects are used to store, retrive, move data.    
 
+	Renderer* parent_;
+	std::vector< Renderer*> child_;
+
+	std::string name_;
+
 	bool enableDynamicShadow_ = false;
+
+	static int objectCount;
 };
 

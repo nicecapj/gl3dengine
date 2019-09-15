@@ -1,10 +1,20 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
+#include <algorithm>
 
+int Renderer::objectCount = 0;
 
 Renderer::Renderer()
 {
 	textures_.reserve(8);
+	SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+
+	char buff[64];		
+	snprintf(buff, 10, "%d", ++Renderer::objectCount);
+
+	//itoa(Renderer::objectCount, buff, 10);	deprecated
+	SetName("RenderObj_" + std::string(buff));
 }
 
 
@@ -49,4 +59,19 @@ void Renderer::SetColor(glm::vec3 color)
 void Renderer::SetEnableDynamicShadow(bool isEnable)
 {
 	enableDynamicShadow_ = isEnable;
+}
+
+void Renderer::AddChild(Renderer* renderer)
+{
+	renderer->parent_ = this;
+	child_.push_back(renderer);
+}
+
+void Renderer::RemoveChild(Renderer* renderer)
+{
+	auto it = std::find(child_.begin(), child_.end(), renderer);
+	if (it != child_.end())
+	{
+		child_.erase(it);
+	}		
 }
