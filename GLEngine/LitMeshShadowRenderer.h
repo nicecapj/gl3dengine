@@ -28,10 +28,6 @@ private:
 	GLuint depthMapFBO_;
 	GLuint SCR_WIDTH = 1280, SCR_HEIGHT = 720;
 
-    GLuint vao_;
-    GLuint vbo_;
-    GLuint ebo_;
-
 	//-1~1을 0~1로 바꾸기 위한 마스크
 	glm::mat4 biasMatrix = {
 		0.5, 0.0, 0.0, 0.0,

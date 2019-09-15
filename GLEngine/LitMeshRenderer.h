@@ -18,10 +18,5 @@ public:
 private:
     class LightRenderer* light_ = nullptr;
     class Camera* camera_ = nullptr;    
-
-    GLuint vao_;
-    GLuint vbo_;
-    GLuint ebo_;
-
 };
 

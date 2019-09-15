@@ -29,7 +29,7 @@ LitMeshRenderer::LitMeshRenderer(MeshType meshType, Camera* camera, class LightR
             {
                 Mesh::setQuadData(vertices_, indicies_);
             } break;
-    }	
+    }
 
     //VAO
     glGenVertexArrays(1, &vao_);

@@ -38,7 +38,7 @@ public:
 	inline GLsizei GetIndiciesSize() {
 		return (GLsizei)indicies_.size();
 	}			
-	
+	void UpdateVertics(std::vector<Vertex>&& vertics);
 
 	std::vector<Vertex>& GetVertics() { return vertices_; }
 	std::vector<GLuint>& GetIndicis() { return indicies_; }

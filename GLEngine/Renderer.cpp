@@ -56,6 +56,14 @@ void Renderer::SetColor(glm::vec3 color)
 	color_ = color;
 }
 
+void Renderer::UpdateVertics(std::vector<Vertex>&& vertics)
+{
+	vertices_ = vertics;
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices_.size(), &vertices_[0], GL_STATIC_DRAW);	//STATIC
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void Renderer::SetEnableDynamicShadow(bool isEnable)
 {
 	enableDynamicShadow_ = isEnable;
