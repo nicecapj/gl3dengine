@@ -37,13 +37,13 @@ CubemanRenderer::CubemanRenderer(GLuint shader, class Camera* camera, class Ligh
 
 	auto leftLeg = new LitMeshRenderer(MeshType::Cube, camera, light);
 	leftLeg->SetProgram(shader);
-	leftLeg->SetPosition(glm::vec3(-4.0f, -16.0f, 0.0f));
+	leftLeg->SetPosition(glm::vec3(-4.0f, -24.0f, 0.0f));
 	leftLeg->SetScale(glm::vec3(2.0f, 8.0f, 2.0f));
 	AddChild(leftLeg);
 
 	auto rightLeg = new LitMeshRenderer(MeshType::Cube, camera, light);
 	rightLeg->SetProgram(shader);
-	rightLeg->SetPosition(glm::vec3(4.0f, -16.0f, 0.0f));
+	rightLeg->SetPosition(glm::vec3(4.0f, -24.0f, 0.0f));
 	rightLeg->SetScale(glm::vec3(2.0f, 8.0f, 2.0f));
 	AddChild(rightLeg);
 }

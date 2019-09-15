@@ -13,9 +13,10 @@
 #include "LitMeshRenderer.h"
 #include "LitInstanceMeshRenderer.h"
 #include "LitMeshShadowRenderer.h"
+#include "CubemanRenderer.h"
 #include "Camera.h"
 #include "ShaderLoader.h"
-#include "TextureLoader.h"
+#include "TextureManager.h"
 #include "TextRenderer.h"
 
 #include "Renderer.h"
@@ -34,8 +35,9 @@ const unsigned int SCR_WIDTH = 1280, SCR_HEIGHT = 720;
 double deltaTime = 0;
 bool isEnableWireFrame = false;
 bool useInstancing = false;
-bool useShadowmap = true;
+bool useShadowmap = false;
 bool useOrthProjection = false;
+bool useHierachySample = true;
 
 Camera* cam = nullptr;
 LightRenderer* light = nullptr;
@@ -45,6 +47,7 @@ LitMeshRenderer* bottom = nullptr;
 TextRenderer* label = nullptr;
 //LitMeshShadowRenderer* depthMesh = nullptr;
 MeshRenderer* debugQuad = nullptr;
+CubemanRenderer* cubeman = nullptr;
 
 
 LitInstanceMeshRenderer* instancingMesh = nullptr;
@@ -102,6 +105,14 @@ void PostRenderScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
+	if (useHierachySample)
+	{
+		cubeman->Draw();		
+		light->Draw();
+		label->Draw();
+		return;
+	}
+
 	if (useShadowmap)
 	{		
 		// 2. then render scene as normal with shadow mapping (using depth map)
@@ -131,14 +142,13 @@ void PostRenderScene()
 		else
 		{
 			instancingMesh->Draw();
-		}
+		}		
+		mesh->Draw();
 		bottom->Draw();
+		litMesh->Draw();
 	}
-
-	light->Draw();
-	mesh->Draw();
-	litMesh->Draw();	
-
+	
+	light->Draw();	
 	label->Draw();
 }
 
@@ -192,10 +202,10 @@ void InitScene()
     //unlit static mesh
     GLuint textureShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/TexturedModel.vs", "Assets/Shaders/TexturedModel.fs");
 	assert(textureShaderProgram != GL_FALSE);
-	TextureLoader textureLoader;
+	
     //텍스처 역시 캐시해서 공유가능하다.
     //GLuint sphereTexture = textureLoader.GetTextureID("Assets/Textures/globe.dds");
-	sphereTexture = textureLoader.GetTextureID("Assets/Textures/globe.dds");	
+	sphereTexture = TextureManager::GetInstance()->GetTextureID("Assets/Textures/globe.dds");	
 	
     mesh = new MeshRenderer(MeshType::Sphere, cam);
     mesh->SetProgram(textureShaderProgram);
@@ -227,7 +237,7 @@ void InitScene()
 	bottom->SetProgram(textureLightShaderProgram);
 	bottom->SetPosition({ 0.0f, -20.0f, 0.0f });
 	bottom->SetScale(glm::vec3(100.0f, 2.0f, 100.0f));
-	GLuint groundTexture = textureLoader.GetTextureID("Assets/Textures/ground.dds");
+	GLuint groundTexture = TextureManager::GetInstance()->GetTextureID("Assets/Textures/ground.dds");
 	bottom->SetTexture(0, groundTexture);
 
 
@@ -254,8 +264,6 @@ void InitScene()
 	shadowBottom->SetTexture(0, groundTexture);
 	shadowBottom->SetEnableDynamicShadow(true);
 	shadowRenderList_.push_back(shadowBottom);
-
-
 
 	GLuint depthTextureDebugShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/depthTextureDebug.vs", "Assets/Shaders/depthTextureDebug.fs");
 	debugQuad = new MeshRenderer(MeshType::Cube, cam);
@@ -288,6 +296,12 @@ void InitScene()
 
 	InitSceneForInstancing(shaderLoader, sphereTexture);		
 
+	cubeman = new CubemanRenderer(depthTextureShader, cam, light);
+	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/blackwidow.dds");
+	cubeman->SetProgram(textureLightShaderProgram);
+	cubeman->SetTexture(0, widowTex);
+	//cubeman->SetEnableDynamicShadow(true);	
+
 }
 
 void Destroy()
@@ -309,9 +323,10 @@ void Destroy()
 
 	delete mesh;
 	delete litMesh;
-	delete light;
+	delete cubeman;
 	delete bottom;
-	delete cam;
+	delete light;	
+	delete cam;	
 }
 
 static void ErrorFunction(int id, const char* desc)
@@ -468,6 +483,11 @@ void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int 
 		{
 			useOrthProjection = !useOrthProjection;
 		}
+		else if (key == GLFW_KEY_5)
+		{
+			useHierachySample = !useHierachySample;
+		}
+		
 		
 	}
 	else if (action == GLFW_REPEAT)
