@@ -92,7 +92,7 @@ void LitMeshRenderer::Draw()
 {
     glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
     glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
-    glm::mat4 model = transformMatrix * scaleMatrix;
+    glm::mat4 model = transformMatrix * matRot_ * scaleMatrix;
 
 
     //shader

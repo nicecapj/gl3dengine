@@ -9,6 +9,7 @@ Renderer::Renderer()
 	textures_.reserve(8);
 	SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+	SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	char buff[64];		
 	snprintf(buff, 10, "%d", ++Renderer::objectCount);
@@ -35,6 +36,24 @@ void Renderer::SetPosition(glm::vec3 position)
 void Renderer::SetScale(glm::vec3 scale)
 {
     scale_ = scale;
+}
+
+void Renderer::SetRotation(glm::vec3 bias, float angle)
+{
+	glm::quat q(bias * angle);
+	matRot_ = glm::mat3_cast(q);
+}
+
+void Renderer::SetRotation(glm::vec3 eulerAngles)
+{	
+	glm::quat q(eulerAngles);
+	matRot_ = glm::mat3_cast(q);
+}
+
+glm::vec3 Renderer::GetRotationEuler()
+{
+	glm::quat q(matRot_);
+	return glm::eulerAngles(q);
 }
 
 void Renderer::SetProgram(GLuint program)

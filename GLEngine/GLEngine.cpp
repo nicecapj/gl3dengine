@@ -180,6 +180,11 @@ void UpdateScene(double deltaTimeMs)
 	{
 		instancingMesh->UpdateScene(deltaTimeMs);
 	}	
+
+	if (useHierachySample)
+	{
+		cubeman->UpdateScene(deltaTimeMs);
+	}
 }
 
 void InitScene()
@@ -297,7 +302,8 @@ void InitScene()
 	InitSceneForInstancing(shaderLoader, sphereTexture);		
 
 	cubeman = new CubemanRenderer(depthTextureShader, cam, light);
-	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/blackwidow.dds");
+	//GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/blackwidow.dds");
+	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/UV.dds");	
 	cubeman->SetProgram(textureLightShaderProgram);
 	cubeman->SetTexture(0, widowTex);
 	//cubeman->SetEnableDynamicShadow(true);	
@@ -508,6 +514,30 @@ void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int 
 		cam->ProcessKeyboard(GLFW_KEY_LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cam->ProcessKeyboard(GLFW_KEY_RIGHT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+	{		
+		glm::vec3 euler = cubeman->GetRotationEuler();
+		euler += glm::vec3(0.0f, 20.0 * deltaTime, 0.0f);
+		cubeman->SetRotation(euler);
+	}	
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+	{
+		glm::vec3 euler = cubeman->GetRotationEuler();
+		euler -= glm::vec3(0.0f, 20.0 * deltaTime, 0.0f);
+		cubeman->SetRotation(euler);
+	}
+	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+	{
+		glm::vec3 euler = cubeman->GetRotationEuler();
+		euler -= glm::vec3(20.0f * deltaTime, 0.0, 0.0f);
+		cubeman->SetRotation(euler);
+	}
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+	{
+		glm::vec3 euler = cubeman->GetRotationEuler();
+		euler += glm::vec3(20.0f * deltaTime, 0.0, 0.0f);
+		cubeman->SetRotation(euler);
+	}
 }
 
 bool firstMouse = false;

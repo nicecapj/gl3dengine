@@ -99,6 +99,7 @@ void CubemanRenderer::UpdateScene(double deltaTimeMs)
 {
 	for (auto renderer : child_)
 	{
+		renderer->SetRotation(GetRotationEuler());
 		renderer->UpdateScene(deltaTimeMs);
 	}
 }

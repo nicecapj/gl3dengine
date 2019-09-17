@@ -84,7 +84,7 @@ void MeshRenderer::Draw()
 
 	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
 	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
-	glm::mat4 model = transformMatrix * scaleMatrix;
+	glm::mat4 model = transformMatrix * matRot_ * scaleMatrix;
 
 	//model ->  view -> projection matrix를 uniform variables를 통해 쉐이더로 정보를 보낼수 있다.
 	//glGetUniformLocation()함수로 쉐이더프로그램 안에 선언된 변수의 이름으로 가져올 수 있다. ex) uniform mat4 model;

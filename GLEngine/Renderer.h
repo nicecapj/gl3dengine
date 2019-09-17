@@ -24,6 +24,10 @@ public:
     void SetPosition(glm::vec3 position);
 	inline glm::vec3 GetScale() { return scale_; }
     void SetScale(glm::vec3 scale);
+	void SetRotation(glm::vec3 bias, float angle);
+	void SetRotation(glm::vec3 eulerAngles);
+	glm::mat3 GetRotation() { return matRot_; }
+	glm::vec3 GetRotationEuler();
 
 	inline GLuint GetProgram() { return program_; }
 	virtual void SetProgram(GLuint program);
@@ -56,6 +60,8 @@ public:
 protected:
     glm::vec3 position_;
     glm::vec3 scale_;
+	glm::mat4 matRot_;
+
     std::vector<GLuint> textures_;
     GLuint program_;
 	glm::vec3 color_;
