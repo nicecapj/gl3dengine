@@ -25,7 +25,6 @@ Renderer::~Renderer()
 
 void Renderer::UpdateScene(double deltaTimeMs)
 {
-
 }
 
 void Renderer::SetPosition(glm::vec3 position)

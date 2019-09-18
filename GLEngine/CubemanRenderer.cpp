@@ -18,8 +18,8 @@ CubemanRenderer::CubemanRenderer(GLuint shader, class Camera* camera, class Ligh
 
 	auto vertics = root_->GetVertics();
 	Mesh::setMineCraftFaceUV(vertics);
-
 	root_->UpdateVertics(std::move(vertics));
+
 	AddChild(root_);
 	
 	//root_ = new LitMeshRenderer(MeshType::Cube, camera, light);	//head
@@ -98,7 +98,7 @@ void CubemanRenderer::PostDraw()
 void CubemanRenderer::UpdateScene(double deltaTimeMs)
 {
 	for (auto renderer : child_)
-	{
+	{		
 		renderer->SetRotation(GetRotationEuler());
 		renderer->UpdateScene(deltaTimeMs);
 	}

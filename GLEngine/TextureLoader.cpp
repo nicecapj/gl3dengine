@@ -40,7 +40,7 @@ GLuint TextureLoader::GetTextureID(std::string textureFileName)
 	//일단 반복만 해둠. 나중에 설정해서, 변경할수 있도록
 	glTexParameteri(Target, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(Target, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
+	
 	//GLI에서 사용하는 기본 설정들
 	glTexParameteri(Target, GL_TEXTURE_BASE_LEVEL, 0);
 	glTexParameteri(Target, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(Texture.levels() - 1));

@@ -29,5 +29,6 @@ public:
     static void setCubeData(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);	
     static void setSphereData(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
 
+	//주의 : dds파일은 dx포맷이라 v가 뒤집혀 있다.
 	static void setMineCraftFaceUV(std::vector<Vertex>& vertices);
 };

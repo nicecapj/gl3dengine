@@ -302,8 +302,8 @@ void InitScene()
 	InitSceneForInstancing(shaderLoader, sphereTexture);		
 
 	cubeman = new CubemanRenderer(depthTextureShader, cam, light);
-	//GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/blackwidow.dds");
-	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/UV.dds");	
+	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/bdafn-lyofa.dds");
+	//GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/UV_flip.dds");	
 	cubeman->SetProgram(textureLightShaderProgram);
 	cubeman->SetTexture(0, widowTex);
 	//cubeman->SetEnableDynamicShadow(true);	

@@ -19,6 +19,7 @@ out vec4 color;
 
 void main(){
 		
+		vec4 albedo = texture(Texture, TexCoord);
 		color = texture(Texture, TexCoord);
 		
 		ambientColor = color * ambientPower;
@@ -49,5 +50,7 @@ void main(){
 		
 		color = color * (diffuse + (ambient * ambientColor) + spec) + (rim * rimLightColor);
 		color.a = 1.0;
+		
+		color = albedo;
 		
 }
