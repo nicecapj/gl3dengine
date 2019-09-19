@@ -3,7 +3,6 @@
 #include <gl/glew.h>
 
 #include "Mesh.h"
-#include "ShaderLoader.h"
 #include "Camera.h"
 #include "Renderer.h"
 

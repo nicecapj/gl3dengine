@@ -4,25 +4,33 @@
 //#include "LitMeshShadowRenderer.h"
 #include "LitMeshRenderer.h"
 #include "LightRenderer.h"
+#include "ShaderManager.h"
+#include "TextureManager.h"
 
-CubemanRenderer::CubemanRenderer(GLuint shader, class Camera* camera, class LightRenderer* light)
+CubemanRenderer::CubemanRenderer(class Camera* camera, class LightRenderer* light)
 {	
 	light_ = light;
 	camera_ = camera;
-	SetProgram(shader);
+
+	GLuint program = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/litTexturedModel.vs", "Assets/Shaders/litTexturedModel.fs");
+	SetProgram(program);
 
 	root_ = new LitMeshRenderer(MeshType::Cube, camera, light);	//head
-	root_->SetProgram(shader);
-	root_->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	root_->SetScale(glm::vec3(10.0f));
-
+	root_->SetProgram(program);
+	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/bdafn-lyofa.dds");
+	root_->SetTexture(0, widowTex);
 	auto vertics = root_->GetVertics();
 	Mesh::setMineCraftFaceUV(vertics);
 	root_->UpdateVertics(std::move(vertics));
+
+	root_->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	root_->SetScale(glm::vec3(10.0f));
+
 	AddChild(root_);
 	
 	auto body = new LitMeshRenderer(MeshType::Cube, camera, light);
-	body->SetProgram(shader);
+	body->SetProgram(program);
+	body->SetTexture(0, widowTex);
 	body->SetScale(glm::vec3(10.0f, 15.0f, 10.0f));
 	body->SetPosition(glm::vec3(0.0f, -25.0f, 0.0f));	
 	auto bodyVertics = body->GetVertics();
@@ -31,7 +39,8 @@ CubemanRenderer::CubemanRenderer(GLuint shader, class Camera* camera, class Ligh
 	AddChild(body);
 
 	auto leftArm = new LitMeshRenderer(MeshType::Cube, camera, light);
-	leftArm->SetProgram(shader);
+	leftArm->SetProgram(program);
+	leftArm->SetTexture(0, widowTex);
 	leftArm->SetPosition(glm::vec3(-15.0f, -25.0f, 0.0f));
 	leftArm->SetScale(glm::vec3(5.0f, 15.0f, 5.0f));
 	auto leftArmVertics = leftArm->GetVertics();
@@ -40,16 +49,18 @@ CubemanRenderer::CubemanRenderer(GLuint shader, class Camera* camera, class Ligh
 	AddChild(leftArm);
 
 	auto rightArm = new LitMeshRenderer(MeshType::Cube, camera, light);
+	rightArm->SetProgram(program);
+	rightArm->SetTexture(0, widowTex);
 	rightArm->SetPosition(glm::vec3(15.0f, -25.0f, 0.0f));
 	rightArm->SetScale(glm::vec3(5.0f, 15.0f, 5.0f));
-	rightArm->SetProgram(shader);
 	auto rightArmVertics = rightArm->GetVertics();
 	Mesh::setMineCraftRightArmUV(rightArmVertics);
 	rightArm->UpdateVertics(std::move(rightArmVertics));
 	AddChild(rightArm);
 
 	auto leftLeg = new LitMeshRenderer(MeshType::Cube, camera, light);
-	leftLeg->SetProgram(shader);
+	leftLeg->SetProgram(program);
+	leftLeg->SetTexture(0, widowTex);
 	leftLeg->SetPosition(glm::vec3(-5.0f, -55.0f, 0.0f));
 	leftLeg->SetScale(glm::vec3(5.0f, 15.0f, 5.0f));
 	auto leftLegVertics = leftLeg->GetVertics();
@@ -58,7 +69,8 @@ CubemanRenderer::CubemanRenderer(GLuint shader, class Camera* camera, class Ligh
 	AddChild(leftLeg);
 
 	auto rightLeg = new LitMeshRenderer(MeshType::Cube, camera, light);
-	rightLeg->SetProgram(shader);
+	rightLeg->SetProgram(program);
+	rightLeg->SetTexture(0, widowTex);
 	rightLeg->SetPosition(glm::vec3(5.0f, -55.0f, 0.0f));
 	rightLeg->SetScale(glm::vec3(5.0f, 15.0f, 5.0f));
 	auto rightLegVertics = rightLeg->GetVertics();
@@ -104,26 +116,18 @@ void CubemanRenderer::UpdateScene(double deltaTimeMs)
 {
 	for (auto renderer : child_)
 	{		
-		renderer->SetRotation(GetRotationEuler());
+		//renderer->SetRotation(GetRotationEuler());
 		renderer->UpdateScene(deltaTimeMs);
 	}
 }
 
-void CubemanRenderer::SetProgram(GLuint program)
-{
-	for (auto renderer : child_)
-	{
-		renderer->SetProgram(program);
-	}
-}
-
-void CubemanRenderer::SetTexture(int index, GLuint textureID)
-{
-	for (auto renderer : child_)
-	{
-		renderer->SetTexture(index, textureID);
-	}
-}
+//void CubemanRenderer::SetProgram(GLuint program)
+//{
+//	for (auto renderer : child_)
+//	{
+//		renderer->SetProgram(program);
+//	}
+//}
 
 void CubemanRenderer::SetEnableDynamicShadow(bool isEnable)
 {

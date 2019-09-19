@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Mesh.h"
-#include "ShaderLoader.h"
 #include <vector>
 
 #include "renderer.h"

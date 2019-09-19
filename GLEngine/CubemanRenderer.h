@@ -5,7 +5,7 @@
 class CubemanRenderer : public Renderer
 {
 public:
-	CubemanRenderer(GLuint shader, class Camera* camera, class LightRenderer* light);
+	CubemanRenderer(class Camera* camera, class LightRenderer* light);
 	~CubemanRenderer();
 	
 	virtual void PreDraw() override;
@@ -15,8 +15,8 @@ public:
 
 
 	//¾î°ÅÁö
-	virtual void SetProgram(GLuint program) override;
-	virtual void SetTexture(int index, GLuint textureID) override;
+	//virtual void SetProgram(GLuint program) override;
+	//virtual void SetTexture(int index, GLuint textureID) override;
 	virtual void SetEnableDynamicShadow(bool isEnable) override;
 
 public:

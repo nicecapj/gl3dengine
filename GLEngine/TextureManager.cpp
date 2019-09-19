@@ -13,7 +13,6 @@ std::string TextureManager::getFileExt(const std::string& s)
 	return("");
 }
 
-TextureManager TextureManager::instance_;
 TextureManager::TextureManager()
 {
 	loader_ = new TextureLoader();

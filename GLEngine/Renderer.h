@@ -30,10 +30,10 @@ public:
 	glm::vec3 GetRotationEuler();
 
 	inline GLuint GetProgram() { return program_; }
-	virtual void SetProgram(GLuint program);
+	void SetProgram(GLuint program);
 
 	inline GLuint GetTexture(int index) { return textures_[index]; }
-	virtual void SetTexture(int index, GLuint textureID);
+	void SetTexture(int index, GLuint textureID);
 
 	inline glm::vec3 GetColor() { return color_; 	}
 	void SetColor(glm::vec3 color);

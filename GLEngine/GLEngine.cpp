@@ -15,13 +15,14 @@
 #include "LitMeshShadowRenderer.h"
 #include "CubemanRenderer.h"
 #include "Camera.h"
-#include "ShaderLoader.h"
+#include "ShaderManager.h"
 #include "TextureManager.h"
 #include "TextRenderer.h"
 
 #include "Renderer.h"
 #include <map>
 #include <vector>
+#include <string>
 #include <assert.h>
 
 const int COUNT_X = 10;
@@ -67,7 +68,7 @@ std::vector<Renderer*> shadowRenderList_;
 
 GLuint sphereTexture = -1;
 
-void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture);
+void InitSceneForInstancing(GLuint texture);
 void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
 void ProcessMouseMove(GLFWwindow* window, double xpos, double ypos);
 void ProcessMouseButton(GLFWwindow* window, int button, int action, int mods);
@@ -194,9 +195,8 @@ void InitScene()
 
     //쉐이더는 컴파일하면 여러 지오메트리에서 공유할 수 있다.
     //매번 컴파일할것없이 부모만 컴파일해서 사용하면 된다. 여기서 언리얼의 메터리얼인스턴스 개념도 출발한다.
-    //Draw할때, 파라미터(uniform)에 해당하는 것만 바꾸면 된다.
-    ShaderLoader shaderLoader;
-    GLuint shaderProgram = shaderLoader.CreateProgram("Assets/Shaders/FlatModel.vs", "Assets/Shaders/FlatModel.fs");
+    //Draw할때, 파라미터(uniform)에 해당하는 것만 바꾸면 된다.    
+    GLuint shaderProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/FlatModel.vs", "Assets/Shaders/FlatModel.fs");
 	assert(shaderProgram != GL_FALSE);
 
     light = new LightRenderer(MeshType::Sphere, cam);
@@ -205,7 +205,7 @@ void InitScene()
 
 
     //unlit static mesh
-    GLuint textureShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/TexturedModel.vs", "Assets/Shaders/TexturedModel.fs");
+    GLuint textureShaderProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/TexturedModel.vs", "Assets/Shaders/TexturedModel.fs");
 	assert(textureShaderProgram != GL_FALSE);
 	
     //텍스처 역시 캐시해서 공유가능하다.
@@ -220,7 +220,7 @@ void InitScene()
 	
 	
     //dynamic text
-    GLuint textProgram = shaderLoader.CreateProgram("Assets/Shaders/text.vs", "Assets/Shaders/text.fs");
+    GLuint textProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/text.vs", "Assets/Shaders/text.fs");
 	assert(textProgram != GL_FALSE);
 	label = new TextRenderer("Text", "Assets/fonts/DMSerifDisplay-Regular.ttf", 64, { 0.0f, 0.0f, 1.0f }, textProgram);
     label->SetProgram(textProgram);
@@ -228,7 +228,7 @@ void InitScene()
     
 
     //lit static mesh
-    textureLightShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/litTexturedModel.vs", "Assets/Shaders/litTexturedModel.fs");
+    textureLightShaderProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/litTexturedModel.vs", "Assets/Shaders/litTexturedModel.fs");
 	assert(textureLightShaderProgram != GL_FALSE);
 	litMesh = new LitMeshRenderer(MeshType::Sphere, cam, light);    
 	litMesh->SetProgram(textureLightShaderProgram);
@@ -247,8 +247,8 @@ void InitScene()
 
 
 	//shadowmap	
-	depthTextureShader = shaderLoader.CreateProgram("Assets/Shaders/depthTexture.vs", "Assets/Shaders/depthTexture.fs");
-	shadowmapTextureLitShader = shaderLoader.CreateProgram("Assets/Shaders/shadowmapTextureShader.vs", "Assets/Shaders/shadowmapTextureShader.fs");
+	depthTextureShader = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/depthTexture.vs", "Assets/Shaders/depthTexture.fs");
+	shadowmapTextureLitShader = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/shadowmapTextureShader.vs", "Assets/Shaders/shadowmapTextureShader.fs");
 	
 	for (int i = 0; i < 10; ++i)
 	{
@@ -270,7 +270,7 @@ void InitScene()
 	shadowBottom->SetEnableDynamicShadow(true);
 	shadowRenderList_.push_back(shadowBottom);
 
-	GLuint depthTextureDebugShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/depthTextureDebug.vs", "Assets/Shaders/depthTextureDebug.fs");
+	GLuint depthTextureDebugShaderProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/depthTextureDebug.vs", "Assets/Shaders/depthTextureDebug.fs");
 	debugQuad = new MeshRenderer(MeshType::Cube, cam);
 	debugQuad->SetProgram(textureShaderProgram);
 	debugQuad->SetPosition({ -40.0f, 10.0f, -20.0f });
@@ -299,9 +299,9 @@ void InitScene()
 		}
 	}
 
-	InitSceneForInstancing(shaderLoader, sphereTexture);		
+	InitSceneForInstancing(sphereTexture);		
 
-	cubeman = new CubemanRenderer(depthTextureShader, cam, light);
+	cubeman = new CubemanRenderer(cam, light);
 	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/bdafn-lyofa.dds");
 	//GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/UV_flip.dds");	
 	cubeman->SetProgram(textureLightShaderProgram);
@@ -416,9 +416,10 @@ int main()
     return 0;
 }
 
-void InitSceneForInstancing(ShaderLoader& shaderLoader, GLuint texture)
+void InitSceneForInstancing(GLuint texture)
 {	
-	GLuint instancingShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/InstancingShader.vs", "Assets/Shaders/InstancingShader.fs");	
+	GLuint instancingShaderProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/InstancingShader.vs", "Assets/Shaders/InstancingShader.fs");
+	//GLuint instancingShaderProgram = shaderLoader.CreateProgram("Assets/Shaders/InstancingShader.vs", "Assets/Shaders/InstancingShader.fs");	
 	assert(instancingShaderProgram != GL_FALSE);
 	instancingMesh = new LitInstanceMeshRenderer(MeshType::Sphere, cam, light);
 	instancingMesh->SetProgram(instancingShaderProgram);
