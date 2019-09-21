@@ -80,7 +80,7 @@ LightRenderer::~LightRenderer()
 void LightRenderer::Draw()
 {
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(glm::mat4(1.0), position_);	
+    model = glm::translate(glm::mat4(1.0), position_);
 
     //set shader
     glUseProgram(program_);

@@ -175,16 +175,22 @@ void UpdateScene(double deltaTimeMs)
 		pos = { pos.x, pos.y, pos.z + posFactorX };
 		renderer->SetPosition(pos);
 		++counter;
+	}	
+
+	for (auto* renderer : shadowRenderList_)
+	{
+		renderer->UpdateScene(nullptr, deltaTimeMs);
 	}
+	debugQuad->UpdateScene(nullptr, deltaTimeMs);
 
 	if (useInstancing)
 	{
-		instancingMesh->UpdateScene(deltaTimeMs);
+		instancingMesh->UpdateScene(nullptr, deltaTimeMs);
 	}	
 
 	if (useHierachySample)
 	{
-		cubeman->UpdateScene(deltaTimeMs);
+		cubeman->UpdateScene(nullptr, deltaTimeMs);
 	}
 }
 
@@ -518,25 +524,25 @@ void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int 
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 	{		
 		glm::vec3 euler = cubeman->GetRotationEuler();
-		euler += glm::vec3(0.0f, 20.0 * deltaTime, 0.0f);
+		euler += glm::vec3(0.0f, 10.0 * deltaTime, 0.0f);
 		cubeman->SetRotation(euler);
 	}	
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 	{
 		glm::vec3 euler = cubeman->GetRotationEuler();
-		euler -= glm::vec3(0.0f, 20.0 * deltaTime, 0.0f);
+		euler -= glm::vec3(0.0f, 10.0 * deltaTime, 0.0f);
 		cubeman->SetRotation(euler);
 	}
 	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
 	{
 		glm::vec3 euler = cubeman->GetRotationEuler();
-		euler -= glm::vec3(20.0f * deltaTime, 0.0, 0.0f);
+		euler -= glm::vec3(10.0f * deltaTime, 0.0, 0.0f);
 		cubeman->SetRotation(euler);
 	}
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
 	{
 		glm::vec3 euler = cubeman->GetRotationEuler();
-		euler += glm::vec3(20.0f * deltaTime, 0.0, 0.0f);
+		euler += glm::vec3(10.0f * deltaTime, 0.0, 0.0f);
 		cubeman->SetRotation(euler);
 	}
 }

@@ -15,10 +15,10 @@ public:
     Renderer();
     virtual ~Renderer();
 
-	virtual void PreDraw() = 0;
-	virtual void Draw() = 0;
-	virtual void PostDraw() = 0;
-    virtual void UpdateScene(double deltaTimeMs);
+	virtual void PreDraw();
+	virtual void Draw();
+	virtual void PostDraw();
+    virtual void UpdateScene(glm::mat4* matParentModel, double deltaTimeMs);
 
     inline glm::vec3 GetPosition(){ return position_; }
     void SetPosition(glm::vec3 position);
@@ -26,7 +26,7 @@ public:
     void SetScale(glm::vec3 scale);
 	void SetRotation(glm::vec3 bias, float angle);
 	void SetRotation(glm::vec3 eulerAngles);
-	glm::mat3 GetRotation() { return matRot_; }
+	const glm::mat4& GetRotation() { return matRot_; }
 	glm::vec3 GetRotationEuler();
 
 	inline GLuint GetProgram() { return program_; }
@@ -61,6 +61,7 @@ protected:
     glm::vec3 position_;
     glm::vec3 scale_;
 	glm::mat4 matRot_;
+	glm::mat4 model_;
 
     std::vector<GLuint> textures_;
     GLuint program_;

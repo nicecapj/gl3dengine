@@ -98,9 +98,9 @@ void LitMeshShadowRenderer::PreDraw()
 	{
 		glUseProgram(program_);
 
-		glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
-		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
-		glm::mat4 model = transformMatrix * matRot_ * scaleMatrix;
+		//glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
+		//glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
+		//glm::mat4 model = transformMatrix * matRot_ * scaleMatrix;
 
 
 		//projection from light
@@ -127,7 +127,7 @@ void LitMeshShadowRenderer::PreDraw()
 		*/
 
 		GLuint modelLocation = glGetUniformLocation(program_, "model");
-		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model_));
 
 		//draw
 		//한번만 그릴 데이터를 전부 요구한다.(vao_) 이후 glDrawElements를 통해 그린다.

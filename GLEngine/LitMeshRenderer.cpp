@@ -1,5 +1,4 @@
 ﻿#include "pch.h"
-#include "ShaderLoader.h"
 #include "Camera.h"
 #include "LitMeshRenderer.h"
 #include "LightRenderer.h"
@@ -90,17 +89,15 @@ LitMeshRenderer::~LitMeshRenderer()
 
 void LitMeshRenderer::Draw()
 {
-    glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
-    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
-    //glm::mat4 model = transformMatrix * matRot_ * scaleMatrix;
-	glm::mat4 model = transformMatrix * matRot_ * scaleMatrix;
-
+ //   glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
+ //   glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);    
+	//glm::mat4 model = transformMatrix * matRot_ * scaleMatrix;
 
     //shader
     glUseProgram(program_);
 
     GLuint modelLocation = glGetUniformLocation(program_, "model");
-    glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));	//유니폼변수, 넘길데이터의 수, 전치인지 여부, 넘길 DATA의 포인터
+    glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model_));	//유니폼변수, 넘길데이터의 수, 전치인지 여부, 넘길 DATA의 포인터
 
     glm::mat4 view = camera_->GetViewMatrix();
     glm::mat4 proj = camera_->GetProjectMatrix();
@@ -132,12 +129,16 @@ void LitMeshRenderer::Draw()
     //marks end of draw function
     glBindVertexArray(0);
     glUseProgram(0);
+
+	Renderer::Draw();
 }
 
 void LitMeshRenderer::PreDraw()
 {
+	Renderer::PreDraw();
 }
 
 void LitMeshRenderer::PostDraw()
 {
+	Renderer::PostDraw();
 }

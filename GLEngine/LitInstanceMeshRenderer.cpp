@@ -115,9 +115,11 @@ void LitInstanceMeshRenderer::Draw()
 	glBindVertexArray(vao_);
 	glDrawElementsInstanced(GL_TRIANGLES, GetIndiciesSize(), GL_UNSIGNED_INT, 0, objectCount_);
 	glBindVertexArray(0);
+
+	Renderer::Draw();
 }
 
-void LitInstanceMeshRenderer::UpdateScene(double deltaTimeMs)
+void LitInstanceMeshRenderer::UpdateScene(glm::mat4* matParentModel, double deltaTimeMs)
 {	
 	GLuint counter = 0;
 	for (auto& model : transformList_)
@@ -132,6 +134,8 @@ void LitInstanceMeshRenderer::UpdateScene(double deltaTimeMs)
 		//model = glm::rotate(model, (float)deltaTimeMs, glm::vec3(0.0f, 1.0f, 0.0f));
 		++counter;
 	}
+
+	Renderer::UpdateScene(matParentModel, deltaTimeMs);
 }
 
 void LitInstanceMeshRenderer::SetObjectCount(GLuint count)
@@ -177,8 +181,10 @@ void LitInstanceMeshRenderer::SetTransforms(std::vector<glm::mat4>&& transforms)
 
 void LitInstanceMeshRenderer::PreDraw()
 {
+	Renderer::PreDraw();
 }
 
 void LitInstanceMeshRenderer::PostDraw()
 {
+	Renderer::PostDraw();
 }

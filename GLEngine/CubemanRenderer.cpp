@@ -36,6 +36,7 @@ CubemanRenderer::CubemanRenderer(class Camera* camera, class LightRenderer* ligh
 	auto bodyVertics = body->GetVertics();
 	Mesh::setMineCraftBodyUV(bodyVertics);
 	body->UpdateVertics(std::move(bodyVertics));
+	//root_->AddChild(body);	//지금처럼 스케일 적용하면, 부모 스케일 적용해서 커진다.
 	AddChild(body);
 
 	auto leftArm = new LitMeshRenderer(MeshType::Cube, camera, light);
@@ -46,6 +47,7 @@ CubemanRenderer::CubemanRenderer(class Camera* camera, class LightRenderer* ligh
 	auto leftArmVertics = leftArm->GetVertics();
 	Mesh::setMineCraftLeftArmUV(leftArmVertics);
 	leftArm->UpdateVertics(std::move(leftArmVertics));
+	//root_->AddChild(leftArm);
 	AddChild(leftArm);
 
 	auto rightArm = new LitMeshRenderer(MeshType::Cube, camera, light);
@@ -56,6 +58,7 @@ CubemanRenderer::CubemanRenderer(class Camera* camera, class LightRenderer* ligh
 	auto rightArmVertics = rightArm->GetVertics();
 	Mesh::setMineCraftRightArmUV(rightArmVertics);
 	rightArm->UpdateVertics(std::move(rightArmVertics));
+	//root_->AddChild(rightArm);
 	AddChild(rightArm);
 
 	auto leftLeg = new LitMeshRenderer(MeshType::Cube, camera, light);
@@ -66,6 +69,7 @@ CubemanRenderer::CubemanRenderer(class Camera* camera, class LightRenderer* ligh
 	auto leftLegVertics = leftLeg->GetVertics();
 	Mesh::setMineCraftLegUV(leftLegVertics);
 	leftLeg->UpdateVertics(std::move(leftLegVertics));
+	//root_->AddChild(leftLeg);
 	AddChild(leftLeg);
 
 	auto rightLeg = new LitMeshRenderer(MeshType::Cube, camera, light);
@@ -76,58 +80,28 @@ CubemanRenderer::CubemanRenderer(class Camera* camera, class LightRenderer* ligh
 	auto rightLegVertics = rightLeg->GetVertics();
 	Mesh::setMineCraftLegUV(rightLegVertics);
 	rightLeg->UpdateVertics(std::move(rightLegVertics));
+//	root_->AddChild(rightLeg);
 	AddChild(rightLeg);
 }
 
 CubemanRenderer::~CubemanRenderer()
 {
-	for (auto renderer : child_)
-	{
-		delete renderer;
-	}
-	child_.empty();
 }
 
 void CubemanRenderer::PreDraw()
 {
-	for (auto renderer : child_)
-	{
-		renderer->PreDraw();
-	}
+	Renderer::PreDraw();
 }
 
 void CubemanRenderer::Draw()
 {
-	for (auto renderer : child_)
-	{
-		renderer->Draw();
-	}
+	Renderer::Draw();
 }
 
 void CubemanRenderer::PostDraw()
 {
-	for (auto renderer : child_)
-	{
-		renderer->PostDraw();
-	}
+	Renderer::PostDraw();
 }
-
-void CubemanRenderer::UpdateScene(double deltaTimeMs)
-{
-	for (auto renderer : child_)
-	{		
-		//renderer->SetRotation(GetRotationEuler());
-		renderer->UpdateScene(deltaTimeMs);
-	}
-}
-
-//void CubemanRenderer::SetProgram(GLuint program)
-//{
-//	for (auto renderer : child_)
-//	{
-//		renderer->SetProgram(program);
-//	}
-//}
 
 void CubemanRenderer::SetEnableDynamicShadow(bool isEnable)
 {

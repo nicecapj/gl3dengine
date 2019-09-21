@@ -21,10 +21,52 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {	
+	for (auto renderer : child_)
+	{
+		delete renderer;
+	}
+	child_.empty();
 }
 
-void Renderer::UpdateScene(double deltaTimeMs)
+void Renderer::PreDraw()
 {
+	for (auto renderer : child_)
+	{
+		renderer->PreDraw();
+	}
+}
+
+void Renderer::Draw()
+{
+	for (auto renderer : child_)
+	{
+		renderer->Draw();
+	}
+}
+
+void Renderer::PostDraw()
+{
+	for (auto renderer : child_)
+	{
+		renderer->PostDraw();
+	}
+}
+
+void Renderer::UpdateScene(glm::mat4* matParentModel, double deltaTimeMs)
+{		
+	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
+	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);	
+	model_ = transformMatrix * matRot_ * scaleMatrix;
+	if (matParentModel)
+	{
+		model_ *= (*matParentModel);
+	}	
+
+	
+	for (auto renderer : child_)
+	{		
+		renderer->UpdateScene(&model_, deltaTimeMs);
+	}
 }
 
 void Renderer::SetPosition(glm::vec3 position)
@@ -40,13 +82,13 @@ void Renderer::SetScale(glm::vec3 scale)
 void Renderer::SetRotation(glm::vec3 bias, float angle)
 {
 	glm::quat q(bias * angle);
-	matRot_ = glm::mat3_cast(q);
+	matRot_ = glm::mat4_cast(q);
 }
 
 void Renderer::SetRotation(glm::vec3 eulerAngles)
 {	
 	glm::quat q(eulerAngles);
-	matRot_ = glm::mat3_cast(q);
+	matRot_ = glm::mat4_cast(q);
 }
 
 glm::vec3 Renderer::GetRotationEuler()

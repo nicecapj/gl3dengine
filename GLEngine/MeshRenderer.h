@@ -18,6 +18,9 @@ public:
 	virtual void PreDraw() override;
 	virtual void PostDraw() override;
 
+
+	virtual void UpdateScene(glm::mat4* matParentModel, double deltaTimeMs) override;
+
 private:
     Camera* camera_;
 

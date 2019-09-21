@@ -27,7 +27,7 @@ public:
 	virtual void Draw() override;
 	virtual void PostDraw() override
 		;
-    virtual void UpdateScene(double deltaTimeMs) override;
+    virtual void UpdateScene(glm::mat4* matParentModel, double deltaTimeMs) override;
 
 	void SetObjectCount(GLuint count);
 	void SetTransforms(std::vector<glm::mat4>&& transforms);

@@ -11,12 +11,9 @@ public:
 	virtual void PreDraw() override;
 	virtual void Draw() override;
 	virtual void PostDraw() override;	
-	virtual void UpdateScene(double deltaTimeMs) override;
 
 
-	//어거지
-	//virtual void SetProgram(GLuint program) override;
-	//virtual void SetTexture(int index, GLuint textureID) override;
+	//어거지	
 	virtual void SetEnableDynamicShadow(bool isEnable) override;
 
 public:

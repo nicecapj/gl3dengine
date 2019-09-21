@@ -82,15 +82,15 @@ void MeshRenderer::Draw()
 	//set shader
 	glUseProgram(program_);
 
-	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
-	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
-	glm::mat4 model = transformMatrix * matRot_ * scaleMatrix;
+	//glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
+	//glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
+	//glm::mat4 model = transformMatrix * matRot_ * scaleMatrix;
 
 	//model ->  view -> projection matrix를 uniform variables를 통해 쉐이더로 정보를 보낼수 있다.
 	//glGetUniformLocation()함수로 쉐이더프로그램 안에 선언된 변수의 이름으로 가져올 수 있다. ex) uniform mat4 model;
 	GLuint modelLocation = glGetUniformLocation(program_, "model");
 	//glUniformXXX형식의 함수로 쉐이더에  연결된 유니폼 변수에, 값을 설정할 수 있다.
-	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));	//유니폼변수, 넘길데이터의 수, 전치인지 여부, 넘길 DATA의 포인터
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model_));	//유니폼변수, 넘길데이터의 수, 전치인지 여부, 넘길 DATA의 포인터
 
 	glm::mat4 view = camera_->GetViewMatrix();
 	glm::mat4 proj = camera_->GetProjectMatrix();
@@ -120,4 +120,9 @@ void MeshRenderer::PreDraw()
 
 void MeshRenderer::PostDraw()
 {
+}
+
+void MeshRenderer::UpdateScene(glm::mat4* matParentModel, double deltaTimeMs)
+{
+	Renderer::UpdateScene(matParentModel, deltaTimeMs);
 }
