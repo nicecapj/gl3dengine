@@ -54,12 +54,15 @@ void Renderer::PostDraw()
 
 void Renderer::UpdateScene(glm::mat4* matParentModel, double deltaTimeMs)
 {		
+	glm::mat4 id(1.0);
+
 	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
 	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);	
-	model_ = transformMatrix * matRot_ * scaleMatrix;
+	//model_ = transformMatrix * matRot_ * scaleMatrix;	//이것은 dx방식.. gl은 열우선행렬임으로 SRT
+	model_ = scaleMatrix * matRot_ * transformMatrix;	//이것은 dx방식.. gl은 열우선행렬임으로 SRT
 	if (matParentModel)
 	{
-		model_ *= (*matParentModel);
+		model_ = (*matParentModel) * model_;		
 	}	
 
 	

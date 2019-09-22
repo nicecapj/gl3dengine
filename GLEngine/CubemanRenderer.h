@@ -18,8 +18,6 @@ public:
 
 public:
 	class LightRenderer* light_ = nullptr;
-	class Camera* camera_ = nullptr;
-	
-	Renderer* root_;
+	class Camera* camera_ = nullptr;		
 };
 
