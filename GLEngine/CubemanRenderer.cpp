@@ -14,7 +14,7 @@ CubemanRenderer::CubemanRenderer(class Camera* camera, class LightRenderer* ligh
 
 	GLuint program = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/litTexturedModel.vs", "Assets/Shaders/litTexturedModel.fs");	
 	SetProgram(program);	
-	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/bdafn-lyofa.dds");
+	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/blackwidow.png");
 
 
 	auto head = new LitMeshRenderer(MeshType::Cube, camera, light);	//head

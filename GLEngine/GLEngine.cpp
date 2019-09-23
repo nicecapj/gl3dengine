@@ -309,7 +309,7 @@ void InitScene()
 
 	cubeman = new CubemanRenderer(cam, light);
 	cubeman->SetName("Cubeman");
-	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/bdafn-lyofa.dds");
+	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/blackwidow.jpg");
 	//GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/UV_flip.dds");	
 	cubeman->SetProgram(textureLightShaderProgram);
 	cubeman->SetTexture(0, widowTex);

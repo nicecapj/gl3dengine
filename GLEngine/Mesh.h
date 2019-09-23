@@ -28,9 +28,7 @@ public:
     static void setQuadData(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
     static void setCubeData(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);	
     static void setSphereData(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
-
-	//주의 : dds파일은 dx포맷이라 v가 뒤집혀 있다.
-	//데이터로 하면 이런 하드코딩 필요없다. 교육용
+	
 	static void setMineCraftFaceUV(std::vector<Vertex>& vertices);
 	static void setMineCraftBodyUV(std::vector <Vertex>& vertices);
 	static void setMineCraftLeftArmUV(std::vector <Vertex>& vertices);

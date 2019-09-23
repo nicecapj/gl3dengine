@@ -27,11 +27,11 @@ TextureManager::~TextureManager()
 
 GLuint TextureManager::GetTextureID(std::string textureFileName)
 {
-	if (getFileExt(textureFileName) != "dds")
-	{
-		assert(0);
-		return -1;
-	}
+	//if (getFileExt(textureFileName) != "dds")
+	//{
+	//	assert(0);
+	//	return -1;
+	//}
 
 	auto it = textureCache_.find(textureFileName);
 	if (it != textureCache_.end())
