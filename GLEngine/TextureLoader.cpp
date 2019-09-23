@@ -2,6 +2,7 @@
 #include "TextureLoader.h"
 #include "gli/gli.hpp"
 #include <gli/generate_mipmaps.hpp>
+#include <SOIL.h>
 
 
 TextureLoader::TextureLoader()
@@ -13,7 +14,7 @@ TextureLoader::~TextureLoader()
 {
 }
 
-GLuint TextureLoader::GetTextureID(std::string textureFileName)
+GLuint TextureLoader::GetTextureID(std::string textureFileName, bool useGLI)
 {
 	gli::texture Texture = gli::load(textureFileName.c_str());
 	if (Texture.empty())
@@ -146,4 +147,9 @@ GLuint TextureLoader::GetTextureID(std::string textureFileName)
 				}
 			}
 	return TextureName;
+}
+
+GLuint TextureLoader::GetTextureID(std::string textureFileName)
+{
+	return SOIL_load_OGL_texture(textureFileName.c_str(), 0, 0, SOIL_FLAG_TEXTURE_REPEATS);
 }

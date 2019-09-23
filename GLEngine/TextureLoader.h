@@ -14,6 +14,7 @@ public:
 	~TextureLoader();
 	
 private:
-	GLuint GetTextureID(std::string textureFileName);	
+	GLuint GetTextureID(std::string textureFileName, bool useGLI);		
+	GLuint GetTextureID(std::string textureFileName);
 };
 

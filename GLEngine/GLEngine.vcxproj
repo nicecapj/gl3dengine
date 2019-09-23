@@ -109,13 +109,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.bin.WIN64\glfw-3.3.bin.WIN64\include;$(ProjectDir)Dependencies\freetype-2.10.0\include;$(ProjectDir)Dependencies\gli;$(ProjectDir)Dependencies\;$(ProjectDir)Dependencies\glew-2.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.bin.WIN64\glfw-3.3.bin.WIN64\include;$(ProjectDir)Dependencies\freetype-2.10.0\include;$(ProjectDir)Dependencies\gli;$(ProjectDir)Dependencies\;$(ProjectDir)Dependencies\glew-2.1.0\include;$(ProjectDir)Dependencies\soil\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\glfw-3.3.bin.WIN64\glfw-3.3.bin.WIN64\lib-vc2017;$(ProjectDir)Dependencies\glew-2.1.0\lib\Release\x64;$(ProjectDir)Dependencies\freetype-2.10.0\win64;%(AdditionalIncludeDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\soil\lib\x64\Debug;$(ProjectDir)Dependencies\glfw-3.3.bin.WIN64\glfw-3.3.bin.WIN64\lib-vc2017;$(ProjectDir)Dependencies\glew-2.1.0\lib\Release\x64;$(ProjectDir)Dependencies\freetype-2.10.0\win64;%(AdditionalIncludeDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;freetype.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

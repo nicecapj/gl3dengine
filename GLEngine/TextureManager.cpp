@@ -39,6 +39,7 @@ GLuint TextureManager::GetTextureID(std::string textureFileName)
 		return it->second;
 	}
 
+//	GLuint textureId = loader_->GetTextureID(textureFileName, true);
 	GLuint textureId = loader_->GetTextureID(textureFileName);
 	textureCache_[textureFileName] = textureId;
 	

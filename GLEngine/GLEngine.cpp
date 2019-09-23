@@ -165,23 +165,23 @@ void UpdateScene(double deltaTimeMs)
 		cam->SetPerspectiveProjection(45.0f, 1280.f, 720.f, 0.1f, 1000.0f);
 	}
 
-	//int counter = 0;
-	//for (auto* renderer : renderList_)
-	//{
-	//	double posFactorX = glm::sin(glfwGetTime() + (counter * deltaTimeMs));
-	//	double posFactorY = glm::cos(glfwGetTime() + (counter * deltaTimeMs));
+	int counter = 0;
+	for (auto* renderer : renderList_)
+	{
+		double posFactorX = glm::sin(glfwGetTime() + (counter * deltaTimeMs));
+		double posFactorY = glm::cos(glfwGetTime() + (counter * deltaTimeMs));
 
-	//	auto pos = renderer->GetPosition();
-	//	pos = { pos.x, pos.y, pos.z + posFactorX };
-	//	renderer->SetPosition(pos);
-	//	++counter;
-	//}	
+		auto pos = renderer->GetPosition();
+		pos = { pos.x, pos.y, pos.z + posFactorX };
+		renderer->SetPosition(pos);
+		++counter;
+	}	
 
-	//for (auto* renderer : shadowRenderList_)
-	//{
-	//	renderer->UpdateScene(nullptr, deltaTimeMs);
-	//}
-	//debugQuad->UpdateScene(nullptr, deltaTimeMs);
+	for (auto* renderer : shadowRenderList_)
+	{
+		renderer->UpdateScene(nullptr, deltaTimeMs);
+	}
+	debugQuad->UpdateScene(nullptr, deltaTimeMs);
 
 	if (useInstancing)
 	{
