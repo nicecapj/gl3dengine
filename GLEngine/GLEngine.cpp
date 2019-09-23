@@ -203,7 +203,7 @@ void UpdateScene(double deltaTimeMs)
 }
 
 void InitScene()
-{
+{	
     glEnable(GL_DEPTH_TEST);
 	cam = new Camera(45.0f, 1280.f, 720.f, 0.1f, 1000.0f, { 0.0f, 6.0f, 100.0f });
 
@@ -338,8 +338,8 @@ void InitScene()
 	skybox->SetProgram(cubemapProgram);
 	GLuint skyTexture = TextureManager::GetInstance()->GetCubemapTextureID("Assets/Textures/skybox/mountain", ".tga");
 	skybox->SetTexture(0, skyTexture);
-	skybox->SetScale(glm::vec3(10.0f));
-	skybox->SetPosition(glm::vec3(-5.0, 0, 0));
+	skybox->SetScale(glm::vec3(100.0f));
+	skybox->SetPosition(glm::vec3(0.0, 0, 0));
 }
 
 void Destroy()

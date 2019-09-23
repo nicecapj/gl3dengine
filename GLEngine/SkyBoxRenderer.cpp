@@ -104,6 +104,8 @@ void SkyBoxRenderer::PreDraw()
 
 void SkyBoxRenderer::Draw()
 {
+	glDepthMask(false);//스카이 박스는 무조건 모든 물체 뒤에 그려져야함.
+
 	glUseProgram(program_);
 
 	//model ->  view -> projection matrix를 uniform variables를 통해 쉐이더로 정보를 보낼수 있다.
@@ -127,6 +129,12 @@ void SkyBoxRenderer::Draw()
 	//texture
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, GetTexture(0));
+	//스카이박스에 이음새 생기는것 보정
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 
 	//draw
@@ -138,7 +146,10 @@ void SkyBoxRenderer::Draw()
 	glBindVertexArray(0);
 	glUseProgram(0);
 
+	glDepthMask(true);
+
 	Renderer::Draw();
+	
 }
 
 void SkyBoxRenderer::PostDraw()
