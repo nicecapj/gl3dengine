@@ -49,6 +49,7 @@ TextRenderer* label = nullptr;
 //LitMeshShadowRenderer* depthMesh = nullptr;
 MeshRenderer* debugQuad = nullptr;
 CubemanRenderer* cubeman = nullptr;
+CubemanRenderer* cubeman2 = nullptr;
 
 
 LitInstanceMeshRenderer* instancingMesh = nullptr;
@@ -109,6 +110,7 @@ void PostRenderScene()
 	if (useHierachySample)
 	{
 		cubeman->Draw();		
+		cubeman2->Draw();
 		light->Draw();
 		label->Draw();
 		return;
@@ -191,6 +193,7 @@ void UpdateScene(double deltaTimeMs)
 	if (useHierachySample)
 	{
 		cubeman->UpdateScene(nullptr, deltaTimeMs);
+		cubeman2->UpdateScene(nullptr, deltaTimeMs);
 	}
 }
 
@@ -308,14 +311,21 @@ void InitScene()
 	InitSceneForInstancing(sphereTexture);		
 
 	cubeman = new CubemanRenderer(cam, light);
-	cubeman->SetName("Cubeman");
-	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/blackwidow.jpg");
-	//GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/UV_flip.dds");	
+	cubeman->SetName("Steve");
+	GLuint steveTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/steve.jpg");	
 	cubeman->SetProgram(textureLightShaderProgram);
-	cubeman->SetTexture(0, widowTex);
+	cubeman->SetTexture(0, steveTex);
 	cubeman->SetScale(glm::vec3(4.0f));
 	cubeman->SetPosition(glm::vec3(0, 0, 0));	
 	//cubeman->SetEnableDynamicShadow(true);	
+
+	cubeman2 = new CubemanRenderer(cam, light);
+	cubeman2->SetName("Widow");
+	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/blackwidow.png");	
+	cubeman2->SetProgram(textureLightShaderProgram);
+	cubeman2->SetTexture(0, widowTex);
+	cubeman2->SetScale(glm::vec3(4.0f));
+	cubeman2->SetPosition(glm::vec3(8.0, 0, 0));
 
 }
 
@@ -339,6 +349,7 @@ void Destroy()
 	delete mesh;
 	delete litMesh;
 	delete cubeman;
+	delete cubeman2;
 	delete bottom;
 	delete light;	
 	delete cam;	

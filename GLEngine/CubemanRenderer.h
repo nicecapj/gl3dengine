@@ -13,7 +13,7 @@ public:
 	virtual void PostDraw() override;	
 
 
-	//¾î°ÅÁö	
+	virtual void SetTexture(int index, GLuint textureID);	
 	virtual void SetEnableDynamicShadow(bool isEnable) override;
 
 public:

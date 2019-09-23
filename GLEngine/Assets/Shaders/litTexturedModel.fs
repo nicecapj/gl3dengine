@@ -11,15 +11,13 @@ uniform vec3 lightPos;
 uniform vec3 cameraPos;
 
 float specularPower = 3.0f;
-float ambientPower = 0.15f;
-vec4 ambientColor = vec4(1.0, 0.0, 0.0, 1.0);
+float ambientPower = 0.33f;
+vec4 ambientColor = vec4(0.33, 0.33, 0.33, 1.0);
 vec4 rimLightColor = vec4(0.0, 0.0, 1.0, 1.0);
 
 out vec4 color;
 
 void main(){
-		
-		vec4 albedo = texture(Texture, TexCoord);
 		color = texture(Texture, TexCoord);
 		
 		ambientColor = color * ambientPower;
@@ -50,7 +48,4 @@ void main(){
 		
 		color = color * (diffuse + (ambient * ambientColor) + spec) + (rim * rimLightColor);
 		color.a = 1.0;
-		
-		color = albedo;
-		
 }

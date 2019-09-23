@@ -14,7 +14,7 @@ CubemanRenderer::CubemanRenderer(class Camera* camera, class LightRenderer* ligh
 
 	GLuint program = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/litTexturedModel.vs", "Assets/Shaders/litTexturedModel.fs");	
 	SetProgram(program);	
-	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/blackwidow.png");
+	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/steve.png");
 
 
 	auto head = new LitMeshRenderer(MeshType::Cube, camera, light);	//head
@@ -107,6 +107,14 @@ void CubemanRenderer::Draw()
 void CubemanRenderer::PostDraw()
 {
 	Renderer::PostDraw();
+}
+
+void CubemanRenderer::SetTexture(int index, GLuint textureID)
+{
+	for (auto renderer : child_)
+	{
+		renderer->SetTexture(index, textureID);
+	}
 }
 
 void CubemanRenderer::SetEnableDynamicShadow(bool isEnable)

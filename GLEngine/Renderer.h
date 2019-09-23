@@ -33,7 +33,7 @@ public:
 	void SetProgram(GLuint program);
 
 	inline GLuint GetTexture(int index) { return textures_[index]; }
-	void SetTexture(int index, GLuint textureID);
+	virtual void SetTexture(int index, GLuint textureID);
 
 	inline glm::vec3 GetColor() { return color_; 	}
 	void SetColor(glm::vec3 color);
