@@ -19,7 +19,7 @@ public:
 	~TextureManager();
 
 	GLuint GetTextureID(std::string textureFileName);
-	//GLuint GetTextureCubemap(std::string textureFileName);
+	GLuint GetCubemapTextureID(std::string textureFileName, std::string ext);
 
 private:	
 	std::string getFileExt(const std::string& s);	//todo :: must move to utility file.

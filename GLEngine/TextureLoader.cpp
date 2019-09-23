@@ -153,3 +153,22 @@ GLuint TextureLoader::GetTextureID(std::string textureFileName)
 {
 	return SOIL_load_OGL_texture(textureFileName.c_str(), 0, 0, SOIL_FLAG_TEXTURE_REPEATS);
 }
+
+GLuint TextureLoader::GetCubemapTextureID(std::string textureFileName)
+{
+	//SOIL_load_OGL_cubemap()	//6개 파일로 구성되야 하지만, 1개로 뭉쳐진 것에 순서만 넘기는 버전 제공함.
+	char face_order[6] = { 'N', 'S', 'W', 'E', 'U', 'D'};
+	return SOIL_load_OGL_single_cubemap(textureFileName.c_str(), face_order, 0, 0, 0);
+}
+
+GLuint TextureLoader::GetCubemapTextureID(std::string cubemapOrderedFileName[6])
+{
+	//GL_TEXTURE_CUBE_MAP_NEGATIVE_X~
+	return SOIL_load_OGL_cubemap(
+		cubemapOrderedFileName[0].c_str(),
+		cubemapOrderedFileName[1].c_str(),
+		cubemapOrderedFileName[2].c_str(),
+		cubemapOrderedFileName[3].c_str(),
+		cubemapOrderedFileName[4].c_str(),
+		cubemapOrderedFileName[5].c_str(), 0, 0, 0);
+}

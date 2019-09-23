@@ -18,6 +18,7 @@
 #include "ShaderManager.h"
 #include "TextureManager.h"
 #include "TextRenderer.h"
+#include "SkyBoxRenderer.h"
 
 #include "Renderer.h"
 #include <map>
@@ -50,6 +51,7 @@ TextRenderer* label = nullptr;
 MeshRenderer* debugQuad = nullptr;
 CubemanRenderer* cubeman = nullptr;
 CubemanRenderer* cubeman2 = nullptr;
+SkyBoxRenderer* skybox = nullptr;
 
 
 LitInstanceMeshRenderer* instancingMesh = nullptr;
@@ -109,6 +111,7 @@ void PostRenderScene()
 
 	if (useHierachySample)
 	{
+		skybox->Draw();
 		cubeman->Draw();		
 		cubeman2->Draw();
 		light->Draw();
@@ -193,8 +196,10 @@ void UpdateScene(double deltaTimeMs)
 	if (useHierachySample)
 	{
 		cubeman->UpdateScene(nullptr, deltaTimeMs);
-		cubeman2->UpdateScene(nullptr, deltaTimeMs);
+		cubeman2->UpdateScene(nullptr, deltaTimeMs)			;
 	}
+
+	skybox->UpdateScene(nullptr, deltaTimeMs);
 }
 
 void InitScene()
@@ -327,6 +332,14 @@ void InitScene()
 	cubeman2->SetScale(glm::vec3(4.0f));
 	cubeman2->SetPosition(glm::vec3(8.0, 0, 0));
 
+	skybox = new SkyBoxRenderer(MeshType::Cube, cam);
+	skybox->SetName("sky");	
+	GLuint cubemapProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/cubemap.vs", "Assets/Shaders/cubemap.fs");
+	skybox->SetProgram(cubemapProgram);
+	GLuint skyTexture = TextureManager::GetInstance()->GetCubemapTextureID("Assets/Textures/skybox/mountain", ".tga");
+	skybox->SetTexture(0, skyTexture);
+	skybox->SetScale(glm::vec3(10.0f));
+	skybox->SetPosition(glm::vec3(-5.0, 0, 0));
 }
 
 void Destroy()
@@ -345,6 +358,7 @@ void Destroy()
 	}
 	shadowRenderList_.clear();
 	
+	delete skybox;
 
 	delete mesh;
 	delete litMesh;

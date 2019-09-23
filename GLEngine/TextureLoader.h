@@ -16,5 +16,7 @@ public:
 private:
 	GLuint GetTextureID(std::string textureFileName, bool useGLI);		
 	GLuint GetTextureID(std::string textureFileName);
+	GLuint GetCubemapTextureID(std::string textureFileName);
+	GLuint GetCubemapTextureID(std::string cubemapOrderedFileName[6]);
 };
 

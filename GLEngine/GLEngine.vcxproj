@@ -170,6 +170,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="SkyBoxRenderer.h" />
     <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="TextureManager.h" />
@@ -192,6 +193,7 @@
     </ClCompile>
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
+    <ClCompile Include="SkyBoxRenderer.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="TextureManager.cpp" />
