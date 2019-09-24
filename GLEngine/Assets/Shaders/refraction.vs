@@ -16,8 +16,6 @@ void main(){
 	gl_Position = vp * model *vec4(position, 1.0);
 	
 	TexCoord = texCoord;	
-	
-	//노말을 단위 노말로 바꾼다
 	Normal = mat3(transpose(inverse(model))) * normal;
 	WorldPos = vec3(model *vec4(position, 1.0));
 }

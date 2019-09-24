@@ -19,6 +19,7 @@
 #include "TextureManager.h"
 #include "TextRenderer.h"
 #include "SkyBoxRenderer.h"
+#include "ReflectionCube.h"
 
 #include "Renderer.h"
 #include <map>
@@ -52,6 +53,8 @@ MeshRenderer* debugQuad = nullptr;
 CubemanRenderer* cubeman = nullptr;
 CubemanRenderer* cubeman2 = nullptr;
 SkyBoxRenderer* skybox = nullptr;
+ReflectionCube* reflectionCube = nullptr;
+ReflectionCube* refractionCube = nullptr;
 
 
 LitInstanceMeshRenderer* instancingMesh = nullptr;
@@ -111,7 +114,9 @@ void PostRenderScene()
 
 	if (useHierachySample)
 	{
-		skybox->Draw();
+		skybox->Draw();	//최적화 안해서, 먼저 그림
+		reflectionCube->Draw();
+		refractionCube->Draw();
 		cubeman->Draw();		
 		cubeman2->Draw();
 		light->Draw();
@@ -200,6 +205,9 @@ void UpdateScene(double deltaTimeMs)
 	}
 
 	skybox->UpdateScene(nullptr, deltaTimeMs);
+
+	reflectionCube->UpdateScene(nullptr, deltaTimeMs);
+	refractionCube->UpdateScene(nullptr, deltaTimeMs);
 }
 
 void InitScene()
@@ -340,6 +348,24 @@ void InitScene()
 	skybox->SetTexture(0, skyTexture);
 	skybox->SetScale(glm::vec3(100.0f));
 	skybox->SetPosition(glm::vec3(0.0, 0, 0));
+
+	reflectionCube = new ReflectionCube(MeshType::Sphere, cam);
+	skybox->SetName("reflectionCube");
+	GLuint reflectProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/reflection.vs", "Assets/Shaders/reflection.fs");
+	reflectionCube->SetProgram(reflectProgram);
+	reflectionCube->SetTexture(0, skyTexture);
+	reflectionCube->SetScale(glm::vec3(10.0f));
+	reflectionCube->SetPosition(glm::vec3(-4.0, 0, 0));
+
+	refractionCube = new ReflectionCube(MeshType::Sphere, cam);
+	refractionCube->SetName("refractionCube");
+	GLuint refractProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/reflection.vs", "Assets/Shaders/refraction.fs");
+	refractionCube->SetProgram(refractProgram);
+	refractionCube->SetTexture(0, skyTexture);
+	refractionCube->SetScale(glm::vec3(10.0f));
+	refractionCube->SetPosition(glm::vec3(-4.0, -2, 0));
+
+	
 }
 
 void Destroy()
@@ -359,6 +385,8 @@ void Destroy()
 	shadowRenderList_.clear();
 	
 	delete skybox;
+	delete reflectionCube;
+	delete refractionCube;
 
 	delete mesh;
 	delete litMesh;
