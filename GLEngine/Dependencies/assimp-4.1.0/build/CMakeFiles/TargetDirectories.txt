@@ -1,0 +1,4 @@
+C:/workUnreal/gl3dengine/GLEngine/Dependencies/assimp-4.1.0/build/CMakeFiles/assimp.dir
+C:/workUnreal/gl3dengine/GLEngine/Dependencies/assimp-4.1.0/build/CMakeFiles/INSTALL.dir
+C:/workUnreal/gl3dengine/GLEngine/Dependencies/assimp-4.1.0/build/CMakeFiles/ALL_BUILD.dir
+C:/workUnreal/gl3dengine/GLEngine/Dependencies/assimp-4.1.0/build/CMakeFiles/ZERO_CHECK.dir
