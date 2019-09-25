@@ -2,13 +2,105 @@
 #include "Mesh.h"
 
 
-Mesh::Mesh()
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures)
+	:vertices_(vertices), indices_(indices), textures_(textures)
 {
+	SetupMesh();
 }
-
 
 Mesh::~Mesh()
 {
+}
+
+void Mesh::Draw(GLuint shader)
+{
+	//텍스쳐를 여러개 지원하기 위한 구조. 정해진 이름으로 사용
+	//uniform sampler2D texture_diffuse1;
+	//uniform sampler2D texture_diffuse2;
+	//uniform sampler2D texture_diffuse3;
+	//uniform sampler2D texture_specular1;
+	//uniform sampler2D texture_specular2;
+	//uniform sampler2D texture_normal1;
+	unsigned int diffuseNr = 1;
+	unsigned int specularNr = 1;
+	unsigned int normalNr = 1;
+	for (unsigned int i = 0; i < textures_.size(); i++)
+	{
+		glActiveTexture(GL_TEXTURE0 + i);
+
+		std::string number;
+		std::string name = textures_[i].TextureType;
+		if (name == "texture_diffuse")
+			number = std::to_string(diffuseNr++);
+		else if (name == "texture_specular")
+			number = std::to_string(specularNr++);
+		else if (name == "texture_normal")
+			number = std::to_string(normalNr++);
+
+		GLuint shadowMapLocation = glGetUniformLocation(shader, (name + number).c_str());
+		glUniform1i(shadowMapLocation, i);
+		glBindTexture(GL_TEXTURE_2D, textures_[i].Id);
+	}
+	glActiveTexture(GL_TEXTURE0);
+
+	// mesh 그리기
+	glBindVertexArray(vao_);
+	glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+void Mesh::SetupMesh()
+{
+	//VAO
+	glGenVertexArrays(1, &vao_);
+	glBindVertexArray(vao_);
+
+	//VBO
+	glGenBuffers(1, &vbo_);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices_.size(), &vertices_[0], GL_STATIC_DRAW);	//STATIC
+
+
+	glEnableVertexAttribArray(0);	//VS : layout (location = 0) in vec3 position;
+	glVertexAttribPointer(0,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		sizeof(Vertex),
+		(GLvoid*)0);
+
+	glEnableVertexAttribArray(1);	//layout (location = 1) in vec2 texCoord;
+	glVertexAttribPointer(1,
+		2,
+		GL_FLOAT,
+		GL_FALSE,
+		sizeof(Vertex),
+		(GLvoid*)(offsetof(Vertex, Vertex::texCoords)));
+
+	glEnableVertexAttribArray(2);	//VS : layout (location = 2) in vec3 normal;
+	glVertexAttribPointer(2,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		sizeof(Vertex),
+		(GLvoid*)(offsetof(Vertex, Vertex::normal)));
+
+	//glEnableVertexAttribArray(3);	//VS : layout (location = 3) in vec3 color;
+	//glVertexAttribPointer(3,
+	//                      3,
+	//                      GL_FLOAT,
+	//                      GL_FALSE,
+	//                      sizeof(Vertex),
+	//                      (GLvoid*)(offsetof(Vertex, Vertex::color)));
+
+	//EBO
+	glGenBuffers(1, &ebo_);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices_.size(), &indices_[0], GL_STATIC_DRAW);
+
+	//Unbind buffer and vertex array as a precaution
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 // Unity coord

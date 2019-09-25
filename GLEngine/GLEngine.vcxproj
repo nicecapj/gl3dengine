@@ -109,13 +109,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.bin.WIN64\glfw-3.3.bin.WIN64\include;$(ProjectDir)Dependencies\freetype-2.10.0\include;$(ProjectDir)Dependencies\gli;$(ProjectDir)Dependencies\;$(ProjectDir)Dependencies\glew-2.1.0\include;$(ProjectDir)Dependencies\soil\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.bin.WIN64\glfw-3.3.bin.WIN64\include;$(ProjectDir)Dependencies\freetype-2.10.0\include;$(ProjectDir)Dependencies\gli;$(ProjectDir)Dependencies\;$(ProjectDir)Dependencies\glew-2.1.0\include;$(ProjectDir)Dependencies\soil\src;$(ProjectDir)Dependencies\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\soil\lib\x64\Debug;$(ProjectDir)Dependencies\glfw-3.3.bin.WIN64\glfw-3.3.bin.WIN64\lib-vc2017;$(ProjectDir)Dependencies\glew-2.1.0\lib\Release\x64;$(ProjectDir)Dependencies\freetype-2.10.0\win64;%(AdditionalIncludeDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;freetype.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\soil\lib\x64\Debug;$(ProjectDir)Dependencies\glfw-3.3.bin.WIN64\glfw-3.3.bin.WIN64\lib-vc2017;$(ProjectDir)Dependencies\glew-2.1.0\lib\Release\x64;$(ProjectDir)Dependencies\freetype-2.10.0\win64;$(ProjectDir)Dependencies\assimp\lib\x64;%(AdditionalIncludeDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;freetype.lib;SOIL.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -165,10 +165,12 @@
     <ClInclude Include="LitMeshShadowRenderer.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshRenderer.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ReflectionCube.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SkyBoxRenderer.h" />
@@ -186,6 +188,7 @@
     <ClCompile Include="LitMeshShadowRenderer.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshRenderer.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -194,6 +197,7 @@
     </ClCompile>
     <ClCompile Include="ReflectionCube.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="SkyBoxRenderer.cpp" />
     <ClCompile Include="TextRenderer.cpp" />

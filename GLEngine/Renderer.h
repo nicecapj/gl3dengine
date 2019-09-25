@@ -40,12 +40,12 @@ public:
 
 	inline GLuint GetVAO() { return vao_; 	}	//used for instancing	
 	inline GLsizei GetIndiciesSize() {
-		return (GLsizei)indicies_.size();
+		return (GLsizei)indices_.size();
 	}			
 	void UpdateVertics(std::vector<Vertex>&& vertics);
 
 	std::vector<Vertex>& GetVertics() { return vertices_; }
-	std::vector<GLuint>& GetIndicis() { return indicies_; }
+	std::vector<GLuint>& GetIndicis() { return indices_; }
 
 	virtual void SetEnableDynamicShadow(bool isEnable);
 
@@ -68,7 +68,7 @@ protected:
 	glm::vec3 color_;
 
 	std::vector<Vertex> vertices_;
-	std::vector<GLuint> indicies_;
+	std::vector<GLuint> indices_;
 
 	GLuint vbo_;	//vertex buffer object. this is geometrical information, attributes such as position, normal, color, texture coordination. store on a per vertex base on GPU
 	GLuint ebo_;	//element buffer object. this is used to store vertex index. such as index buffer of directX

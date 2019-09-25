@@ -21,6 +21,8 @@
 #include "SkyBoxRenderer.h"
 #include "ReflectionCube.h"
 
+#include "Model.h"
+
 #include "Renderer.h"
 #include <map>
 #include <vector>
@@ -55,6 +57,9 @@ CubemanRenderer* cubeman2 = nullptr;
 SkyBoxRenderer* skybox = nullptr;
 ReflectionCube* reflectionCube = nullptr;
 ReflectionCube* refractionCube = nullptr;
+
+Model* meshModel = nullptr;
+GLuint modelShder = -1;
 
 
 LitInstanceMeshRenderer* instancingMesh = nullptr;
@@ -121,6 +126,8 @@ void PostRenderScene()
 		cubeman2->Draw();
 		light->Draw();
 		label->Draw();
+		meshModel->Draw(modelShder);
+
 		return;
 	}
 
@@ -365,7 +372,9 @@ void InitScene()
 	refractionCube->SetScale(glm::vec3(10.0f));
 	refractionCube->SetPosition(glm::vec3(-4.0, -2, 0));
 
-	
+	modelShder = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/meshModel.vs", "Assets/Shaders/meshModel.fs");
+	//meshModel = new Model("Assets/Objects/chunky-knight/BOSS_model_final.Ffbx");
+	meshModel = new Model("BOSS_model_final.fbx");
 }
 
 void Destroy()
@@ -388,6 +397,7 @@ void Destroy()
 	delete reflectionCube;
 	delete refractionCube;
 
+	delete meshModel;
 	delete mesh;
 	delete litMesh;
 	delete cubeman;

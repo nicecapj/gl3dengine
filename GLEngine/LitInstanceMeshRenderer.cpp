@@ -14,19 +14,19 @@ LitInstanceMeshRenderer::LitInstanceMeshRenderer(MeshType meshType, Camera* came
 	{
 	case MeshType::Trangile:
 	{
-		Mesh::setTriData(vertices_, indicies_);
+		Mesh::setTriData(vertices_, indices_);
 	} break;
 	case MeshType::Cube:
 	{
-		Mesh::setCubeData(vertices_, indicies_);
+		Mesh::setCubeData(vertices_, indices_);
 	} break;
 	case MeshType::Sphere:
 	{
-		Mesh::setSphereData(vertices_, indicies_);
+		Mesh::setSphereData(vertices_, indices_);
 	} break;
 	case MeshType::Quad:
 	{
-		Mesh::setQuadData(vertices_, indicies_);
+		Mesh::setQuadData(vertices_, indices_);
 	} break;
 	}
 
@@ -69,7 +69,7 @@ LitInstanceMeshRenderer::LitInstanceMeshRenderer(MeshType meshType, Camera* came
 	//EBO
 	glGenBuffers(1, &ebo_);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indicies_.size(), &indicies_[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices_.size(), &indices_[0], GL_STATIC_DRAW);
 
 	//Unbind buffer and vertex array as a precaution
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

@@ -14,19 +14,19 @@ LitMeshRenderer::LitMeshRenderer(MeshType meshType, Camera* camera, class LightR
     {
         case MeshType::Trangile:
             {
-                Mesh::setTriData(vertices_, indicies_);
+                Mesh::setTriData(vertices_, indices_);
             } break;
         case MeshType::Cube:
             {
-                Mesh::setCubeData(vertices_, indicies_);
+                Mesh::setCubeData(vertices_, indices_);
             } break;
         case MeshType::Sphere:
             {
-                Mesh::setSphereData(vertices_, indicies_);
+                Mesh::setSphereData(vertices_, indices_);
             } break;
         case MeshType::Quad:
             {
-                Mesh::setQuadData(vertices_, indicies_);
+                Mesh::setQuadData(vertices_, indices_);
             } break;
     }
 
@@ -75,7 +75,7 @@ LitMeshRenderer::LitMeshRenderer(MeshType meshType, Camera* camera, class LightR
     //EBO
     glGenBuffers(1, &ebo_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indicies_.size(), &indicies_[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices_.size(), &indices_[0], GL_STATIC_DRAW);
 
     //Unbind buffer and vertex array as a precaution
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -124,7 +124,7 @@ void LitMeshRenderer::Draw()
     //draw
     //한번만 그릴 데이터를 전부 요구한다.(vao_) 이후 glDrawElements를 통해 그린다.
     glBindVertexArray(vao_);
-    glDrawElements(GL_TRIANGLES, (GLsizei)indicies_.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, (GLsizei)indices_.size(), GL_UNSIGNED_INT, 0);
 
     //marks end of draw function
     glBindVertexArray(0);

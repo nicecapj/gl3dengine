@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "glm/glm.hpp"
+#include "gl/glew.h"
 #include <vector>
+#include <string>
 
 enum MeshType
 {
@@ -18,11 +20,18 @@ struct Vertex
     glm::vec2 texCoords;
 };
 
+struct Texture {
+	GLuint Id;
+	std::string TextureType;	
+};
+
 class Mesh
 {
 public:
-    Mesh();
+    Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures);
     ~Mesh();
+
+	void Draw(GLuint shader);
 
     static void setTriData(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
     static void setQuadData(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
@@ -34,4 +43,15 @@ public:
 	static void setMineCraftLeftArmUV(std::vector <Vertex>& vertices);
 	static void setMineCraftRightArmUV(std::vector <Vertex>& vertices);
 	static void setMineCraftLegUV(std::vector <Vertex>& vertices);
+
+private:
+	void SetupMesh();
+
+	std::vector<Vertex> vertices_;
+	std::vector<GLuint> indices_;
+	std::vector<Texture> textures_;
+
+	GLuint vbo_;	//vertex buffer object. this is geometrical information, attributes such as position, normal, color, texture coordination. store on a per vertex base on GPU
+	GLuint ebo_;	//element buffer object. this is used to store vertex index. such as index buffer of directX
+	GLuint vao_;	//vertex array object. this is helper container object that store all VBOs and attributes. 오브젝트마다 1개이상의 VBO가 있을텐데, 각 프레임을 랜더링 할때마다, 바인드하긴 지루하니까 이걸 사용
 };
