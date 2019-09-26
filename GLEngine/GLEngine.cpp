@@ -336,7 +336,7 @@ void InitScene()
 	cubeman->SetProgram(textureLightShaderProgram);
 	cubeman->SetTexture(0, steveTex);
 	cubeman->SetScale(glm::vec3(4.0f));
-	cubeman->SetPosition(glm::vec3(0, 0, 0));	
+	cubeman->SetPosition(glm::vec3(8, 0, 0));	
 	//cubeman->SetEnableDynamicShadow(true);	
 
 	cubeman2 = new CubemanRenderer(cam, light);
@@ -345,7 +345,7 @@ void InitScene()
 	cubeman2->SetProgram(textureLightShaderProgram);
 	cubeman2->SetTexture(0, widowTex);
 	cubeman2->SetScale(glm::vec3(4.0f));
-	cubeman2->SetPosition(glm::vec3(8.0, 0, 0));
+	cubeman2->SetPosition(glm::vec3(4.0, 0, 0));
 
 	skybox = new SkyBoxRenderer(MeshType::Cube, cam);
 	skybox->SetName("sky");	
@@ -375,6 +375,10 @@ void InitScene()
 	modelShder = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/meshModel.vs", "Assets/Shaders/meshModel.fs");
 	//meshModel = new Model("Assets/Objects/chunky-knight/BOSS_model_final.Ffbx");
 	meshModel = new Model("BOSS_model_final.fbx");
+	meshModel->SetCamera(cam);
+	meshModel->SetLight(light);
+	meshModel->SetScale(glm::vec3(4.0f));
+	meshModel->SetPosition(glm::vec3(0, 0, 0));
 }
 
 void Destroy()

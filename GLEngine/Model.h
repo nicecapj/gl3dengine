@@ -13,6 +13,13 @@ public:
 	}
 	void Draw(GLuint shader);
 
+	void SetCamera(class Camera* camera);
+	void SetLight(class LightRenderer* light0);
+
+	//from Renderer
+	void SetPosition(glm::vec3 position);
+	void SetScale(glm::vec3 scale);
+
 	~Model();
 
 private:
@@ -21,7 +28,6 @@ private:
 	Mesh ProcessMesh(struct aiMesh *mesh, const struct aiScene *scene);
 	std::vector<Texture> LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
 	
-	std::vector<Mesh> meshes_;
-	std::string directory;
+	std::vector<Mesh> meshes_;	
 };
 

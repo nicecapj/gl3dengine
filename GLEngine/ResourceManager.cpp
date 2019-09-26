@@ -3,6 +3,7 @@
 #include <assimp/cimport.h>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <iostream>
 
 
 ResourceManager::ResourceManager()
@@ -30,6 +31,11 @@ const struct aiScene* ResourceManager::LoadAsset(std::string path)
 	//aiProcess_GenNormals	//노말없으면 생성
 	const aiScene* scene = aiImportFile(path.c_str(), aiProcessPreset_TargetRealtime_MaxQuality);
 	assetCache_[path] = scene;
+
+	if (!scene)
+	{
+		std::cout << aiGetErrorString() << std::endl;
+	}	
 
 	return scene;
 }

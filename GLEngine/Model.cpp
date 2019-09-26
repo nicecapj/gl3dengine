@@ -2,6 +2,8 @@
 #include "Model.h"
 #include "ResourceManager.h"
 #include "TextureManager.h"
+#include "Camera.h"
+#include "LightRenderer.h"
 #include "assimp/scene.h"
 #include "assimp/mesh.h"
 
@@ -16,24 +18,47 @@ void Model::Draw(GLuint shader)
 		meshes_[i].Draw(shader);
 }
 
+void Model::SetCamera(class Camera* camera)
+{
+	for (unsigned int i = 0; i < meshes_.size(); i++)
+		meshes_[i].SetCamera(camera);
+}
+
+void Model::SetLight(class LightRenderer* light0)
+{
+	for (unsigned int i = 0; i < meshes_.size(); i++)
+		meshes_[i].SetLight(light0);
+}
+void Model::SetPosition(glm::vec3 position)
+{
+	for (unsigned int i = 0; i < meshes_.size(); i++)
+		meshes_[i].SetPosition(position);
+}
+
+void Model::SetScale(glm::vec3 scale)
+{
+	for (unsigned int i = 0; i < meshes_.size(); i++)
+		meshes_[i].SetScale(scale);
+}
+
 Model::~Model()
 {
 }
 
 void Model::LoadModel(std::string path)
 {
-	//const auto* scene = ResourceManager::GetInstance()->LoadAsset(path);
-	//if (!scene)
-	//	return;
-	Assimp::Importer import;
-	const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	//Assimp::Importer import;
+	//const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-	{
-		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+	//if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+	//{
+	//	std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+	//	return;
+	//}	
+
+	const auto* scene = ResourceManager::GetInstance()->LoadAsset(path);
+	if (!scene)
 		return;
-	}
-	directory = path.substr(0, path.find_last_of('/'));
 
 	ProcessNode(scene->mRootNode, scene);
 }

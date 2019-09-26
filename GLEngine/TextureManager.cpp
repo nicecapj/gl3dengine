@@ -2,6 +2,7 @@
 #include "TextureManager.h"
 #include "TextureLoader.h"
 #include <assert.h>
+#include <iostream>
 
 std::string TextureManager::getFileExt(const std::string& s)
 {
@@ -43,6 +44,11 @@ GLuint TextureManager::GetTextureID(std::string textureFileName)
 	GLuint textureId = loader_->GetTextureID(textureFileName);
 	textureCache_[textureFileName] = textureId;
 	
+	if (textureId == 0)
+	{
+		std::cout << "TextureLoadError : " << textureFileName << std::endl;
+	}
+
 	return textureId;
 }
 

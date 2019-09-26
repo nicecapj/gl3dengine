@@ -1,11 +1,23 @@
 ﻿#include "pch.h"
 #include "Mesh.h"
 
+#include <gl/glew.h>
+#include "Dependencies/glm/glm.hpp"
+#include "Dependencies/glm/gtc/matrix_transform.hpp"
+#include "Dependencies/glm/gtc/type_ptr.hpp"
+
+#include "Camera.h"
+#include "LightRenderer.h"
+
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures)
 	:vertices_(vertices), indices_(indices), textures_(textures)
 {
 	SetupMesh();
+
+	SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+	SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 }
 
 Mesh::~Mesh()
@@ -14,6 +26,36 @@ Mesh::~Mesh()
 
 void Mesh::Draw(GLuint shader)
 {
+
+	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
+	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);	
+	model_ = scaleMatrix * matRot_ * transformMatrix;	//gl은 열우선행렬임으로 SRT
+
+	glUseProgram(shader);
+
+	GLuint modelLocation = glGetUniformLocation(shader, "model");
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model_));	//유니폼변수, 넘길데이터의 수, 전치인지 여부, 넘길 DATA의 포인터
+
+	glm::mat4 view = camera_->GetViewMatrix();
+	glm::mat4 proj = camera_->GetProjectMatrix();
+	glm::mat4 vp = proj * view;
+
+	//uniform은 쉐이더 에러나, 쉐이더에서 선언만 되고 사용되는 곳 없으면, 가져오는데 실패(-1) 한다.
+	GLuint vpLocation = glGetUniformLocation(shader, "vp");	//uniform mat4 view;
+	//assert(vpLocation != -1);
+	glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(vp));
+
+	auto camPos = camera_->GetCameraPosition();
+	GLuint camPosLocation = glGetUniformLocation(shader, "cameraPos");	//uniform vec3 cameraPos;
+	assert(camPosLocation != -1);
+	glUniform3f(camPosLocation, camPos.x, camPos.y, camPos.z);
+
+	GLuint lightPosLocation = glGetUniformLocation(shader, "lightPos");	//uniform vec3 lightPos;
+	//assert(lightPosLocation != -1);
+	auto lightPos = light_->GetPosition();
+	glUniform3f(lightPosLocation, lightPos.x, lightPos.y, lightPos.z);
+
+
 	//텍스쳐를 여러개 지원하기 위한 구조. 정해진 이름으로 사용
 	//uniform sampler2D texture_diffuse1;
 	//uniform sampler2D texture_diffuse2;
@@ -45,7 +87,7 @@ void Mesh::Draw(GLuint shader)
 
 	// mesh 그리기
 	glBindVertexArray(vao_);
-	glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, (GLsizei)indices_.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
@@ -500,4 +542,43 @@ void Mesh::setSphereData(std::vector<Vertex>& vertices, std::vector<uint32_t>& i
     vertices = _vertices;
     indices = _indices;
 
+}
+
+
+void Mesh::SetCamera(class Camera* camera)
+{
+	camera_ = camera;
+}
+
+void Mesh::SetLight(class LightRenderer* light0)
+{
+	light_ = light0;
+}
+
+void Mesh::SetPosition(glm::vec3 position)
+{
+	position_ = position;
+}
+
+void Mesh::SetScale(glm::vec3 scale)
+{
+	scale_ = scale;
+}
+
+void Mesh::SetRotation(glm::vec3 bias, float angle)
+{
+	glm::quat q(bias * angle);
+	matRot_ = glm::mat4_cast(q);
+}
+
+void Mesh::SetRotation(glm::vec3 eulerAngles)
+{
+	glm::quat q(eulerAngles);
+	matRot_ = glm::mat4_cast(q);
+}
+
+glm::vec3 Mesh::GetRotationEuler()
+{
+	glm::quat q(matRot_);
+	return glm::eulerAngles(q);
 }
