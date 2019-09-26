@@ -8,6 +8,7 @@
 
 #include "Camera.h"
 #include "LightRenderer.h"
+#include "TextureManager.h"
 
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures)
@@ -18,6 +19,8 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vecto
 	SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
 	SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+
+	envTextureForTest_ = TextureManager::GetInstance()->GetCubemapTextureID("Assets/Textures/skybox/mountain", ".tga");
 }
 
 Mesh::~Mesh()
@@ -66,7 +69,8 @@ void Mesh::Draw(GLuint shader)
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
 	unsigned int normalNr = 1;
-	for (unsigned int i = 0; i < textures_.size(); i++)
+	unsigned int i = 0;
+	for (i = 0; i < textures_.size(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 
@@ -83,6 +87,10 @@ void Mesh::Draw(GLuint shader)
 		glUniform1i(shadowMapLocation, i);
 		glBindTexture(GL_TEXTURE_2D, textures_[i].Id);
 	}
+
+	glActiveTexture(GL_TEXTURE0 + i);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, envTextureForTest_);
+
 	glActiveTexture(GL_TEXTURE0);
 
 	// mesh 그리기

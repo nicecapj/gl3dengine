@@ -122,8 +122,8 @@ void PostRenderScene()
 		skybox->Draw();	//최적화 안해서, 먼저 그림
 		reflectionCube->Draw();
 		refractionCube->Draw();
-		cubeman->Draw();		
-		cubeman2->Draw();
+		//cubeman->Draw();		
+		//cubeman2->Draw();
 		light->Draw();
 		label->Draw();
 		meshModel->Draw(modelShder);

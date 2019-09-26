@@ -6,21 +6,21 @@ in vec3 WorldPos;
 
 
 uniform sampler2D texture_diffuse1;
+uniform samplerCube cubemap;
 
 uniform vec3 lightPos;
 uniform vec3 cameraPos;
 
-float specularPower = 3.0f;
+float specularPower = 1.0f;
 float ambientPower = 0.33f;
-vec4 ambientColor = vec4(0.33, 0.33, 0.33, 1.0);
-vec4 rimLightColor = vec4(0.0, 0.0, 1.0, 1.0);
+vec4 ambientColor = vec4(1.0, 1.0, 1.0, 1.0);
+vec4 rimLightColor = vec4(1.0, 1.0, 1.0, 1.0);
 
 out vec4 color;
 
 void main(){
-		color = texture(texture_diffuse1, TexCoord);
-		
-		ambientColor = color * ambientPower;
+		color = texture(texture_diffuse1, TexCoord);		
+		ambientColor = ambientColor * ambientPower;
 		
 		vec3 normal = normalize(Normal);		
 		vec3 lightDir = normalize(lightPos - WorldPos);
@@ -28,24 +28,31 @@ void main(){
 		//vec4 diffuse = color * ndl;
 		vec4 diffuse = color * ndl;
 		
-		vec4 ambient = vec4(0.3, 0.3, 0.3, 1.0);		
 		
 		//rim light
 		vec3 viewDir = normalize(cameraPos - WorldPos);
 		float ndc = max(dot(normal, viewDir), 0);
 		float rim;
-		if(ndc < 0.1)
-			rim = 1;
+		if(ndc < 0.3)
+			rim = 1-ndc;
 		else
 			rim = 0;
+		
+		//half lambert
+		diffuse = diffuse*0.5 + 0.5;
+
+		//reflect env
+		vec3 I = -viewDir;			
+		vec3 R = reflect(I, normalize(Normal));
+		vec4 envColor = texture(cubemap, R);
+		diffuse *= envColor;
 					
 		//PHONG Specular
 		vec3 reflectionDir = reflect(-lightDir, normal);
-		float spec = pow(max(dot(viewDir, reflectionDir),0.0),128);			
-		spec = spec * specularPower;
+		float spec = pow(max(dot(viewDir, reflectionDir),0.0),specularPower);					
 		
 		//color = vec4(vec3(gl_FragCoord.z), 1.0);  fragment내장 쉐이더 gl_FragCoord.z 에 깊이버퍼값 저장되 있음.
 		
-		color = color * (diffuse + (ambient * ambientColor) + spec) + (rim * rimLightColor);
+		color = color * (diffuse + (ambientColor) + spec) + (rim * rimLightColor);
 		color.a = 1.0;
 }

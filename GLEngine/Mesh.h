@@ -79,4 +79,6 @@ private:
 
 	class Camera* camera_;
 	class LightRenderer* light_;
+	
+	GLuint envTextureForTest_;
 };

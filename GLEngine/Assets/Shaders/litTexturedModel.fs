@@ -10,17 +10,17 @@ uniform sampler2D Texture;
 uniform vec3 lightPos;
 uniform vec3 cameraPos;
 
-float specularPower = 3.0f;
+float specularPower = 128.0f;
 float ambientPower = 0.33f;
-vec4 ambientColor = vec4(0.33, 0.33, 0.33, 1.0);
-vec4 rimLightColor = vec4(0.0, 0.0, 1.0, 1.0);
+vec4 ambientColor = vec4(1.0, 1.0, 1.0, 1.0);
+vec4 rimLightColor = vec4(1.0, 1.0, 1.0, 1.0);
 
 out vec4 color;
 
 void main(){
 		color = texture(Texture, TexCoord);
 		
-		ambientColor = color * ambientPower;
+		ambientColor = ambientColor * ambientPower;
 		
 		vec3 normal = normalize(Normal);		
 		vec3 lightDir = normalize(lightPos - WorldPos);
@@ -41,8 +41,7 @@ void main(){
 					
 		//PHONG Specular
 		vec3 reflectionDir = reflect(-lightDir, normal);
-		float spec = pow(max(dot(viewDir, reflectionDir),0.0),128);			
-		spec = spec * specularPower;
+		float spec = pow(max(dot(viewDir, reflectionDir),0.0),specularPower);					
 		
 		//color = vec4(vec3(gl_FragCoord.z), 1.0);  fragment내장 쉐이더 gl_FragCoord.z 에 깊이버퍼값 저장되 있음.
 		
