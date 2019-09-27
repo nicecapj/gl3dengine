@@ -80,5 +80,6 @@ private:
 	class Camera* camera_;
 	class LightRenderer* light_;
 	
-	GLuint envTextureForTest_;
+	GLuint envTexture_;
+	GLuint sceneColorBuffer_;
 };
