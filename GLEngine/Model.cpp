@@ -12,10 +12,22 @@
 #include "assimp/postprocess.h"
 #include <iostream>
 
+void Model::PreDraw(GLuint shader)
+{
+	for (unsigned int i = 0; i < meshes_.size(); i++)
+		meshes_[i].PreDraw(shader);
+}
+
 void Model::Draw(GLuint shader)
 {
 	for (unsigned int i = 0; i < meshes_.size(); i++)
 		meshes_[i].Draw(shader);
+}
+
+void Model::PostDraw(GLuint shader)
+{
+	for (unsigned int i = 0; i < meshes_.size(); i++)
+		meshes_[i].PostDraw(shader);
 }
 
 void Model::SetCamera(class Camera* camera)

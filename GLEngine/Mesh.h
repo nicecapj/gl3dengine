@@ -31,7 +31,10 @@ public:
     Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures);
     ~Mesh();
 
-	void Draw(GLuint shader);
+	void PreDraw(GLuint shader);
+	void Draw(GLuint shader);	
+	void PostDraw(GLuint shader);
+
 	void SetCamera(class Camera* camera);
 	void SetLight(class LightRenderer* light0);	//우선 라이트는 1개만 지원
 

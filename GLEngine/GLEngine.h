@@ -10,7 +10,7 @@ public:
 	GLEngine();
 	~GLEngine();
 
-	const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+	const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 720;
 	const GLuint SCR_WIDTH = 1280, SCR_HEIGHT = 720;
 
 	void InitPhysics();	
@@ -28,6 +28,9 @@ public:
 	GLuint GetShadowmap() { return depthMap_; }
 	GLuint GetShadowmapWidth();
 	GLuint GetShadowmapHeight();
+
+	GLuint GetSceneTexture();
+	GLuint GetSceneBuffer();
 
 	void Destroy();
 

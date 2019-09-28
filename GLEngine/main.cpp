@@ -40,7 +40,8 @@ bool isEnableWireFrame = false;
 bool useInstancing = false;
 bool useShadowmap = false;
 bool useOrthProjection = false;
-bool useHierachySample = true;
+bool useHierachySample = false;
+bool usePostProcessing = true;
 
 Camera* cam = nullptr;
 LightRenderer* light = nullptr;
@@ -58,6 +59,7 @@ ReflectionCube* refractionCube = nullptr;
 
 Model* meshModel = nullptr;
 GLuint modelShder = -1;
+GLuint screenShader = -1;
 
 
 LitInstanceMeshRenderer* instancingMesh = nullptr;
@@ -99,27 +101,55 @@ void PreRenderScene()
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	if (usePostProcessing)
+	{
+		glViewport(0, 0, g_GLEngine->GetScreenSizeX(), g_GLEngine->GetScreenSizeY());
+		glBindFramebuffer(GL_FRAMEBUFFER, g_GLEngine->GetSceneBuffer());
+		
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // 지금은 stencil buffer를 사용하지 않습니다
+		glEnable(GL_DEPTH_TEST);
+		meshModel->PreDraw(modelShder);
 
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); // 다시 기본값으로
+	}
 }
 
 void PostRenderScene()
 {
-	// 2. then render scene as normal with shadow mapping (using depth map)
-	glViewport(0, 0, g_GLEngine->GetScreenSizeX(), g_GLEngine->GetScreenSizeY());
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	if (useShadowmap)
+	{
+		// 2. then render scene as normal with shadow mapping (using depth map)
+		glViewport(0, 0, g_GLEngine->GetScreenSizeX(), g_GLEngine->GetScreenSizeY());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.0, 0.0, 0.0, 1.0);
+	}
+	
+	if (usePostProcessing)
+	{
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		meshModel->PostDraw(screenShader);
+
+		debugQuad->SetTexture(0, g_GLEngine->GetSceneTexture());
+		debugQuad->Draw();
+	}
+	else
+	{
+		meshModel->Draw(modelShder);
+	}
 
 	if (useHierachySample)
 	{
 		skybox->Draw();	//최적화 안해서, 먼저 그림
 		reflectionCube->Draw();
 		refractionCube->Draw();
-		//cubeman->Draw();		
+		//cubeman->Draw(textureLightShaderProgram);		
 		//cubeman2->Draw();
 		light->Draw();
 		label->Draw();
-		meshModel->Draw(modelShder);
-
+	
 		return;
 	}
 
@@ -130,7 +160,7 @@ void PostRenderScene()
 		//glBindTexture(GL_TEXTURE_2D, depthMap);
 
 		for (auto renderObj : shadowRenderList_)
-		{
+		{			
 			renderObj->SetProgram(shadowmapTextureLitShader);
 			renderObj->SetTexture(0, sphereTexture);
 			renderObj->SetTexture(1, g_GLEngine->GetShadowmap());
@@ -153,11 +183,14 @@ void PostRenderScene()
 		{
 			instancingMesh->Draw();
 		}
+		
 		mesh->Draw();
-		bottom->Draw();
+
+		
 		litMesh->Draw();
 	}
 
+	bottom->Draw();
 	light->Draw();
 	label->Draw();
 }
@@ -304,8 +337,8 @@ void InitScene()
 	GLuint depthTextureDebugShaderProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/depthTextureDebug.vs", "Assets/Shaders/depthTextureDebug.fs");
 	debugQuad = new MeshRenderer(MeshType::Cube, cam);
 	debugQuad->SetProgram(textureShaderProgram);
-	debugQuad->SetPosition({ -40.0f, 10.0f, -20.0f });
-	debugQuad->SetScale(glm::vec3(10.0f));
+	debugQuad->SetPosition({ -0.0f, 0.0f, 0.0f });
+	debugQuad->SetScale(glm::vec3(20.0f));
 	//debugQuad->SetTexture(sphereTexture);
 
 
@@ -334,8 +367,7 @@ void InitScene()
 
 	cubeman = new CubemanRenderer(cam, light);
 	cubeman->SetName("Steve");
-	GLuint steveTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/steve.jpg");
-	cubeman->SetProgram(textureLightShaderProgram);
+	GLuint steveTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/steve.jpg");	
 	cubeman->SetTexture(0, steveTex);
 	cubeman->SetScale(glm::vec3(4.0f));
 	cubeman->SetPosition(glm::vec3(16, 0, 0));
@@ -343,8 +375,7 @@ void InitScene()
 
 	cubeman2 = new CubemanRenderer(cam, light);
 	cubeman2->SetName("Widow");
-	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/blackwidow.png");
-	cubeman2->SetProgram(textureLightShaderProgram);
+	GLuint widowTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/blackwidow.png");	
 	cubeman2->SetTexture(0, widowTex);
 	cubeman2->SetScale(glm::vec3(4.0f));
 	cubeman2->SetPosition(glm::vec3(8.0, 0, 0));
@@ -382,6 +413,8 @@ void InitScene()
 	meshModel->SetLight(light);
 	meshModel->SetScale(glm::vec3(8.0f));
 	meshModel->SetPosition(glm::vec3(0, -4, 0));
+
+	screenShader = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/PostProcess.vs", "Assets/Shaders/PostProcess.fs");
 }
 
 void Destroy()
@@ -461,7 +494,16 @@ int main()
 		if (!useShadowmap)
 		{
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			PostRenderScene();
+
+			if (!usePostProcessing)
+			{
+				PostRenderScene();
+			}			
+			else
+			{
+				PreRenderScene();				
+				PostRenderScene();
+			}
 		}
 		else
 		{
@@ -578,6 +620,10 @@ void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int 
 				cam->SetPosition({ 0.0f, 10.0f, 10.0f });
 			}
 		}
+		else if (key == GLFW_KEY_6)
+		{
+			usePostProcessing = !usePostProcessing;
+		}		
 
 
 	}

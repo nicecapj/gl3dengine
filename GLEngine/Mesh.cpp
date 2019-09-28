@@ -26,6 +26,79 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vecto
 
 Mesh::~Mesh()
 {
+	glDeleteVertexArrays(1, &vbo_);
+	glDeleteBuffers(1, &vao_);
+}
+
+void Mesh::PreDraw(GLuint shader)
+{
+	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
+	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
+	model_ = scaleMatrix * matRot_ * transformMatrix;	//gl은 열우선행렬임으로 SRT
+
+	glUseProgram(shader);
+
+	GLuint modelLocation = glGetUniformLocation(shader, "model");
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model_));	//유니폼변수, 넘길데이터의 수, 전치인지 여부, 넘길 DATA의 포인터
+
+	glm::mat4 view = camera_->GetViewMatrix();
+	glm::mat4 proj = camera_->GetProjectMatrix();
+	glm::mat4 vp = proj * view;
+
+	//uniform은 쉐이더 에러나, 쉐이더에서 선언만 되고 사용되는 곳 없으면, 가져오는데 실패(-1) 한다.
+	GLuint vpLocation = glGetUniformLocation(shader, "vp");	//uniform mat4 view;
+	//assert(vpLocation != -1);
+	glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(vp));
+
+	auto camPos = camera_->GetCameraPosition();
+	GLuint camPosLocation = glGetUniformLocation(shader, "cameraPos");	//uniform vec3 cameraPos;
+	assert(camPosLocation != -1);
+	glUniform3f(camPosLocation, camPos.x, camPos.y, camPos.z);
+
+	GLuint lightPosLocation = glGetUniformLocation(shader, "lightPos");	//uniform vec3 lightPos;
+	//assert(lightPosLocation != -1);
+	auto lightPos = light_->GetPosition();
+	glUniform3f(lightPosLocation, lightPos.x, lightPos.y, lightPos.z);
+
+
+	//텍스쳐를 여러개 지원하기 위한 구조. 정해진 이름으로 사용
+	//uniform sampler2D texture_diffuse1;
+	//uniform sampler2D texture_diffuse2;
+	//uniform sampler2D texture_diffuse3;
+	//uniform sampler2D texture_specular1;
+	//uniform sampler2D texture_specular2;
+	//uniform sampler2D texture_normal1;
+	unsigned int diffuseNr = 1;
+	unsigned int specularNr = 1;
+	unsigned int normalNr = 1;
+	unsigned int i = 0;
+	for (i = 0; i < textures_.size(); i++)
+	{
+		glActiveTexture(GL_TEXTURE0 + i);
+
+		std::string number;
+		std::string name = textures_[i].TextureType;
+		if (name == "texture_diffuse")
+			number = std::to_string(diffuseNr++);
+		else if (name == "texture_specular")
+			number = std::to_string(specularNr++);
+		else if (name == "texture_normal")
+			number = std::to_string(normalNr++);
+
+		GLuint shadowMapLocation = glGetUniformLocation(shader, (name + number).c_str());
+		glUniform1i(shadowMapLocation, i);
+		glBindTexture(GL_TEXTURE_2D, textures_[i].Id);
+	}
+
+	glActiveTexture(GL_TEXTURE0 + i);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, envTexture_);
+
+	glActiveTexture(GL_TEXTURE0);
+
+	// mesh 그리기
+	glBindVertexArray(vao_);
+	glDrawElements(GL_TRIANGLES, (GLsizei)indices_.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }
 
 void Mesh::Draw(GLuint shader)
@@ -94,6 +167,36 @@ void Mesh::Draw(GLuint shader)
 	glActiveTexture(GL_TEXTURE0);
 
 	// mesh 그리기
+	glBindVertexArray(vao_);
+	glDrawElements(GL_TRIANGLES, (GLsizei)indices_.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+void Mesh::PostDraw(GLuint shader)
+{
+	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0), position_);
+	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale_);
+	model_ = scaleMatrix * matRot_ * transformMatrix;	//gl은 열우선행렬임으로 SRT
+
+	glUseProgram(shader);
+
+	GLuint modelLocation = glGetUniformLocation(shader, "model");
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model_));	//유니폼변수, 넘길데이터의 수, 전치인지 여부, 넘길 DATA의 포인터
+
+	glm::mat4 view = camera_->GetViewMatrix();
+	glm::mat4 proj = camera_->GetProjectMatrix();
+	glm::mat4 vp = proj * view;
+
+	//uniform은 쉐이더 에러나, 쉐이더에서 선언만 되고 사용되는 곳 없으면, 가져오는데 실패(-1) 한다.
+	GLuint vpLocation = glGetUniformLocation(shader, "vp");	//uniform mat4 view;
+	//assert(vpLocation != -1);
+	glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(vp));
+
+		
+	//glDisable(GL_DEPTH_TEST);	단순한 것 그릴때 깊이 테스트 필요없어서 끔. 일반적인 씬일때는 켜야함.
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_GLEngine->GetSceneTexture());
+
 	glBindVertexArray(vao_);
 	glDrawElements(GL_TRIANGLES, (GLsizei)indices_.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

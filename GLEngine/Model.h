@@ -11,7 +11,9 @@ public:
 	{
 		LoadModel(path);
 	}
+	void PreDraw(GLuint shader);
 	void Draw(GLuint shader);
+	void PostDraw(GLuint shader);
 
 	void SetCamera(class Camera* camera);
 	void SetLight(class LightRenderer* light0);
