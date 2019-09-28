@@ -132,6 +132,7 @@ void PostRenderScene()
 
 		meshModel->PostDraw(screenShader);
 
+		debugQuad->SetProgram(screenShader);
 		debugQuad->SetTexture(0, g_GLEngine->GetSceneTexture());
 		debugQuad->Draw();
 	}
@@ -255,7 +256,7 @@ void UpdateScene(double deltaTimeMs)
 void InitScene()
 {
 	glEnable(GL_DEPTH_TEST);
-	cam = new Camera(45.0f, 1280.f, 720.f, 0.1f, 1000.0f, { 0.0f, 6.0f, 100.0f });
+	cam = new Camera(45.0f, 1280.f, 720.f, 0.1f, 1000.0f, { 0.0f, 0.0f, 100.0f });
 
 	//쉐이더는 컴파일하면 여러 지오메트리에서 공유할 수 있다.
 	//매번 컴파일할것없이 부모만 컴파일해서 사용하면 된다. 여기서 언리얼의 메터리얼인스턴스 개념도 출발한다.
@@ -338,7 +339,7 @@ void InitScene()
 	debugQuad = new MeshRenderer(MeshType::Cube, cam);
 	debugQuad->SetProgram(textureShaderProgram);
 	debugQuad->SetPosition({ -0.0f, 0.0f, 0.0f });
-	debugQuad->SetScale(glm::vec3(20.0f));
+	debugQuad->SetScale(glm::vec3(40.0f));
 	//debugQuad->SetTexture(sphereTexture);
 
 
