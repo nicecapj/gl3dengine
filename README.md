@@ -1,7 +1,8 @@
 # gl3dengine
 
 **opengl4.5 Simple 3dengine**
-*Engines created to demonstrate knowledge of the implementation and optimization of Unreal Engine.*
+-Engines created to demonstrate knowledge of the implementation and optimization of Unreal Engine.
+-pbr is not yet supported.
 
 
 ** half lambert + ambient + phone specular + env reflection(mul) + rim light**
