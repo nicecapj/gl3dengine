@@ -58,6 +58,9 @@ ReflectionCube* reflectionCube = nullptr;
 ReflectionCube* refractionCube = nullptr;
 
 Model* meshModel = nullptr;
+Model* meshModel2 = nullptr;
+Model* meshModel3 = nullptr;
+
 GLuint modelShder = -1;
 GLuint screenShader = -1;
 
@@ -106,10 +109,12 @@ void PreRenderScene()
 		glViewport(0, 0, g_GLEngine->GetScreenSizeX(), g_GLEngine->GetScreenSizeY());
 		glBindFramebuffer(GL_FRAMEBUFFER, g_GLEngine->GetSceneBuffer());
 		
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // 지금은 stencil buffer를 사용하지 않습니다
 		glEnable(GL_DEPTH_TEST);
 		meshModel->PreDraw(modelShder);
+		meshModel2->PreDraw(modelShder);
+		meshModel3->PreDraw(modelShder);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); // 다시 기본값으로
 	}
@@ -130,7 +135,9 @@ void PostRenderScene()
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		meshModel->PostDraw(screenShader);
+		//meshModel->PostDraw(modelShder);
+		//meshModel2->PostDraw(modelShder);
+		//meshModel3->PostDraw(modelShder);
 
 		debugQuad->SetProgram(screenShader);
 		debugQuad->SetTexture(0, g_GLEngine->GetSceneTexture());
@@ -139,6 +146,8 @@ void PostRenderScene()
 	else
 	{
 		meshModel->Draw(modelShder);
+		meshModel2->Draw(modelShder);
+		meshModel3->Draw(modelShder);
 	}
 
 	if (useHierachySample)
@@ -339,7 +348,7 @@ void InitScene()
 	debugQuad = new MeshRenderer(MeshType::Cube, cam);
 	debugQuad->SetProgram(textureShaderProgram);
 	debugQuad->SetPosition({ -0.0f, 0.0f, 0.0f });
-	debugQuad->SetScale(glm::vec3(40.0f));
+	debugQuad->SetScale(glm::vec3(68.0f, 40.0f, 40.0f));
 	//debugQuad->SetTexture(sphereTexture);
 
 
@@ -415,7 +424,20 @@ void InitScene()
 	meshModel->SetScale(glm::vec3(8.0f));
 	meshModel->SetPosition(glm::vec3(0, -4, 0));
 
-	screenShader = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/PostProcess.vs", "Assets/Shaders/PostProcess.fs");
+	meshModel2 = new Model("BOSS_model_final.fbx");
+	meshModel2->SetCamera(cam);
+	meshModel2->SetLight(light);
+	meshModel2->SetScale(glm::vec3(8.0f));
+	meshModel2->SetPosition(glm::vec3(-5, -4, 0));
+
+	meshModel3 = new Model("BOSS_model_final.fbx");
+	meshModel3->SetCamera(cam);
+	meshModel3->SetLight(light);
+	meshModel3->SetScale(glm::vec3(8.0f));
+	meshModel3->SetPosition(glm::vec3(5, -4, 0));
+
+
+	screenShader = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/PostProcess.vs", "Assets/Shaders/PostProcess.fs");	
 }
 
 void Destroy()
@@ -439,6 +461,9 @@ void Destroy()
 	delete refractionCube;
 
 	delete meshModel;
+	delete meshModel2;
+	delete meshModel3;
+
 	delete mesh;
 	delete litMesh;
 	delete cubeman;
