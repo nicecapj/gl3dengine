@@ -1,6 +1,8 @@
 # gl3dengine
 
 **opengl4.5 Simple 3dengine**
+Engines created to demonstrate knowledge of the implementation and optimization of Unreal Engine.
+
 
 ** half lambert + ambient + phone specular + env reflection(mul) + rim light**
 -![screenshot](https://user-images.githubusercontent.com/8508812/65702086-5de15500-e0bd-11e9-8dbe-2a8d0e9af15d.png)
