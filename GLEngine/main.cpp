@@ -58,8 +58,6 @@ ReflectionCube* reflectionCube = nullptr;
 ReflectionCube* refractionCube = nullptr;
 
 Model* meshModel = nullptr;
-Model* meshModel2 = nullptr;
-Model* meshModel3 = nullptr;
 
 GLuint modelShder = -1;
 GLuint screenShader = -1;
@@ -112,9 +110,7 @@ void PreRenderScene()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // 지금은 stencil buffer를 사용하지 않습니다
 		glEnable(GL_DEPTH_TEST);
-		meshModel->PreDraw(modelShder);
-		meshModel2->PreDraw(modelShder);
-		meshModel3->PreDraw(modelShder);
+		meshModel->PreDraw(modelShder);		
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); // 다시 기본값으로
 	}
@@ -136,8 +132,6 @@ void PostRenderScene()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//meshModel->PostDraw(modelShder);
-		//meshModel2->PostDraw(modelShder);
-		//meshModel3->PostDraw(modelShder);
 
 		debugQuad->SetProgram(screenShader);
 		debugQuad->SetTexture(0, g_GLEngine->GetSceneTexture());
@@ -146,8 +140,6 @@ void PostRenderScene()
 	else
 	{
 		meshModel->Draw(modelShder);
-		meshModel2->Draw(modelShder);
-		meshModel3->Draw(modelShder);
 	}
 
 	if (useHierachySample)
@@ -417,25 +409,12 @@ void InitScene()
 	refractionCube->SetPosition(glm::vec3(-4.0, -2, 0));
 
 	modelShder = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/meshModel.vs", "Assets/Shaders/meshModel.fs");
-	meshModel = new Model("BOSS_model_final.fbx");
+	meshModel = new Model("Assets/Objects/samplemodel/BOSS_model_final.fbx");
 	//meshModel = new Model("DarkElf01.3ds");
 	meshModel->SetCamera(cam);
 	meshModel->SetLight(light);
 	meshModel->SetScale(glm::vec3(8.0f));
 	meshModel->SetPosition(glm::vec3(0, -4, 0));
-
-	meshModel2 = new Model("BOSS_model_final.fbx");
-	meshModel2->SetCamera(cam);
-	meshModel2->SetLight(light);
-	meshModel2->SetScale(glm::vec3(8.0f));
-	meshModel2->SetPosition(glm::vec3(-5, -4, 0));
-
-	meshModel3 = new Model("BOSS_model_final.fbx");
-	meshModel3->SetCamera(cam);
-	meshModel3->SetLight(light);
-	meshModel3->SetScale(glm::vec3(8.0f));
-	meshModel3->SetPosition(glm::vec3(5, -4, 0));
-
 
 	screenShader = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/PostProcess.vs", "Assets/Shaders/PostProcess.fs");	
 }
@@ -460,9 +439,7 @@ void Destroy()
 	delete reflectionCube;
 	delete refractionCube;
 
-	delete meshModel;
-	delete meshModel2;
-	delete meshModel3;
+	delete meshModel;	
 
 	delete mesh;
 	delete litMesh;

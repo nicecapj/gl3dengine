@@ -72,6 +72,9 @@ void Model::LoadModel(std::string path)
 	if (!scene)
 		return;
 
+	directroy_ = path.substr(0, path.find_last_of('/'));
+	directroy_ += "/";
+
 	ProcessNode(scene->mRootNode, scene);
 }
 
@@ -80,15 +83,15 @@ void Model::ProcessNode(struct aiNode *node, const struct aiScene *scene)
 	//가지고 있는 모든 메쉬처리후
 	for (int i = 0; i < node->mNumMeshes; ++i)
 	{
-		auto mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes_.push_back(ProcessMesh(mesh, scene));
+		auto mesh = scene->mMeshes[node->mMeshes[i]];		
+		meshes_.push_back(ProcessMesh(mesh, scene));		
 	}
 
 	//자식들도 재귀
 	for (int i = 0; i < node->mNumChildren; ++i)
 	{
 		ProcessNode(node->mChildren[i], scene);
-	}
+	}	
 }
 
 Mesh Model::ProcessMesh(struct aiMesh *mesh, const struct aiScene *scene)
@@ -145,6 +148,16 @@ Mesh Model::ProcessMesh(struct aiMesh *mesh, const struct aiScene *scene)
 		std::vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
+
+	if (mesh->HasBones())
+	{
+		for (GLuint i = 0; i < mesh->mNumBones; i++)
+		{
+			//auto* bone = mesh->mBones[i];			
+			//std::cout << bone->mNumWeights << std::endl;
+		}
+	}
+
 	
 	return Mesh(vertices, indices, textures);
 }
@@ -157,7 +170,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial *mat, aiTextureType 
 		aiString str;
 		mat->GetTexture(type, i, &str);
 		Texture texture;
-		texture.Id = TextureManager::GetInstance()->GetTextureID(str.C_Str());
+		texture.Id = TextureManager::GetInstance()->GetTextureID((directroy_ + str.C_Str()));
 		texture.TextureType = typeName;
 		//texture.Path = str.C_Str();
 		textures.push_back(texture);
