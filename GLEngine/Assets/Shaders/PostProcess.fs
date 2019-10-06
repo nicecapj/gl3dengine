@@ -7,7 +7,7 @@ in vec2 TexCoord;
 
 //offset가 1이 아닌 이유는 텍셀임으로, 텍스쳐의 offset가 1로 안 떨어짐으로
 const float offset = 1.0/300.0;
-const float brightFactor = 0.6;
+const float brightFactor = 0.8;
 
 void main(){
 	//프레임버퍼에서 일반 이미지와 틀리게 뒤집혀 있을것임으로 1-x해서 상하 반전 시킨다.	
@@ -57,26 +57,38 @@ void main(){
     //);
 	//1111−81111
 	
-	vec3 sampleTex[9];
-	for(int i = 0 ; i < 9 ; i++)
-	{
-		sampleTex[i] = vec3(texture(screenTexture, vec2(TexCoord.s + offsets[i].x, 1-TexCoord.t+ + offsets[i].y)));
-	}
-	
-	vec3 col = vec3(0.0);
-    for(int i = 0; i < 9; i++)
-        col += sampleTex[i] * kernel[i];
-	
-	
-	//blur
-	color = vec4(col, 1.0);
+	//Blur
+	//{
+	//	vec3 sampleTex[9];
+	//	for(int i = 0 ; i < 9 ; i++)
+	//	{
+	//		sampleTex[i] = vec3(texture(screenTexture, vec2(TexCoord.s + offsets[i].x, 1-TexCoord.t+ + offsets[i].y)));
+	//	}
+		
+	//	vec3 col = vec3(0.0);
+	//	for(int i = 0; i < 9; i++)
+	//		col += sampleTex[i] * kernel[i];
+		
+		
+	//	blur
+	//	color = vec4(col, 1.0);
+	//}
 	
 	//simple bloom(==emissive ==glow)
 	//정석은 가우시안을 사용해서 x방향, y방향 해야 하지만 무겁다.
-	//float luminance = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
-	//if(luminance <= brightFactor)
-	{
+	float luminance = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
+	if(luminance >= brightFactor)
+	{			
+		vec3 sampleTex[9];
+		for(int i = 0 ; i < 9 ; i++)
+		{
+			sampleTex[i] = vec3(texture(screenTexture, vec2(TexCoord.s + offsets[i].x, 1-TexCoord.t+ + offsets[i].y)));
+		}
 		
-	//	color = color + vec4(col, 1.0);
+		vec3 col = vec3(0.0);
+		for(int i = 0; i < 9; i++)
+			col += sampleTex[i] * kernel[i];
+		
+		color = color + vec4(col, 1.0);
 	}		
 }

@@ -417,8 +417,8 @@ void InitScene()
 	refractionCube->SetPosition(glm::vec3(-4.0, -2, 0));
 
 	modelShder = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/meshModel.vs", "Assets/Shaders/meshModel.fs");
-	//meshModel = new Model("Assets/Objects/chunky-knight/BOSS_model_final.Ffbx");
 	meshModel = new Model("BOSS_model_final.fbx");
+	//meshModel = new Model("DarkElf01.3ds");
 	meshModel->SetCamera(cam);
 	meshModel->SetLight(light);
 	meshModel->SetScale(glm::vec3(8.0f));
