@@ -84,5 +84,5 @@ private:
 	class LightRenderer* light_;
 	
 	GLuint envTexture_;
-	GLuint sceneColorBuffer_;
+	GLuint sceneColorBuffer_;		
 };

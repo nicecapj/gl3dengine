@@ -1,144 +1,207 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{34cda6f7-b006-4fa9-8dac-d72821aa8019}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{1bf2ae87-909a-43e1-aba7-0bba4667da87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Engine\소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="DemoApplication">
+      <UniqueIdentifier>{2608716e-78d7-41f3-853b-d0dd10695349}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="LightRenderer.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="MeshRenderer.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TextureLoader.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TextRenderer.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="LitMeshRenderer.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="LitInstanceMeshRenderer.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="LitMeshShadowRenderer.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Singleton.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ShaderManager.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CubemanRenderer.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="SkyBoxRenderer.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ReflectionCube.h">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GLEngine.h">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Engine\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="PostProcessginDemo.h">
+      <Filter>DemoApplication</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelDemo.h">
+      <Filter>DemoApplication</Filter>
+    </ClInclude>
+    <ClInclude Include="MineCraftDemo.h">
+      <Filter>DemoApplication</Filter>
+    </ClInclude>
+    <ClInclude Include="InstancingDemo.h">
+      <Filter>DemoApplication</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicDemo.h">
+      <Filter>DemoApplication</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicFontDemo.h">
+      <Filter>DemoApplication</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowmapDemo.h">
+      <Filter>DemoApplication</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="GLEngine.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="LightRenderer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="MeshRenderer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="TextureLoader.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="TextRenderer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="LitMeshRenderer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="LitInstanceMeshRenderer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="LitMeshShadowRenderer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CubemanRenderer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="TextureManager.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ShaderManager.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SkyBoxRenderer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ReflectionCube.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Model.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Engine\소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>Engine\소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="PostProcessginDemo.cpp">
+      <Filter>DemoApplication</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelDemo.cpp">
+      <Filter>DemoApplication</Filter>
+    </ClCompile>
+    <ClCompile Include="MineCraftDemo.cpp">
+      <Filter>DemoApplication</Filter>
+    </ClCompile>
+    <ClCompile Include="InstancingDemo.cpp">
+      <Filter>DemoApplication</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicDemo.cpp">
+      <Filter>DemoApplication</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicFontDemo.cpp">
+      <Filter>DemoApplication</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowmapDemo.cpp">
+      <Filter>DemoApplication</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -148,10 +211,10 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="RenderPipeline.txt">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </Text>
     <Text Include="readme.txt">
-      <Filter>헤더 파일</Filter>
+      <Filter>Engine\헤더 파일</Filter>
     </Text>
   </ItemGroup>
 </Project>

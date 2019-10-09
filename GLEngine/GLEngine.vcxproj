@@ -157,22 +157,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="BasicDemo.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CubemanRenderer.h" />
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="DynamicFontDemo.h" />
     <ClInclude Include="GLEngine.h" />
+    <ClInclude Include="InstancingDemo.h" />
     <ClInclude Include="LightRenderer.h" />
     <ClInclude Include="LitInstanceMeshRenderer.h" />
     <ClInclude Include="LitMeshRenderer.h" />
     <ClInclude Include="LitMeshShadowRenderer.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshRenderer.h" />
+    <ClInclude Include="MineCraftDemo.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="ModelDemo.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PostProcessginDemo.h" />
     <ClInclude Include="ReflectionCube.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ShaderManager.h" />
+    <ClInclude Include="ShadowmapDemo.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SkyBoxRenderer.h" />
     <ClInclude Include="TextRenderer.h" />
@@ -180,9 +189,14 @@
     <ClInclude Include="TextureManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="BasicDemo.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CubemanRenderer.cpp" />
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="DynamicFontDemo.cpp" />
     <ClCompile Include="GLEngine.cpp" />
+    <ClCompile Include="InstancingDemo.cpp" />
     <ClCompile Include="LightRenderer.cpp" />
     <ClCompile Include="LitInstanceMeshRenderer.cpp" />
     <ClCompile Include="LitMeshRenderer.cpp" />
@@ -190,17 +204,21 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshRenderer.cpp" />
+    <ClCompile Include="MineCraftDemo.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ModelDemo.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PostProcessginDemo.cpp" />
     <ClCompile Include="ReflectionCube.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
+    <ClCompile Include="ShadowmapDemo.cpp" />
     <ClCompile Include="SkyBoxRenderer.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
