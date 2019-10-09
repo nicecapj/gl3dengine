@@ -37,21 +37,21 @@ void main(){
 		
 		//rim light
 		vec3 viewDir = normalize(cameraPos - WorldPos);
-		//float ndc = max(dot(normal, viewDir), 0);
-		//float rim;
-		//if(ndc < 0.3)
-		//	rim = 1-ndc;
-		//else
-		//	rim = 0;
+		float ndc = max(dot(normal, viewDir), 0);
+		float rim;
+		if(ndc < 0.3)
+			rim = 1-ndc;
+		else
+			rim = 0;
 		
 		//half lambert
 		diffuse = diffuse*0.5 + 0.5;
 
 		//reflect env
-		//vec3 I = -viewDir;			
-		//vec3 R = reflect(I, normalize(Normal));
-		//vec4 envColor = texture(cubemap, R);
-		//diffuse *= envColor;
+		vec3 I = -viewDir;			
+		vec3 R = reflect(I, normalize(Normal));
+		vec4 envColor = texture(cubemap, R);
+		diffuse += diffuse* envColor;
 		
 		//refraction
 		//float refractRatio = 1.0/1.52;  //유리    
@@ -64,7 +64,7 @@ void main(){
 		
 		//color = vec4(vec3(gl_FragCoord.z), 1.0);  fragment내장 쉐이더 gl_FragCoord.z 에 깊이버퍼값 저장되 있음.
 		
-		//color = color * (diffuse + ambientColor + spec) + (rim * rimLightColor);
-		color = color * (diffuse + ambientColor + spec);
+		color = color * (diffuse + ambientColor + spec) + (rim * rimLightColor);
+		//color = color * (diffuse + ambientColor + spec);
 		color.a = 1.0;				
 }

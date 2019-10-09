@@ -17,6 +17,15 @@ MineCraftDemo::~MineCraftDemo()
 
 void MineCraftDemo::Initialze()
 {
+	glEnable(GL_DEPTH_TEST);
+	cam_ = new Camera(45.0f, 1280.f, 720.f, 0.1f, 1000.0f, { 0.0f, 0.0f, 100.0f });
+
+	GLuint shaderProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/FlatModel.vs", "Assets/Shaders/FlatModel.fs");
+	assert(shaderProgram != GL_FALSE);
+	light_ = new LightRenderer(MeshType::Sphere, cam_);
+	light_->SetProgram(shaderProgram);
+	light_->SetPosition({ 19.f, 19.f, 13.0f });
+
 	cubeman = new CubemanRenderer(cam_, light_);
 	cubeman->SetName("Steve");
 	GLuint steveTex = TextureManager::GetInstance()->GetTextureID("Assets/Textures/steve.jpg");
@@ -65,7 +74,7 @@ void MineCraftDemo::UpdateScene(double deltaTimeMs)
 
 void MineCraftDemo::RenderScene()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	Application::RenderScene();
 }
 
 void MineCraftDemo::ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -96,6 +105,11 @@ void MineCraftDemo::ProcessKeyboard(GLFWwindow* window, int key, int scancode, i
 	}
 }
 
+class Camera* MineCraftDemo::GetCamera()
+{
+	return cam_;
+}
+
 void MineCraftDemo::PostRenderScene()
 {
 	skybox->Draw();	//최적화 안해서, 먼저 그림
@@ -106,5 +120,5 @@ void MineCraftDemo::PostRenderScene()
 
 void MineCraftDemo::PreRenderScene()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

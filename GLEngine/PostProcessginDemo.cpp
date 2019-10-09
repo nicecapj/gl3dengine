@@ -64,6 +64,16 @@ void PostProcessginDemo::UpdateScene(double deltaTimeMs)
 
 void PostProcessginDemo::RenderScene()
 {
+	
+}
+
+class Camera* PostProcessginDemo::GetCamera()
+{
+	return cam_;
+}
+
+void PostProcessginDemo::ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
 	throw std::logic_error("The method or operation is not implemented.");
 }
 

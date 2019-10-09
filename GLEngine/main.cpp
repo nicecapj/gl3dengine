@@ -10,22 +10,23 @@
 #include "GLEngine.h"
 #include "Camera.h"
 
-#include <vector>
 #include <string>
 #include <assert.h>
 
 #include "TextRenderer.h"
-#include "Application.h"
-#include "ShadowmapDemo.h"
 #include "BasicDemo.h"
-
+#include "InstancingDemo.h"
+#include "ShadowmapDemo.h"
+#include "MineCraftDemo.h"	//ok
+#include "ModelDemo.h"		//ok
+#include "DynamicFontDemo.h"	//ok - apply to FPS
 
 double deltaTime = 0;
 bool isEnableWireFrame = false;
 bool useOrthProjection = false;
 TextRenderer* label = nullptr;
 
-BasicDemo gameInstance;
+ModelDemo gameInstance;
 void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
 void ProcessMouseMove(GLFWwindow* window, double xpos, double ypos);
 void ProcessMouseButton(GLFWwindow* window, int button, int action, int mods);
@@ -72,7 +73,7 @@ void InitFpsLabel()
 }
 
 void RenderScene()
-{
+{	
 	gameInstance.RenderScene();
 	
 	label->Draw();

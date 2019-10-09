@@ -16,6 +16,16 @@ InstancingDemo::~InstancingDemo()
 
 void InstancingDemo::Initialze()
 {
+	glEnable(GL_DEPTH_TEST);
+	cam_ = new Camera(45.0f, 1280.f, 720.f, 0.1f, 1000.0f, { 0.0f, 0.0f, 100.0f });
+
+	GLuint shaderProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/FlatModel.vs", "Assets/Shaders/FlatModel.fs");
+	assert(shaderProgram != GL_FALSE);
+
+	light_ = new LightRenderer(MeshType::Sphere, cam_);
+	light_->SetProgram(shaderProgram);
+	light_->SetPosition({ 19.f, 19.f, 13.0f });
+
 	GLuint textureLightShaderProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/litTexturedModel.vs", "Assets/Shaders/litTexturedModel.fs");
 	assert(textureLightShaderProgram != GL_FALSE);
 
@@ -129,6 +139,11 @@ void InstancingDemo::ProcessKeyboard(GLFWwindow* window, int key, int scancode, 
 	}
 }
 
+class Camera* InstancingDemo::GetCamera()
+{
+	return cam_;
+}
+
 void InstancingDemo::PostRenderScene()
 {
 	if (!useInstancing)
@@ -146,5 +161,5 @@ void InstancingDemo::PostRenderScene()
 
 void InstancingDemo::PreRenderScene()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

@@ -84,6 +84,14 @@ void ModelDemo::Finalize()
 
 void ModelDemo::UpdateScene(double deltaTimeMs)
 {
+	double areaFactor = 30.0f;
+	double posFactorX = glm::sin(glfwGetTime()) * areaFactor;
+	double posFactorY = glm::cos(glfwGetTime()) * areaFactor;
+
+	//auto pos = light->GetPosition();
+	glm::vec3 pos = { posFactorX, posFactorY, 20.0f };
+	light_->SetPosition(pos);
+
 	skybox->UpdateScene(nullptr, deltaTimeMs);
 
 	reflectionCube->UpdateScene(nullptr, deltaTimeMs);
@@ -92,16 +100,30 @@ void ModelDemo::UpdateScene(double deltaTimeMs)
 
 void ModelDemo::RenderScene()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	Application::RenderScene();
+}
+
+void ModelDemo::ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	
+}
+
+class Camera* ModelDemo::GetCamera()
+{
+	return cam_;
 }
 
 void ModelDemo::PostRenderScene()
 {
 	skybox->Draw();	//최적화 안해서, 먼저 그림
 	meshModel_->Draw(modelShder_);
+
+
+	reflectionCube->Draw();
+	refractionCube->Draw();
 }
 
 void ModelDemo::PreRenderScene()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
