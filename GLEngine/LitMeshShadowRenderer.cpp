@@ -105,13 +105,13 @@ void LitMeshShadowRenderer::PreDraw()
 
 		//projection from light
 		//Light space transform
-		float near_plane = -100.0f, far_plane = 100.5f;
-		glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
+		float near_plane = -200.0f, far_plane = 200.0f;
+		glm::mat4 lightProjection = glm::ortho(-200.0f, 200.0f, -200.0f, 200.0f, near_plane, far_plane);
 		//glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
 		//	glm::vec3(0.0f, 0.0f, 0.0f),
 		//	glm::vec3(0.0f, 1.0f, 0.0f));
 
-		glm::vec3 InvlightPos(-light_->GetPosition().x, light_->GetPosition().y, -light_->GetPosition().z);
+		glm::vec3 InvlightPos(light_->GetPosition().x, light_->GetPosition().y, light_->GetPosition().z);
 		glm::mat4 lightView = glm::lookAt(InvlightPos,
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));

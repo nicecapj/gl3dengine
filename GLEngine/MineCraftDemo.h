@@ -30,5 +30,7 @@ private:
 	class MeshRenderer* debugQuad = nullptr;
 
 	double deltaTimeMs_ = 0.0;
+
+	class LitMeshRenderer* head = nullptr;
 };
 

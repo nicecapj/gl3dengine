@@ -64,7 +64,7 @@ void PostProcessginDemo::UpdateScene(double deltaTimeMs)
 
 void PostProcessginDemo::RenderScene()
 {
-	
+	Application::RenderScene();
 }
 
 class Camera* PostProcessginDemo::GetCamera()
@@ -74,19 +74,7 @@ class Camera* PostProcessginDemo::GetCamera()
 
 void PostProcessginDemo::ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	throw std::logic_error("The method or operation is not implemented.");
-}
 
-void PostProcessginDemo::PostRenderScene()
-{
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	//meshModel->PostDraw(modelShder);
-
-	debugQuad->SetProgram(screenShader_);
-	debugQuad->SetTexture(0, g_GLEngine->GetSceneTexture());
-	debugQuad->Draw();
 }
 
 void PostProcessginDemo::PreRenderScene()
@@ -100,4 +88,16 @@ void PostProcessginDemo::PreRenderScene()
 	meshModel_->PreDraw(modelShder_);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); // 다시 기본값으로
+}
+
+void PostProcessginDemo::PostRenderScene()
+{
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	//meshModel_->PostDraw(modelShder_);
+
+	debugQuad->SetProgram(screenShader_);
+	debugQuad->SetTexture(0, g_GLEngine->GetSceneTexture());
+	debugQuad->Draw();
 }

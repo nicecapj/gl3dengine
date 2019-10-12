@@ -14,6 +14,9 @@ public:
 	virtual void UpdateScene(double deltaTimeMs) override;
 	virtual void RenderScene() override;
 
+
+	virtual class Camera* GetCamera() override;
+
 protected:
 	virtual void PostRenderScene() override;
 	virtual void PreRenderScene() override;

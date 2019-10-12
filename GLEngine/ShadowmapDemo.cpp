@@ -48,7 +48,7 @@ void ShadowmapDemo::Initialze()
 		depthMesh->SetProgram(depthTextureShader);
 		depthMesh->SetPosition({ 32.0f + (16 * i), 0.0f, 0.0f });
 		depthMesh->SetScale(glm::vec3(8.0f));
-		//depthMesh->SetTexture(0, depthTextureShader);
+		//depthMesh->SetTexture(0, groundTexture);
 		depthMesh->SetEnableDynamicShadow(true);
 
 		shadowRenderList_.push_back(depthMesh);
@@ -66,8 +66,8 @@ void ShadowmapDemo::Initialze()
 	assert(textureShaderProgram != GL_FALSE);
 	debugQuad = new MeshRenderer(MeshType::Cube, cam_);
 	debugQuad->SetProgram(textureShaderProgram);
-	debugQuad->SetPosition({ -0.0f, 0.0f, 0.0f });
-	debugQuad->SetScale(glm::vec3(68.0f, 40.0f, 40.0f));
+	debugQuad->SetPosition({ -1.0f, 1.0f, 0.0f });
+	debugQuad->SetScale(glm::vec3(8.0f, 8.0f, 8.0f));
 }
 
 void ShadowmapDemo::Finalize()
@@ -86,16 +86,30 @@ void ShadowmapDemo::Finalize()
 
 void ShadowmapDemo::UpdateScene(double deltaTimeMs)
 {
+	double areaFactor = 30.0f;
+	double posFactorX = glm::sin(glfwGetTime()) * areaFactor;
+	double posFactorY = glm::cos(glfwGetTime()) * areaFactor;
+
+	//auto pos = light->GetPosition();
+	glm::vec3 pos = { posFactorX, posFactorY, 20.0f };
+	light_->SetPosition(pos);
+
 	for (auto* renderer : shadowRenderList_)
 	{
 		renderer->UpdateScene(nullptr, deltaTimeMs);
 	}
+
 	debugQuad->UpdateScene(nullptr, deltaTimeMs);
 }
 
 void ShadowmapDemo::RenderScene()
 {
 	Application::RenderScene();	
+}
+
+class Camera* ShadowmapDemo::GetCamera()
+{
+	return cam_;
 }
 
 //render scene.	//쉐도우맵 그림자가 추가되면 2번 그려야 함. 드로우콜 부하가 2배
@@ -132,7 +146,9 @@ void ShadowmapDemo::PostRenderScene()
 		renderObj->SetTexture(1, g_GLEngine->GetShadowmap());
 		renderObj->PostDraw();
 	}
-
+	
 	debugQuad->SetTexture(0, g_GLEngine->GetShadowmap());
 	debugQuad->Draw();	
+
+	light_->Draw();
 }

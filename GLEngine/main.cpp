@@ -13,20 +13,21 @@
 #include <string>
 #include <assert.h>
 
-#include "TextRenderer.h"
-#include "BasicDemo.h"
-#include "InstancingDemo.h"
+#include "TextRenderer.h"		//test ok
+#include "BasicDemo.h"			//test ok
+#include "InstancingDemo.h"		//test ok
 #include "ShadowmapDemo.h"
-#include "MineCraftDemo.h"	//ok
-#include "ModelDemo.h"		//ok
+#include "MineCraftDemo.h"		//ok
+#include "ModelDemo.h"			//ok
 #include "DynamicFontDemo.h"	//ok - apply to FPS
+#include "PostProcessginDemo.h"
 
 double deltaTime = 0;
 bool isEnableWireFrame = false;
 bool useOrthProjection = false;
 TextRenderer* label = nullptr;
 
-ModelDemo gameInstance;
+InstancingDemo gameInstance;
 void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
 void ProcessMouseMove(GLFWwindow* window, double xpos, double ypos);
 void ProcessMouseButton(GLFWwindow* window, int button, int action, int mods);

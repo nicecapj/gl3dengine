@@ -6,6 +6,8 @@
 #include "CubemanRenderer.h"
 #include "SkyBoxRenderer.h"
 
+#include "LitMeshRenderer.h"
+
 MineCraftDemo::MineCraftDemo()
 {
 }
@@ -49,7 +51,7 @@ void MineCraftDemo::Initialze()
 	g_GLEngine->SetEnvrionmentMap(skyTexture);
 	skybox->SetTexture(0, skyTexture);
 	skybox->SetScale(glm::vec3(100.0f));
-	skybox->SetPosition(glm::vec3(0.0, 0, 0));
+	skybox->SetPosition(glm::vec3(0.0, 0, 0));	
 }
 
 void MineCraftDemo::Finalize()
@@ -69,7 +71,6 @@ void MineCraftDemo::UpdateScene(double deltaTimeMs)
 	skybox->UpdateScene(nullptr, deltaTimeMs);
 	cubeman->UpdateScene(nullptr, deltaTimeMs);
 	cubeman2->UpdateScene(nullptr, deltaTimeMs);
-
 }
 
 void MineCraftDemo::RenderScene()
@@ -115,7 +116,7 @@ void MineCraftDemo::PostRenderScene()
 	skybox->Draw();	//최적화 안해서, 먼저 그림
 
 	cubeman->Draw();
-	cubeman2->Draw();
+	cubeman2->Draw();	
 }
 
 void MineCraftDemo::PreRenderScene()

@@ -6,6 +6,7 @@
 #include "Model.h"
 #include "SkyBoxRenderer.h"
 #include "ReflectionCube.h"
+#include "LitMeshRenderer.h"
 
 
 ModelDemo::ModelDemo()
@@ -75,7 +76,7 @@ void ModelDemo::Finalize()
 	delete cam_;
 	delete light_;
 	delete debugQuad;
-	delete meshModel_;
+	delete meshModel_;	
 
 	delete skybox;
 	delete reflectionCube;
@@ -114,13 +115,14 @@ class Camera* ModelDemo::GetCamera()
 }
 
 void ModelDemo::PostRenderScene()
-{
+{	
 	skybox->Draw();	//최적화 안해서, 먼저 그림
 	meshModel_->Draw(modelShder_);
 
 
 	reflectionCube->Draw();
 	refractionCube->Draw();
+	
 }
 
 void ModelDemo::PreRenderScene()

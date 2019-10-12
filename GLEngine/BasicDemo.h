@@ -13,6 +13,9 @@ public:
 	virtual void RenderScene() override;
 	virtual void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 
+
+	virtual class Camera* GetCamera() override;
+
 protected:
 	virtual void PostRenderScene() override;
 	virtual void PreRenderScene() override;

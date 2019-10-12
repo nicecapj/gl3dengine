@@ -130,7 +130,7 @@ void LitMeshRenderer::Draw()
     glBindVertexArray(0);
     glUseProgram(0);
 
-	Renderer::Draw();
+	//Renderer::Draw();
 }
 
 void LitMeshRenderer::PreDraw()

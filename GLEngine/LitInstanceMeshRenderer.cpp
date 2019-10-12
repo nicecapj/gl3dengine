@@ -121,17 +121,19 @@ void LitInstanceMeshRenderer::Draw()
 
 void LitInstanceMeshRenderer::UpdateScene(glm::mat4* matParentModel, double deltaTimeMs)
 {	
+	//다른 메쉬와 틀리게 트랜스폼만 업데이트 함으로, 랜더러 내에서 계산했다.
 	GLuint counter = 0;
 	for (auto& model : transformList_)
 	{		
 		double posFactorX = glm::sin(glfwGetTime()) * 0.1f;
 		double posFactorY = glm::cos(glfwGetTime()) * 0.1f;
 		
-		//이동이 추가되도.(100000오브젝트 - 60fps)
-		model = glm::translate(model, { posFactorX, posFactorY, 0.0f});
-
 		//회전은 이동에 비해 4배이상 무겁다.(100000오브젝트 - 15fps)
-		//model = glm::rotate(model, (float)deltaTimeMs, glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::rotate(model, (float)deltaTimeMs, glm::vec3(0.0f, 1.0f * deltaTimeMs, 0.0f));
+
+		//이동이 추가되도.(100000오브젝트 - 60fps)
+		model = glm::translate(model, { 0.0f, 0.0f,posFactorX * 0.1 });
+
 		++counter;
 	}
 

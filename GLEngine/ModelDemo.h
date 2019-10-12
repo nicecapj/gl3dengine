@@ -32,5 +32,6 @@ protected:
 	class SkyBoxRenderer* skybox = nullptr;
 	class ReflectionCube* reflectionCube = nullptr;
 	class ReflectionCube* refractionCube = nullptr;
+	class LitMeshRenderer* bottom_ = nullptr;
 };
 

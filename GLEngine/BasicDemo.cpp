@@ -26,7 +26,6 @@ void BasicDemo::Initialze()
 	//Draw할때, 파라미터(uniform)에 해당하는 것만 바꾸면 된다.    
 	GLuint shaderProgram = ShaderManager::GetInstance()->GetProgram("Assets/Shaders/FlatModel.vs", "Assets/Shaders/FlatModel.fs");
 	assert(shaderProgram != GL_FALSE);
-
 	light_ = new LightRenderer(MeshType::Sphere, cam_);
 	light_->SetProgram(shaderProgram);
 	light_->SetPosition({ 19.f, 19.f, 13.0f });
@@ -46,7 +45,7 @@ void BasicDemo::Initialze()
 	litMesh_ = new LitMeshRenderer(MeshType::Sphere, cam_, light_);
 	litMesh_->SetProgram(textureLightShaderProgram);
 
-	litMesh_->SetPosition({ 16.0f, 0.0f, 0.0f });
+	litMesh_->SetPosition({ 4.0f, 0.0f, 0.0f });
 	litMesh_->SetScale(glm::vec3(8.0f));
 	litMesh_->SetTexture(0, sphereTexture);
 
@@ -83,6 +82,11 @@ void BasicDemo::UpdateScene(double deltaTimeMs)
 	//auto pos = light->GetPosition();
 	glm::vec3 pos = { posFactorX, posFactorY, 20.0f };
 	light_->SetPosition(pos);
+
+	litMesh_->UpdateScene(nullptr, deltaTimeMs);
+	mesh_->UpdateScene(nullptr, deltaTimeMs);
+	bottom_->UpdateScene(nullptr, deltaTimeMs);
+	light_->UpdateScene(nullptr, deltaTimeMs);	
 }
 
 void BasicDemo::RenderScene()
@@ -93,6 +97,11 @@ void BasicDemo::RenderScene()
 void BasicDemo::ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	
+}
+
+class Camera* BasicDemo::GetCamera()
+{
+	return cam_;
 }
 
 void BasicDemo::PostRenderScene()
