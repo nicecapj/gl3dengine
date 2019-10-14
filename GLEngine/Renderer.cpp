@@ -25,7 +25,8 @@ Renderer::~Renderer()
 	{
 		delete renderer;
 	}
-	child_.empty();
+	textures_.clear();
+	child_.clear();
 }
 
 void Renderer::PreDraw()
@@ -127,7 +128,7 @@ void Renderer::UpdateVertics(std::vector<Vertex>&& vertics)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Renderer::SetEnableDynamicShadow(bool isEnable)
+void Renderer::SetEnableCastDynamicShadow(bool isEnable)
 {
 	enableDynamicShadow_ = isEnable;
 }

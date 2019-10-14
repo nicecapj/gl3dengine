@@ -10,6 +10,12 @@ LitMeshShadowRenderer::LitMeshShadowRenderer(MeshType meshType, Camera* camera, 
     light_ = light;
     camera_ = camera;
 
+	float near_plane = -50.0f, far_plane = 50.0f;
+	lightProjection_ = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
+	//float halfWidth = camera_->GetWidth() * 0.5f;
+	//float halfHeight = camera_->GetHeight() * 0.5f;
+	//lightProjection_ = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, camera_->GetNearPlane(), camera_->GetFarPlane());
+
     switch (meshType)
     {
         case MeshType::Trangile:
@@ -105,22 +111,19 @@ void LitMeshShadowRenderer::PreDraw()
 
 		//projection from light
 		//Light space transform
-		float near_plane = -200.0f, far_plane = 200.0f;
-		glm::mat4 lightProjection = glm::ortho(-200.0f, 200.0f, -200.0f, 200.0f, near_plane, far_plane);
-		//glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
-		//	glm::vec3(0.0f, 0.0f, 0.0f),
-		//	glm::vec3(0.0f, 1.0f, 0.0f));
+		//float near_plane = -50.0f, far_plane = 50.0f;		
+		//lightProjection_ = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
 
 		glm::vec3 InvlightPos(light_->GetPosition().x, light_->GetPosition().y, light_->GetPosition().z);
 		glm::mat4 lightView = glm::lookAt(InvlightPos,
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-		glm::mat4 depthBiasMVP = lightSpaceMatrix * biasMatrix;
+		lightSpaceMatrix_ = lightProjection_ * lightView;
 
 		GLuint lightSpaceMatrixLocation = glGetUniformLocation(program_, "lightSpaceMatrix");
-		glUniformMatrix4fv(lightSpaceMatrixLocation, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+		glUniformMatrix4fv(lightSpaceMatrixLocation, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix_));
 
+		//glm::mat4 depthBiasMVP = lightSpaceMatrix * biasMatrix;
 		/*GLuint DepthBiasMVPLocation = glGetUniformLocation(program_, "DepthBiasMVP");
 		glUniformMatrix4fv(DepthBiasMVPLocation, 1, GL_FALSE, glm::value_ptr(depthBiasMVP));
 
@@ -166,21 +169,8 @@ void LitMeshShadowRenderer::PostDraw()
 	//Light space transform
 	//빛에서 평행하게 광선이 진행해야 하는데, 원근이 적용되면 변형됨으로, 직교투영으로 한다.
 	//원하는 오브젝트가 그림자를 뎁스맵에 그리려 해도, 클리핑되면 안됨으로. near / far_plane을 잘 지정해야 한다.
-	float near_plane = -100.0f, far_plane = 100.5f;
-	glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
-	//glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
-	//	glm::vec3(0.0f, 0.0f, 0.0f),
-	//	glm::vec3(0.0f, 1.0f, 0.0f));
-
-	glm::vec3 InvlightPos(-light_->GetPosition().x, light_->GetPosition().y, -light_->GetPosition().z);
-	glm::mat4 lightView = glm::lookAt(InvlightPos,
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-	glm::mat4 depthBiasMVP = lightSpaceMatrix * biasMatrix;
-
 	GLuint lightSpaceMatrixLocation = glGetUniformLocation(program_, "lightSpaceMatrix");
-	glUniformMatrix4fv(lightSpaceMatrixLocation, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+	glUniformMatrix4fv(lightSpaceMatrixLocation, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix_));
 
 	auto camPos = camera_->GetCameraPosition();
 	GLuint camPosLocation = glGetUniformLocation(program_, "viewPos");	//uniform vec3 cameraPos;

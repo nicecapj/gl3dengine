@@ -2,6 +2,9 @@
 //
 
 #include "pch.h"
+
+#include <crtdbg.h>
+
 #include <iostream>
 #include <GL/eglew.h>	//opengl extention wrangler
 #include <GLFW/glfw3.h>	//OpenGL, window and input
@@ -22,12 +25,13 @@
 #include "DynamicFontDemo.h"	//ok - apply to FPS
 #include "PostProcessginDemo.h"
 
+
 double deltaTime = 0;
 bool isEnableWireFrame = false;
 bool useOrthProjection = false;
 TextRenderer* label = nullptr;
 
-InstancingDemo gameInstance;
+ShadowmapDemo gameInstance;
 void ProcessKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
 void ProcessMouseMove(GLFWwindow* window, double xpos, double ypos);
 void ProcessMouseButton(GLFWwindow* window, int button, int action, int mods);
@@ -84,6 +88,9 @@ void RenderScene()
 //-------------------------------------------------------------------------------------
 int main()
 {
+	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	//_CrtSetBreakAlloc(695);
+
 	glfwSetErrorCallback(&::ErrorFunction);
 
 	glfwInit();
@@ -140,6 +147,9 @@ int main()
 	Destroy();
 
 	glfwTerminate();
+
+	//_CrtDumpMemoryLeaks();
+
 	return 0;
 }
 

@@ -22,15 +22,25 @@ public:
 
 	void SetOrthProjection(float left, float right, float top, float bottom, float nearPlan, float farPlan);
 	void SetPerspectiveProjection(GLfloat fov, GLfloat width, GLfloat height, GLfloat nearPlane, GLfloat farPlane);
+
+	float GetNearPlane();
+	float GetFarPlane();
+	float GetFov();
+	float GetWidth();
+	float GetHeight();
 private:
     glm::mat4 viewMatrix_;
     glm::mat4 projectionMatrix_;
 	glm::vec3 camPos_ = { 0.0f,0.0f,0.0f };
-	glm::vec3 targetPos_ = { 0.0f,0.0f,0.0f };
-    GLfloat fov_;
+	glm::vec3 targetPos_ = { 0.0f,0.0f,0.0f };    
 
 	bool isPerspetive = true;
 
 	float moveSpeed_ = 1000.0f;
+	float nearPlane_ = 0.0f;
+	float farPlane_ = 0.0f;
+	float fov_ = 0.0f;
+	float width_ = 0.0f;
+	float height_ = 0.0f;
 };
 

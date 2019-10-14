@@ -47,7 +47,7 @@ public:
 	std::vector<Vertex>& GetVertics() { return vertices_; }
 	std::vector<GLuint>& GetIndicis() { return indices_; }
 
-	virtual void SetEnableDynamicShadow(bool isEnable);
+	virtual void SetEnableCastDynamicShadow(bool isEnable);
 
 	void AddChild(Renderer* renderer);
 	void RemoveChild(Renderer* renderer);

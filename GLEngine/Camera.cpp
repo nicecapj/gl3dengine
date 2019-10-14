@@ -3,9 +3,15 @@
 #include <GLFW/glfw3.h>	//OpenGL, window and input
 
 Camera::Camera(GLfloat fov, GLfloat width, GLfloat height, GLfloat nearPlane, GLfloat farPlane, glm::vec3 camPos)
-{            
+{            	
+	fov_ = fov;
+	width_ = width;
+	height_ = height;
+	nearPlane_ = nearPlane;
+	farPlane_ = farPlane;
+
 	SetPosition(camPos);    
-	SetPerspectiveProjection(fov_, width, height, nearPlane, farPlane);    
+	SetPerspectiveProjection(fov_, width, height, nearPlane, farPlane);
 }
 
 
@@ -77,7 +83,31 @@ void Camera::SetOrthProjection(float left, float right, float top, float bottom,
 }
 
 void Camera::SetPerspectiveProjection(GLfloat fov, GLfloat width, GLfloat height, GLfloat nearPlane, GLfloat farPlane)
+{	
+	projectionMatrix_ = glm::perspective(fov, width / height, nearPlane, farPlane);
+}
+
+float Camera::GetNearPlane()
 {
-	fov_ = fov;
-	projectionMatrix_ = projectionMatrix_ = glm::perspective(fov_, width / height, nearPlane, farPlane);
+	return nearPlane_;
+}
+
+float Camera::GetFarPlane()
+{
+	return farPlane_;
+}
+
+float Camera::GetFov()
+{
+	return fov_;
+}
+
+float Camera::GetWidth()
+{
+	return width_;
+}
+
+float Camera::GetHeight()
+{
+	return height_;
 }

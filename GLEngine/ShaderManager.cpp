@@ -11,7 +11,9 @@ ShaderManager::ShaderManager()
 
 ShaderManager::~ShaderManager()
 {
-
+	vertexShaderCache_.clear();
+	fragmentShaderCache_.clear();
+	programCache_.clear();
 }
 
 GLuint ShaderManager::GetProgram(const char* vertexShaderFilename, const char* fragmentShaderFile)

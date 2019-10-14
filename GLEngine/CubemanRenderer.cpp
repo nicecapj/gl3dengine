@@ -117,10 +117,10 @@ void CubemanRenderer::SetTexture(int index, GLuint textureID)
 	}
 }
 
-void CubemanRenderer::SetEnableDynamicShadow(bool isEnable)
+void CubemanRenderer::SetEnableCastDynamicShadow(bool isEnable)
 {
 	for (auto renderer : child_)
 	{
-		renderer->SetEnableDynamicShadow(isEnable);
+		renderer->SetEnableCastDynamicShadow(isEnable);
 	}
 }

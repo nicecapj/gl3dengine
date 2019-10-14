@@ -36,10 +36,10 @@ public:
 
 private:
 	GLuint envMap_ = -1;
-	GLuint depthMapFBO_;
-	GLuint depthMap_;
+	GLuint depthMapFBO_ = -1;
+	GLuint depthMap_ = -1;
 
-	GLuint postprocessFBO_;
-	GLuint postprocessMap_;
-	GLuint rbo_;
+	GLuint postprocessFBO_ = -1;
+	GLuint postprocessMap_ = -1;
+	GLuint rbo_ = -1;
 };

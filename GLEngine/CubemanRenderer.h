@@ -14,7 +14,7 @@ public:
 
 
 	virtual void SetTexture(int index, GLuint textureID);	
-	virtual void SetEnableDynamicShadow(bool isEnable) override;
+	virtual void SetEnableCastDynamicShadow(bool isEnable) override;
 
 public:
 	class LightRenderer* light_ = nullptr;
